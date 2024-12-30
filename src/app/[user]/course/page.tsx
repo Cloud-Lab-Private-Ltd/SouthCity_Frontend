@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { FaCloudUploadAlt } from "react-icons/fa";
 import { CourseAPI } from "@/api/courseAPI";
 import { CourseModel } from "@/app/models/Course/course";
 import { useFieldArray } from "react-hook-form";
@@ -53,7 +52,7 @@ export default function AddCourseForm() {
           formData.append(key, value[0]); // Add the file
         } else if (key === "Semesters") {
           // Add Semesters as separate fields
-          value.forEach((semester:any, index:any) => {
+          value.forEach((semester: any, index: any) => {
             formData.append(`Semesters[${index}].semesterNo`, semester.semesterNo);
             formData.append(`Semesters[${index}].subjects`, semester.subjects);
           });
@@ -63,7 +62,7 @@ export default function AddCourseForm() {
       });
 
       const response = await CreateCourseAPI(formData);
-      toast.success(`${response.message}`, { duration: 3000, position: "top-center" }, );
+      toast.success(`${response.message}`, { duration: 3000, position: "top-center" },);
       reset();
       console.log("Course created successfully", response);
     } catch (error) {
@@ -117,7 +116,16 @@ export default function AddCourseForm() {
               Course Name
             </label>
             <input
-              {...register("name")}
+              {...register("name", {
+                minLength: {
+                  value: 3,
+                  message: "Course name must be at least 3 characters"
+                },
+                maxLength: {
+                  value: 50,
+                  message: "Course name cannot exceed 50 characters"
+                },
+              })}
               placeholder="e.g., Anatomy"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -132,7 +140,16 @@ export default function AddCourseForm() {
               Description
             </label>
             <input
-              {...register("description")}
+              {...register("description", {
+                minLength: {
+                  value: 3,
+                  message: "Course name must be at least 3 characters"
+                },
+                maxLength: {
+                  value: 100,
+                  message: "Course name cannot exceed 100 characters"
+                }
+              },)}
               placeholder="Course description"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -350,9 +367,8 @@ export default function AddCourseForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full ${
-                isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
-              } text-white py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400`}
+              className={`w-full ${isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
+                } text-white py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400`}
             >
               {isLoading ? "Saving..." : "Save Course"}
             </button>

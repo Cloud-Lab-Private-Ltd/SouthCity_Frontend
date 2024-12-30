@@ -23,7 +23,7 @@ import Image from "next/image";
 const Sidebar = () => {
   const router = useRouter();
 
-  const userType = localStorage.getItem("response.user.role");
+  const userType = localStorage.getItem("response.user.group.name");
 
   const sidebarRoutes = [
     {

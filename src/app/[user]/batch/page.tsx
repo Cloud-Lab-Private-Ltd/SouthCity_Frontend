@@ -18,12 +18,8 @@ export default function AddBatchForm() {
   } = useForm<BatchModel>();
 
   const onSubmit = async (data: BatchModel) => {
+    console.log(data);
     try {
-      const coordinatorIdMap: Record<string, string> = {
-        "Coordinator 1": "1001",
-        "Coordinator 2": "1002",
-      };
-  
       const transformedData = {
         ...data,
         schedule: data.schedule
@@ -33,7 +29,6 @@ export default function AddBatchForm() {
             day: index === 0 ? item.toUpperCase() : array[0].toUpperCase(),
             time: index === 1 ? `${item}:00` : `${array[1]}:00`
           })),
-        batchCoordinator: coordinatorIdMap[data.batchCoordinator],
       };
   
       const response = await API.Create(transformedData);

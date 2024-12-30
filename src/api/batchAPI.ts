@@ -1,3 +1,4 @@
+import apiClient from "@/api/ApiClient/ApiClient";
 import axiosIntance from "@/api/ApiClient/ApiClient";
 import { BatchModel } from "@/app/models/Batch/batch";
 
@@ -8,7 +9,7 @@ export namespace BatchAPI {
         if (!token) {
           throw new Error("Token not found. Please log in.");
         }
-      const response = await axiosIntance.post<BatchModel>(
+      const response = await apiClient.post<BatchModel>(
         "/api/v1/sch/batches",
         BatchData,
         {
