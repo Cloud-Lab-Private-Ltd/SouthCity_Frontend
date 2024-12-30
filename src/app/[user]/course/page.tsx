@@ -10,6 +10,7 @@ import { toast } from "sonner";
 export default function AddCourseForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingCourse, setEditingCourse] = useState<CourseModel | null>(null);
 
   const {
     register,
@@ -42,10 +43,30 @@ export default function AddCourseForm() {
       setIsLoading(true);
       setError(null);
 
+      if (editingCourse) {
+        // Update existing course
+        const response = await CourseAPI.Update(editingCourse.id, "adminPassword");
+        toast.success("Course updated successfully", {
+          duration: 3000,
+          position: "top-center",
+        });
+        setEditingCourse(null);
+      }
       if (!data.Syllabus || data.Syllabus.length === 0) {
         throw new Error("Syllabus file is required.");
       }
-
+      if (data.enrollment_Start_date > data.enrollment_End_date) {
+        toast.error(
+          "Enrollment End Date must be after Enrollment Start Date.",
+          {
+            duration: 3000,
+            position: "top-center",
+          }
+        );
+        throw new Error(
+          "Enrollment End Date must be after Enrollment Start Date."
+        );
+      }
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
         if (key === "Syllabus") {
@@ -53,7 +74,10 @@ export default function AddCourseForm() {
         } else if (key === "Semesters") {
           // Add Semesters as separate fields
           value.forEach((semester: any, index: any) => {
-            formData.append(`Semesters[${index}].semesterNo`, semester.semesterNo);
+            formData.append(
+              `Semesters[${index}].semesterNo`,
+              semester.semesterNo
+            );
             formData.append(`Semesters[${index}].subjects`, semester.subjects);
           });
         } else {
@@ -62,7 +86,10 @@ export default function AddCourseForm() {
       });
 
       const response = await CreateCourseAPI(formData);
-      toast.success(`${response.message}`, { duration: 3000, position: "top-center" },);
+      toast.success(`${response.message}`, {
+        duration: 3000,
+        position: "top-center",
+      });
       reset();
       console.log("Course created successfully", response);
     } catch (error) {
@@ -74,6 +101,27 @@ export default function AddCourseForm() {
     } finally {
       setIsLoading(false);
     }
+  };
+  const handleEdit = (course: CourseModel) => {
+    setEditingCourse(course);
+    // Pre-fill the form
+    reset({
+      name: course.name,
+      description: course.description,
+      degreeType: course.degreeType,
+      code: course.code,
+      duration: course.duration,
+      noOfSemesters: course.noOfSemesters,
+      Semesters: course.Semesters,
+      perSemesterFee: course.perSemesterFee,
+      totalFee: course.totalFee,
+      admissionFee: course.admissionFee,
+      Status: course.Status,
+      Level: course.Level,
+      category: course.category,
+      enrollment_Start_date: course.enrollment_Start_date,
+      enrollment_End_date: course.enrollment_End_date,
+    });
   };
 
   const CreateCourseAPI = async (data: FormData) => {
@@ -142,14 +190,14 @@ export default function AddCourseForm() {
             <input
               {...register("description", {
                 minLength: {
-                  value: 3,
-                  message: "Course name must be at least 3 characters"
+                  value: 5,
+                  message: "Minimum Characters should be 5",
                 },
                 maxLength: {
                   value: 100,
-                  message: "Course name cannot exceed 100 characters"
-                }
-              },)}
+                  message: "Maximum Characters should be 100",
+                },
+              })}
               placeholder="Course description"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -166,7 +214,12 @@ export default function AddCourseForm() {
               Degree Type
             </label>
             <input
-              {...register("degreeType")}
+              {...register("degreeType", {
+                maxLength: {
+                  value: 100,
+                  message: "Maximum Characters should be 100",
+                },
+              })}
               placeholder="e.g., MBBS, Nursing, Pharmacy"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -183,7 +236,12 @@ export default function AddCourseForm() {
               Course Code
             </label>
             <input
-              {...register("code")}
+              {...register("code", {
+                maxLength: {
+                  value: 100,
+                  message: "Maximum Characters should be 100",
+                },
+              })}
               placeholder="e.g., ANAT-101"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -196,7 +254,12 @@ export default function AddCourseForm() {
           <div>
             <label className="block text-gray-600 text-sm mb-1">Duration</label>
             <input
-              {...register("duration")}
+              {...register("duration", {
+                maxLength: {
+                  value: 100,
+                  message: "Maximum Characters should be 100",
+                },
+              })}
               placeholder="e.g., 1 Year, 6 Months"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -214,10 +277,7 @@ export default function AddCourseForm() {
             </label>
             <input
               type="number"
-              {...register("noOfSemesters", {
-                required: "Number of semesters is required",
-                min: { value: 1, message: "Must be at least 1" },
-              })}
+              {...register("noOfSemesters")}
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {errors.noOfSemesters && (
@@ -230,30 +290,52 @@ export default function AddCourseForm() {
           {/* Semesters */}
           <div className="col-span-3">
             <label className="block text-gray-600 text-sm mb-1">
-              Semesters
+              Semesters <span className="text-red-500 text-lg">*</span>
             </label>
             {fields.map((field, index) => (
               <div key={field.id} className="flex gap-4 mb-2">
                 <input
-                  {...register(`Semesters.${index}.semesterNo`)}
+                  {...register(`Semesters.${index}.semesterNo`, {
+                    required: "Semester is required",
+                  })}
+                  required
                   placeholder="Semester Number"
                   className="w-1/4 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
                   {...register(`Semesters.${index}.subjects`)}
                   placeholder="Subjects (comma separated)"
+                  required
                   className="w-2/3 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="button"
-                  onClick={() => remove(index)}
+                  onClick={() => {
+                    if (fields.length > 1) {
+                      remove(index);
+                    } else {
+                      toast.error("You cannot remove this semester.", {
+                        duration: 3000,
+                        position: "top-center",
+                      });
+                    }
+                  }}
                   className="px-4 py-2 bg-red-500 text-white rounded-lg"
                 >
                   Remove
                 </button>
                 <button
                   type="button"
-                  onClick={() => append({ semesterNo: "", subjects: "" })}
+                  onClick={() => {
+                    if (fields.length < 8) {
+                      append({ semesterNo: "", subjects: "" });
+                    } else {
+                      toast.error("You cannot add more than 8 semesters.", {
+                        duration: 3000,
+                        position: "top-center",
+                      });
+                    }
+                  }}
                   className="px-4 py-2 bg-green-500 text-white rounded-lg"
                 >
                   Add Semester
@@ -268,10 +350,21 @@ export default function AddCourseForm() {
               Per Semester Fee
             </label>
             <input
-              {...register("perSemesterFee")}
+              type="number"
+              {...register("perSemesterFee", {
+                maxLength: {
+                  value: 10,
+                  message: "Maximum Characters should be 10",
+                },
+              })}
               placeholder="e.g., 50000"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {errors.perSemesterFee && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.perSemesterFee.message}
+              </p>
+            )}
           </div>
 
           <div>
@@ -279,10 +372,21 @@ export default function AddCourseForm() {
               Total Fee
             </label>
             <input
-              {...register("totalFee")}
+              type="number"
+              {...register("totalFee", {
+                maxLength: {
+                  value: 10,
+                  message: "Maximum Characters should be 10",
+                },
+              })}
               placeholder="e.g., 300000"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {errors.totalFee && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.totalFee.message}
+              </p>
+            )}
           </div>
 
           <div>
@@ -290,7 +394,13 @@ export default function AddCourseForm() {
               Admission Fee
             </label>
             <input
-              {...register("admissionFee")}
+              type="number"
+              {...register("admissionFee", {
+                maxLength: {
+                  value: 50,
+                  message: "Maximum Characters should be 50",
+                },
+              })}
               placeholder="e.g., 10000"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -327,6 +437,11 @@ export default function AddCourseForm() {
               placeholder="e.g., Beginner"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {errors.Level && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.Level.message}
+              </p>
+            )}
           </div>
 
           {/* Category */}
@@ -337,6 +452,11 @@ export default function AddCourseForm() {
               placeholder="e.g., Science, Arts, Business"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            {errors.category && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.category.message}
+              </p>
+            )}
           </div>
 
           {/* Enrollment Dates */}
@@ -370,13 +490,17 @@ export default function AddCourseForm() {
               className={`w-full ${isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
                 } text-white py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400`}
             >
-              {isLoading ? "Saving..." : "Save Course"}
+              {isLoading
+                ? "Saving..."
+                : editingCourse
+                ? "Update Course"
+                : "Save Course"}
             </button>
           </div>
         </form>
       </div>
       <div className="bg-white rounded-lg shadow-lg">
-        <CourseTable />
+        <CourseTable/>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
-import axiosInstance from "@/api/ApiClient/ApiClient";
 import { CourseModel } from "../app/models/Course/course";
+import apiClient from "@/api/ApiClient/ApiClient";
+import axiosInstance from "@/api/ApiClient/ApiClient"
 
 export namespace CourseAPI {
   export async function Create(formData: FormData) {
@@ -8,7 +9,7 @@ export namespace CourseAPI {
       if (!token) {
         throw new Error("Token not found. Please log in.");
       }
-      const response = await axiosInstance.post<CourseModel>(
+      const response = await apiClient.post<CourseModel>(
         "/api/v1/sch/courses",
         formData,
         {
@@ -29,9 +30,9 @@ export namespace CourseAPI {
       const token = localStorage.getItem("authToken");
       if (!token) {
         throw new Error("Token not found. Please log in.");
-      }
-      const response = await axiosInstance.get(
-        "https://southcity.app.boundlesstechnologies.net/api/v1/sch/courses"
+      } // Add this closing bracket
+      const response = await apiClient.get(
+        "/api/v1/sch/courses"
       ,{
         headers: {
           "x-access-token": `${token}`,
@@ -42,4 +43,50 @@ export namespace CourseAPI {
       throw Error;
     }
   }
+
+  export async function Delete(id: string, adminPassword: string) {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("Token not found. Please log in.");
+      }
+      const response = await axiosInstance.delete(
+        `/api/v1/sch/courses/${id}`,
+        {
+          headers: {
+            "x-access-token": `${token}`,
+          },
+          data: {
+            adminPassword: adminPassword
+          }
+        }
+      );
+      return response;
+    } catch (error) {
+      throw Error;
+    }
+  }
+  export async function Update(id: string, adminPassword: string) {
+    try {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        throw new Error("Token not found. Please log in.");
+      }
+      const response = await axiosInstance.put(
+        `/api/v1/sch/courses/${id}`,
+        {
+          headers: {
+            "x-access-token": `${token}`,
+          },
+          data: {
+            adminPassword: adminPassword
+          }
+        }
+      );
+      return response;
+    } catch (error) {
+      throw Error;
+    }
+  }
+  
 }

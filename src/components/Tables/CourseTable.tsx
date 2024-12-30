@@ -1,137 +1,203 @@
-"use client"
+"use client";
 
-import { useState, useCallback, useRef } from "react"
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Trash2, Pencil, Eye, Printer, Download, Upload } from 'lucide-react'
+import { useState, useCallback, useRef, useEffect } from "react";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Trash2, Pencil, Eye, Printer, Download, Upload } from "lucide-react";
+import { CourseAPI } from "@/api/courseAPI";
+import { toast } from "sonner";
 
-interface Group {
-  id: number
-  groupName: string
-  description: string
-  allowedGroups: string
+interface Course {
+  _id: string;
+  name: string;
+  description: string;
+  code: string;
+  duration: string;
 }
 
-const initialData: Group[] = [
-  {
-    id: 1,
-    groupName: "Medical Students",
-    description: "first-year medical students",
-    allowedGroups: "4"
-  },
-  {
-    id: 2,
-    groupName: "Nursing Faculty",
-    description: "third-year medical students",
-    allowedGroups: "6"
-  },
-  {
-    id: 3,
-    groupName: "Physiotherapy",
-    description: "first-year Physiotherapy students",
-    allowedGroups: "3"
-  }
-]
+export default function GroupsTable() {
+  const [data, setData] = useState<Course[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
+  const [rowsPerPage, setRowsPerPage] = useState("5");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
+  const [adminPassword, setAdminPassword] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-export default function CourseTable() {
-  const [data, setData] = useState<Group[]>(initialData)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [rowsPerPage, setRowsPerPage] = useState("15")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await CourseAPI.Get();
+        setData(response.data.courses);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  //Dialog for admin password
+  const openDeleteDialog = (id: string) => {
+    setCourseToDelete(id);
+    setIsDialogOpen(true);
+  };
+
+  // Close the dialog
+  const closeDeleteDialog = () => {
+    setIsDialogOpen(false);
+    setAdminPassword("");
+    setCourseToDelete(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!adminPassword) {
+      toast.error("Admin password is required", {
+        duration: 3000,
+        position: "top-center",
+      });
+      return;
+    }
+
+    if (courseToDelete) {
+      try {
+        await CourseAPI.Delete(courseToDelete, adminPassword);
+        setData(data.filter((d) => d._id !== courseToDelete));
+        setSelectedRows((prev) => {
+          const next = new Set(prev);
+          next.delete(courseToDelete);
+          return next;
+        });
+        toast.success("Course deleted successfully", {
+          duration: 3000,
+          position: "top-center",
+        });
+        closeDeleteDialog();
+      } catch (error) {
+        toast.error("Failed to delete course!", {
+          duration: 3000,
+          position: "top-center",
+        });
+        console.error("Error deleting course:", error);
+      }
+    }
+  };
 
   // Search functionality
   const filteredData = data.filter((item) => {
-    const searchLower = searchQuery.toLowerCase()
+    const searchLower = searchQuery.toLowerCase();
     return (
-      item.groupName.toLowerCase().includes(searchLower) ||
+      item.name.toLowerCase().includes(searchLower) ||
       item.description.toLowerCase().includes(searchLower) ||
-      item.allowedGroups.toLowerCase().includes(searchLower)
-    )
-  })
+      item.code.toLowerCase().includes(searchLower) ||
+      item.duration.toLowerCase().includes(searchLower)
+    );
+  });
 
   // Pagination calculations
-  const totalItems = filteredData.length
-  const totalPages = Math.ceil(totalItems / parseInt(rowsPerPage))
-  const startIndex = (currentPage - 1) * parseInt(rowsPerPage)
-  const endIndex = startIndex + parseInt(rowsPerPage)
-  const currentData = filteredData.slice(startIndex, endIndex)
+  const totalItems = filteredData.length;
+  const totalPages = Math.ceil(totalItems / parseInt(rowsPerPage));
+  const startIndex = (currentPage - 1) * parseInt(rowsPerPage);
+  const endIndex = startIndex + parseInt(rowsPerPage);
+  const currentData = filteredData.slice(startIndex, endIndex);
 
   // Row selection handlers
   const toggleAllRows = useCallback(() => {
     if (selectedRows.size === currentData.length) {
-      setSelectedRows(new Set())
+      setSelectedRows(new Set());
     } else {
-      setSelectedRows(new Set(currentData.map(row => row.id)))
+      setSelectedRows(new Set(currentData.map((row) => row._id)));
     }
-  }, [currentData, selectedRows])
+  }, [currentData, selectedRows]);
 
-  const toggleRow = useCallback((id: number) => {
-    setSelectedRows(prev => {
-      const next = new Set(prev)
+  const toggleRow = useCallback((id: string) => {
+    setSelectedRows((prev) => {
+      const next = new Set(prev);
       if (next.has(id)) {
-        next.delete(id)
+        next.delete(id);
       } else {
-        next.add(id)
+        next.add(id);
       }
-      return next
-    })
-  }, [])
+      return next;
+    });
+  }, []);
 
   // Print functionality
   const handlePrint = useCallback(() => {
-    window.print()
-  }, [])
+    window.print();
+  }, []);
+
+  // CSV Import functionality
+  const importCSV = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        const rows = text.split("\n").slice(1); // Skip header row
+        const importedData = rows.map((row) => {
+          const [id, name, description, code, duration] = row.split(",");
+          return { _id: id, name, description, code, duration };
+        });
+        setData(importedData);
+      };
+      reader.readAsText(file);
+    },
+    []
+  );
 
   // CSV Export functionality
   const exportCSV = useCallback(() => {
-    const headers = ['ID', 'Group Name', 'Description', 'Allowed Groups']
+    const headers = ["ID", "Name", "Description", "Code", "Duration"];
     const csvData = [
-      headers.join(','),
-      ...filteredData.map(row => 
-        [row.id, row.groupName, row.description, row.allowedGroups].join(',')
-      )
-    ].join('\n')
+      headers.join(","),
+      ...filteredData.map((row) =>
+        [row._id, row.name, row.description, row.code, row.duration].join(",")
+      ),
+    ].join("\n");
 
-    const blob = new Blob([csvData], { type: 'text/csv' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'groups.csv'
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    window.URL.revokeObjectURL(url)
-  }, [filteredData])
+    const blob = new Blob([csvData], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "courses.csv";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, [filteredData]);
 
-  // CSV Import functionality
-  const importCSV = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const text = e.target?.result as string
-        const rows = text.split('\n').slice(1) // Skip header row
-        const newData = rows
-          .filter(row => row.trim())
-          .map((row, index) => {
-            const [id, groupName, description, allowedGroups] = row.split(',')
-            return {
-              id: parseInt(id) || index + 1,
-              groupName: groupName?.trim() || '',
-              description: description?.trim() || '',
-              allowedGroups: allowedGroups?.trim() || ''
-            }
-          })
-        setData(newData)
-      }
-      reader.readAsText(file)
-    }
-  }, [])
+  // Delete functionality
+  const handleDelete = async (id: string) => {
+    openDeleteDialog(id);
+  };
 
   return (
     <div className="w-full max-w-6xl mx-auto p-4 space-y-4">
@@ -166,58 +232,79 @@ export default function CourseTable() {
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => {
-              setSearchQuery(e.target.value)
-              setCurrentPage(1) // Reset to first page on search
+              setSearchQuery(e.target.value);
+              setCurrentPage(1); // Reset to first page on search
             }}
             className="w-64"
           />
         </div>
       </div>
-
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Delete</DialogTitle>
+          </DialogHeader>
+          <div>
+            <p>Please enter the admin password to delete the course:</p>
+            <Input
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              placeholder="Admin Password"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDeleteDialog}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="rounded-md">
         <Table className="[&_tr:hover]:bg-gray-50 [&_td]:border-0 [&_th]:border-0">
           <TableHeader className="border-b">
             <TableRow>
               <TableHead className="w-12">
-                <Checkbox 
-                  checked={selectedRows.size === currentData.length && currentData.length > 0}
+                <Checkbox
+                  checked={
+                    selectedRows.size === currentData.length &&
+                    currentData.length > 0
+                  }
                   onCheckedChange={toggleAllRows}
                 />
               </TableHead>
               <TableHead>ID</TableHead>
-              <TableHead>Group Name</TableHead>
+              <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
-              <TableHead>Allowed Groups</TableHead>
+              <TableHead>Code</TableHead>
+              <TableHead>Duration</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {currentData.map((group) => (
-              <TableRow key={group.id}>
+            {currentData.map((course) => (
+              <TableRow key={course._id}>
                 <TableCell>
-                  <Checkbox 
-                    checked={selectedRows.has(group.id)}
-                    onCheckedChange={() => toggleRow(group.id)}
+                  <Checkbox
+                    checked={selectedRows.has(course._id)}
+                    onCheckedChange={() => toggleRow(course._id)}
                   />
                 </TableCell>
-                <TableCell>{group.id}</TableCell>
-                <TableCell>{group.groupName}</TableCell>
-                <TableCell>{group.description}</TableCell>
-                <TableCell>{group.allowedGroups}</TableCell>
+                <TableCell>{course._id}</TableCell>
+                <TableCell>{course.name}</TableCell>
+                <TableCell>{course.description}</TableCell>
+                <TableCell>{course.code}</TableCell>
+                <TableCell>{course.duration}</TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="text-red-500"
-                      onClick={() => {
-                        setData(data.filter(d => d.id !== group.id))
-                        setSelectedRows(prev => {
-                          const next = new Set(prev)
-                          next.delete(group.id)
-                          return next
-                        })
-                      }}
+                      onClick={() => handleDelete(course._id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -238,11 +325,11 @@ export default function CourseTable() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-sm">Rows per page</span>
-          <Select 
-            value={rowsPerPage} 
+          <Select
+            value={rowsPerPage}
             onValueChange={(value) => {
-              setRowsPerPage(value)
-              setCurrentPage(1) // Reset to first page when changing rows per page
+              setRowsPerPage(value);
+              setCurrentPage(1); // Reset to first page when changing rows per page
             }}
           >
             <SelectTrigger className="w-16">
@@ -279,5 +366,5 @@ export default function CourseTable() {
         </div>
       </div>
     </div>
-  )
+  );
 }

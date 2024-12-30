@@ -3,7 +3,7 @@ import apiClient from "../../api/ApiClient/ApiClient";
 export const login = async (email: string, password: string) => {
   try {
     const response = await apiClient.post(
-      "https://southcity.app.boundlesstechnologies.net/api/v1/sch/auth/login",
+      "/api/v1/sch/auth/login",
       { email, password }
     );
 
