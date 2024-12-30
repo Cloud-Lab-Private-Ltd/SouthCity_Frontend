@@ -66,21 +66,23 @@ export namespace CourseAPI {
       throw Error;
     }
   }
-  export async function Update(id: string, adminPassword: string) {
+  export async function Update(id: string, formData: FormData) {
     try {
       const token = localStorage.getItem("authToken");
       if (!token) {
         throw new Error("Token not found. Please log in.");
       }
-      const response = await axiosInstance.put(
+      const response = await apiClient.put(
         `/api/v1/sch/courses/${id}`,
+        formData,
         {
           headers: {
+            "Content-Type": "multipart/form-data",
             "x-access-token": `${token}`,
           },
-          data: {
-            adminPassword: adminPassword
-          }
+          // data: {
+          //   adminPassword: adminPassword
+          // }
         }
       );
       return response;

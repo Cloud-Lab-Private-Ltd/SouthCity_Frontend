@@ -30,15 +30,46 @@ import { Trash2, Pencil, Eye, Printer, Download, Upload } from "lucide-react";
 import { CourseAPI } from "@/api/courseAPI";
 import { toast } from "sonner";
 
-interface Course {
-  _id: string;
+export interface Course {
+  _id: any;
   name: string;
   description: string;
   code: string;
   duration: string;
+  degreeType: string;
+  Semesters: Semester[];
+  admissionFee: string;
 }
 
-export default function GroupsTable() {
+interface Semester {
+  semesterNo: number;
+  subjects: string[];
+}
+
+export interface EditCourse {
+  name: string;
+  description: string;
+  degreeType: string;
+  code: string;
+  Level: string;
+  category: string;
+  duration: string;
+  noOfSemesters: number;
+  Semesters: Semester[];
+  totalFee: number;
+  perSemesterFee: number;
+  admissionFee: number;
+  status: string;
+  enrollmentStartDate: string;
+  enrollmentEndDate: string;
+  Syllabus: File[];
+}
+interface CourseTableProps {
+  onEdit: (course: EditCourse) => void;
+  onView: (course: Course) => void;
+}
+
+export default function CourseTable({ onEdit, onView }: CourseTableProps) {
   const [data, setData] = useState<Course[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -308,12 +339,42 @@ export default function GroupsTable() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-blue-500">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-blue-500"
+                      onClick={() => onEdit({
+                        name: course.name,
+                        description: course.description,
+                        degreeType: course.degreeType,
+                        code: course.code,
+                        duration: course.duration,
+                        noOfSemesters: course.noOfSemesters,
+                        Semesters: course.Semesters.map(sem => ({
+                          semesterNo: sem.semesterNo,
+                          subjects: sem.subjects
+                        })),
+                        totalFee: course.totalFee,
+                        perSemesterFee: course.perSemesterFee,
+                        admissionFee: course.admissionFee,
+                        Status: course.Status,
+                        Level: course.Level,
+                        category: course.category,
+                        enrollment_Start_date: course.enrollment_Start_date,
+                        enrollment_End_date: course.enrollment_End_date,
+                        Syllabus: course.Syllabus,
+                        _id: course._id // Important to include for update API
+                      })}
+                    >
+
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
-                      <Eye className="h-4 w-4" />
-                    </Button>
+                    <button
+                      onClick={() => onView(course)}
+                      className="text-blue-600 hover:text-blue-900"
+                    >
+                      <Eye className="h-5 w-5" />
+                    </button>
                   </div>
                 </TableCell>
               </TableRow>
@@ -365,6 +426,6 @@ export default function GroupsTable() {
           </Button>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

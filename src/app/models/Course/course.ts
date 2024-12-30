@@ -1,8 +1,8 @@
 export interface CourseModel {
-  id: string;
+  _id?: string;
   name: string;
   description: string;
-  degreeType: string;
+  degreeType: any;
   code: string;
   duration: string;
   noOfSemesters: number;

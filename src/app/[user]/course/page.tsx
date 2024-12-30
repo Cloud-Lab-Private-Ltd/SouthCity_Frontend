@@ -5,12 +5,32 @@ import { CourseAPI } from "@/api/courseAPI";
 import { CourseModel } from "@/app/models/Course/course";
 import { useFieldArray } from "react-hook-form";
 import CourseTable from "@/components/Tables/CourseTable";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+type EditCourse = Omit<CourseModel, 'createdAt' | 'updatedAt'>;
 import { toast } from "sonner";
 
 export default function AddCourseForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editingCourse, setEditingCourse] = useState<CourseModel | null>(null);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const [adminPassword, setAdminPassword] = useState("");
+  const [pendingUpdateData, setPendingUpdateData] = useState<any>(null);
+  const [existingFile, setExistingFiles] = useState<File[]>([]);
+  const [showViewDialog, setShowViewDialog] = useState(false);
+  const [viewData, setViewData] = useState<CourseModel | null>(null);
+  const [existingFileName, setExistingFileName] = useState<string>("");
 
   const {
     register,
@@ -40,18 +60,11 @@ export default function AddCourseForm() {
 
   const handleFormSubmit = async (data: CourseModel) => {
     try {
+      console.log("Form data", data)
+      console.log(setPendingUpdateData)
       setIsLoading(true);
       setError(null);
 
-      if (editingCourse) {
-        // Update existing course
-        const response = await CourseAPI.Update(editingCourse.id, "adminPassword");
-        toast.success("Course updated successfully", {
-          duration: 3000,
-          position: "top-center",
-        });
-        setEditingCourse(null);
-      }
       if (!data.Syllabus || data.Syllabus.length === 0) {
         throw new Error("Syllabus file is required.");
       }
@@ -68,30 +81,68 @@ export default function AddCourseForm() {
         );
       }
       const formData = new FormData();
+      // Handle Semesters data correctly
+      if (data.Semesters && data.Semesters.length > 0) {
+        data.Semesters.forEach((semester, index) => {
+          formData.append(`Semesters[${index}][semesterNo]`, semester.semesterNo);
+          formData.append(`Semesters[${index}][subjects]`, semester.subjects);
+        });
+      }
+
+      // Handle Syllabus file
+      if (data.Syllabus && data.Syllabus.length > 0) {
+        // If it's a File object, append directly
+        if (data.Syllabus[0] instanceof File) {
+          formData.append('Syllabus', data.Syllabus[0]);
+        }
+        // If it's a URL string, append the URL
+        else if (typeof data.Syllabus === 'string') {
+          formData.append('Syllabus', data.Syllabus);
+        }
+      }
+
+      // Add other form fields
       Object.entries(data).forEach(([key, value]) => {
-        if (key === "Syllabus") {
-          formData.append(key, value[0]); // Add the file
-        } else if (key === "Semesters") {
-          // Add Semesters as separate fields
-          value.forEach((semester: any, index: any) => {
-            formData.append(
-              `Semesters[${index}].semesterNo`,
-              semester.semesterNo
-            );
-            formData.append(`Semesters[${index}].subjects`, semester.subjects);
-          });
-        } else {
-          formData.append(key, value as string);
+        if (key !== 'Syllabus') {
+          if (key === 'Semesters') {
+            value.forEach((semester: any, index: number) => {
+              formData.append(`Semesters[${index}].semesterNo`, semester.semesterNo);
+              formData.append(`Semesters[${index}].subjects`, semester.subjects);
+            });
+          } else {
+            formData.append(key, value as string);
+          }
         }
       });
 
-      const response = await CreateCourseAPI(formData);
-      toast.success(`${response.message}`, {
-        duration: 3000,
-        position: "top-center",
-      });
+      let response;
+      if (editingCourse) {
+        setPendingUpdateData(data);
+        setIsUpdateDialogOpen(true);
+        // Update existing course
+        if (editingCourse && editingCourse._id) {
+          response = await CourseAPI.Update(editingCourse._id, formData);
+        } else {
+          throw new Error("Editing course ID is missing.");
+        }
+        toast.success("Course updated successfully", {
+          duration: 3000,
+          position: "top-center",
+        });
+        setEditingCourse(null);
+      } else {
+        response = await CreateCourseAPI(formData);
+        toast.success(`${response.message}`, {
+          duration: 3000,
+          position: "top-center",
+        });
+      }
       reset();
-      console.log("Course created successfully", response);
+      if (editingCourse) {
+        console.log("Course updated successfully", response);
+      } else {
+        console.log("Course created successfully", response);
+      }
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message || "Failed to create course");
@@ -102,26 +153,107 @@ export default function AddCourseForm() {
       setIsLoading(false);
     }
   };
-  const handleEdit = (course: CourseModel) => {
-    setEditingCourse(course);
-    // Pre-fill the form
-    reset({
-      name: course.name,
-      description: course.description,
-      degreeType: course.degreeType,
-      code: course.code,
-      duration: course.duration,
-      noOfSemesters: course.noOfSemesters,
-      Semesters: course.Semesters,
-      perSemesterFee: course.perSemesterFee,
-      totalFee: course.totalFee,
-      admissionFee: course.admissionFee,
-      Status: course.Status,
-      Level: course.Level,
-      category: course.category,
-      enrollment_Start_date: course.enrollment_Start_date,
-      enrollment_End_date: course.enrollment_End_date,
+
+  const confirmUpdate = async () => {
+    if (!adminPassword) {
+      toast.error("Admin password is required", {
+        duration: 3000,
+        position: "top-center",
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const formData = new FormData();
+      formData.append('adminPassword', adminPassword);
+      // formData.append('admissionFee', pendingUpdateData.admissionFee.toString());
+      // Handle Syllabus file
+      if (pendingUpdateData.Syllabus && pendingUpdateData.Syllabus.length > 0) {
+        if (pendingUpdateData.Syllabus[0] instanceof File) {
+          formData.append('Syllabus', pendingUpdateData.Syllabus[0]);
+        } else if (typeof pendingUpdateData.Syllabus === 'string') {
+          formData.append('Syllabus', pendingUpdateData.Syllabus);
+        }
+      }
+
+
+      // Add other form fields
+      Object.entries(pendingUpdateData).forEach(([key, value]) => {
+        if (key !== 'Syllabus') {
+          if (key === 'Semesters') {
+            (value as any[]).forEach((semester: any, index: number) => {
+              formData.append(`Semesters[${index}].semesterNo`, semester.semesterNo);
+              formData.append(`Semesters[${index}].subjects`, semester.subjects);
+            });
+          } else {
+            formData.append(key, value as string);
+          }
+        }
+      });
+
+      if (editingCourse) {
+        const response = await CourseAPI.Update(editingCourse._id!, formData);
+      } else {
+        throw new Error("Editing course is null.");
+      }
+      toast.success("Course updated successfully", {
+        duration: 3000,
+        position: "top-center",
+      });
+      setIsUpdateDialogOpen(false);
+      setAdminPassword("");
+      setPendingUpdateData(null);
+      setEditingCourse(null);
+      setError(null);
+      reset();
+    } catch (error) {
+      toast.error("Failed to update course.", {
+        duration: 3000,
+        position: "top-center",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
+  const handleEdit = (course: EditCourse) => {
+    // Store complete course data for editing
+    setEditingCourse(course as CourseModel);
+
+
+    // Format dates from ISO to YYYY-MM-DD
+    const startDate = new Date(course.enrollment_Start_date).toISOString().split('T')[0];
+    const endDate = new Date(course.enrollment_End_date).toISOString().split('T')[0];
+
+    course.Semesters.forEach((semester) => {
+      append({
+        semesterNo: semester.semesterNo,
+        subjects: semester.subjects
+      });
     });
+
+    // Set all form fields with course data
+    setValue('name', course.name);
+    setValue('description', course.description);
+    setValue('degreeType', course.degreeType);
+    setValue('code', course.code);
+    setValue('duration', course.duration);
+    setValue('noOfSemesters', course.noOfSemesters);
+    setValue('Semesters', course.Semesters);
+    setValue('totalFee', course.totalFee);
+    setValue('perSemesterFee', course.perSemesterFee);
+    setValue('admissionFee', course.admissionFee);
+    setValue('Status', course.Status);
+    setValue('Level', course.Level);
+    setValue('category', course.category);
+    setValue('enrollment_Start_date', startDate);
+    setValue('enrollment_End_date', endDate);
+    setValue('Syllabus', course.Syllabus);
+    setExistingFiles(Array.isArray(course.Syllabus) ? course.Syllabus : [course.Syllabus]);
+    // Scroll to form for better UX
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const CreateCourseAPI = async (data: FormData) => {
@@ -138,6 +270,10 @@ export default function AddCourseForm() {
     }
   };
 
+  const handleView = (course: CourseModel) => {
+    setViewData(course);
+    setShowViewDialog(true);
+  };
   return (
     <div className="px-2 space-y-2">
       <link
@@ -153,7 +289,127 @@ export default function AddCourseForm() {
             {error}
           </div>
         )}
+        {/* View Dialog */}
+        <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
+          <DialogContent className="max-w-[800px] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Course Details</DialogTitle>
+            </DialogHeader>
+            {viewData && (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="font-semibold">Course Name:</p>
+                  <p>{viewData.name}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Description:</p>
+                  <p>{viewData.description}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Degree Type:</p>
+                  <p>{viewData.degreeType}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Course Code:</p>
+                  <p>{viewData.code}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Duration:</p>
+                  <p>{viewData.duration}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Number of Semesters:</p>
+                  <p>{viewData.noOfSemesters}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Per Semester Fee:</p>
+                  <p>{viewData.perSemesterFee}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Total Fee:</p>
+                  <p>{viewData.totalFee}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Admission Fee:</p>
+                  <p>{viewData.admissionFee}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Status:</p>
+                  <p>{viewData.Status}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Level:</p>
+                  <p>{viewData.Level}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Category:</p>
+                  <p>{viewData.category}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Enrollment Period:</p>
+                  <p>
+                    {new Date(viewData.enrollment_Start_date).toLocaleDateString()} -
+                    {new Date(viewData.enrollment_End_date).toLocaleDateString()}
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <p className="font-semibold">Semesters:</p>
+                  {viewData.Semesters.map((semester, index) => (
+                    <div key={index} className="ml-4">
+                      <p>Semester {semester.semesterNo}</p>
+                      <p>Subjects: {semester.subjects}</p>
+                    </div>
+                  ))}
+                </div>
+                {viewData.Syllabus && (
+                  <div className="col-span-2">
+                    <p className="font-semibold">Syllabus:</p>
+                    <a
+                      href={typeof viewData.Syllabus === 'string' ? viewData.Syllabus : URL.createObjectURL(viewData.Syllabus[0])}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      View Syllabus
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+            <DialogFooter>
+              <Button onClick={() => setShowViewDialog(false)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
+        {/* update dialog */}
+        <Dialog open={isUpdateDialogOpen} onOpenChange={setIsUpdateDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Update</DialogTitle>
+            </DialogHeader>
+            <div>
+              <p>Please enter the admin password to update the course:</p>
+              <Input
+                type="password"
+                value={adminPassword}
+                onChange={(e: any) => setAdminPassword(e.target.value)}
+                placeholder="Admin Password"
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => {
+                setIsUpdateDialogOpen(false);
+                setAdminPassword("");
+              }}>
+                Cancel
+              </Button>
+              <Button onClick={confirmUpdate}>
+                Update Course
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <form
           onSubmit={handleSubmit(handleFormSubmit)}
           className="grid grid-cols-1 md:grid-cols-3 gap-6"
@@ -164,16 +420,7 @@ export default function AddCourseForm() {
               Course Name
             </label>
             <input
-              {...register("name", {
-                minLength: {
-                  value: 3,
-                  message: "Course name must be at least 3 characters"
-                },
-                maxLength: {
-                  value: 50,
-                  message: "Course name cannot exceed 50 characters"
-                },
-              })}
+              {...register("name")}
               placeholder="e.g., Anatomy"
               className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -225,7 +472,7 @@ export default function AddCourseForm() {
             />
             {errors.degreeType && (
               <p className="text-red-500 text-sm mt-1">
-                {errors.degreeType.message}
+                {errors.degreeType.message as string}
               </p>
             )}
           </div>
@@ -408,13 +655,18 @@ export default function AddCourseForm() {
 
           {/* Syllabus Upload */}
           <div>
-            <label className="block text-sm font-medium">Syllabus</label>
+            <label className="block text-sm font-medium">Syllabus <span className="text-blue-500">(.pdf .doc)</span></label>
             <input
               type="file"
               onChange={handleFileChange}
               className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
               multiple
             />
+            {existingFileName && !(editingCourse?.Syllabus?.[0] instanceof File) && (
+              <span className="text-sm text-gray-500">
+                Current file: {existingFileName}
+              </span>
+            )}
           </div>
 
           {/* Status */}
@@ -493,14 +745,14 @@ export default function AddCourseForm() {
               {isLoading
                 ? "Saving..."
                 : editingCourse
-                ? "Update Course"
-                : "Save Course"}
+                  ? "Update Course"
+                  : "Save Course"}
             </button>
           </div>
         </form>
       </div>
       <div className="bg-white rounded-lg shadow-lg">
-        <CourseTable/>
+        <CourseTable onEdit={handleEdit} onView={handleView} />
       </div>
     </div>
   );
