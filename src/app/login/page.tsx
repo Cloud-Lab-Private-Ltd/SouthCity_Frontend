@@ -29,9 +29,9 @@ const Page = () => {
       // Save token to localStorage under authToken key
       localStorage.setItem('authToken', response.token);
       localStorage.setItem('userType', response.user.userType);
-      localStorage.setItem('role', response.user.group.name);
-      localStorage.setItem('role', response.user.group.id);
-      localStorage.setItem('role', response.user.email);
+      localStorage.setItem('name', response.user.group.name);
+      localStorage.setItem('id', response.user.group.id);
+      localStorage.setItem('email', response.user.email);
   
       router.push(`../${response.user.userType}/dashboard`);
     } catch (error) {

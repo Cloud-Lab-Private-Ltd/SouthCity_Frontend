@@ -43,6 +43,7 @@ export namespace GroupAPI {
             "x-access-token": `${token}`,
           },
         });
+        console.log(response.data);
         return response;
       } catch (error) {
         throw Error;
