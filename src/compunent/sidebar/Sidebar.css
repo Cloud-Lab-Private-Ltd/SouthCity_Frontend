@@ -1,0 +1,9 @@
+
+
+
+.sidebar-main .list1:hover{
+    background-color: white;
+}
+.sidebar-main .list1:hover .icon1{
+    color: black;
+}

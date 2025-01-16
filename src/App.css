@@ -1,0 +1,57 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800&display=swap");
+
+.app .dots-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  z-index: 1000;
+  background-color: white;
+}
+
+.app .dot {
+  height: 20px;
+  width: 20px;
+  margin-right: 10px;
+  border-radius: 10px;
+  background-color: #18392b; /* Updated color */
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.app .dot:last-child {
+  margin-right: 0;
+}
+
+.app .dot:nth-child(1) {
+  animation-delay: -0.3s;
+}
+
+.app .dot:nth-child(2) {
+  animation-delay: -0.1s;
+}
+
+.app .dot:nth-child(3) {
+  animation-delay: 0.1s;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    background-color: #18392b; /* Updated color */
+    box-shadow: 0 0 0 0 rgba(24, 57, 43, 0.7); /* Updated color */
+  }
+
+  50% {
+    transform: scale(1.2);
+    background-color: #FFD100; /* You can update this color if needed */
+    box-shadow: 0 0 0 10px rgba(24, 57, 43, 0); /* Updated color */
+  }
+
+  100% {
+    transform: scale(0.8);
+    background-color: #1c4b37; /* Updated color */
+    box-shadow: 0 0 0 0 rgba(24, 57, 43, 0.7); /* Updated color */
+  }
+}
