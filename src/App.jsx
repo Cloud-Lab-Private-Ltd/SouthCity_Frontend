@@ -4,7 +4,14 @@ import Routess from "./routers/Routess";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { ProfileGet } from "./features/ProfileSlice";
-import { DegreeTypesGet, GroupGet, MembersGet, StatusesGet } from "./features/GroupApiSlice";
+import {
+  BatchesGet,
+  CoursesGet,
+  DegreeTypesGet,
+  GroupGet,
+  MembersGet,
+  StatusesGet,
+} from "./features/GroupApiSlice";
 
 function App() {
   const navigate = useNavigate();
@@ -25,6 +32,8 @@ function App() {
     dispatch(MembersGet());
     dispatch(DegreeTypesGet());
     dispatch(StatusesGet());
+    dispatch(CoursesGet());
+    dispatch(BatchesGet());
   }, []);
 
   return (

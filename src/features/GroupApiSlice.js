@@ -61,6 +61,37 @@ export const StatusesGet = createAsyncThunk("StatusesGet", async () => {
   }
 });
 
+export const CoursesGet = createAsyncThunk("CoursesGet", async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/sch/courses`, {
+      headers: {
+        "x-access-token": token,
+      },
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+});
+
+export const BatchesGet = createAsyncThunk("BatchesGet", async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/sch/batches`, {
+      headers: {
+        "x-access-token": token,
+      },
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+});
+
+
 export const GroupSlice = createSlice({
   name: "GroupData",
   initialState: {
@@ -68,6 +99,10 @@ export const GroupSlice = createSlice({
     members: [],
     degreeTypes: [], // Add this
     statuses: [],
+    courses: [],
+    batches: [],
+    batchLoading: false,
+    courseLoading: false,
     statusLoading: false,
     loading: false,
     groupLoading: false,
@@ -121,6 +156,28 @@ export const GroupSlice = createSlice({
       })
       .addCase(StatusesGet.rejected, (state, action) => {
         state.statusLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(CoursesGet.pending, (state) => {
+        state.courseLoading = true;
+      })
+      .addCase(CoursesGet.fulfilled, (state, action) => {
+        state.courseLoading = false;
+        state.courses = action.payload;
+      })
+      .addCase(CoursesGet.rejected, (state, action) => {
+        state.courseLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(BatchesGet.pending, (state) => {
+        state.batchLoading = true;
+      })
+      .addCase(BatchesGet.fulfilled, (state, action) => {
+        state.batchLoading = false;
+        state.batches = action.payload;
+      })
+      .addCase(BatchesGet.rejected, (state, action) => {
+        state.batchLoading = false;
         state.error = action.error.message;
       });
   },
