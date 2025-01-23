@@ -91,6 +91,67 @@ export const BatchesGet = createAsyncThunk("BatchesGet", async () => {
   }
 });
 
+export const StudentsGet = createAsyncThunk("StudentsGet", async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/sch/students`, {
+      headers: {
+        "x-access-token": token,
+      },
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+});
+
+export const VouchersGet = createAsyncThunk("VouchersGet", async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/sch/vouchers`, {
+      headers: {
+        "x-access-token": token,
+      },
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+});
+
+export const ActionLogsGet = createAsyncThunk("ActionLogsGet", async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/sch/actionLog`, {
+      headers: {
+        "x-access-token": token,
+      },
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+});
+
+export const PermissionsGet = createAsyncThunk("PermissionsGet", async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/sch/permissions`, {
+      headers: {
+        "x-access-token": token,
+      },
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+});
+
+
 
 export const GroupSlice = createSlice({
   name: "GroupData",
@@ -101,6 +162,14 @@ export const GroupSlice = createSlice({
     statuses: [],
     courses: [],
     batches: [],
+    students: [],
+    vouchers: [],
+    actionLogs: [],
+    permissionsList: [],
+    permissionsLoading: false,
+    actionLogLoading: false,
+    voucherLoading: false,
+    studentLoading: false,
     batchLoading: false,
     courseLoading: false,
     statusLoading: false,
@@ -178,6 +247,50 @@ export const GroupSlice = createSlice({
       })
       .addCase(BatchesGet.rejected, (state, action) => {
         state.batchLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(StudentsGet.pending, (state) => {
+        state.studentLoading = true;
+      })
+      .addCase(StudentsGet.fulfilled, (state, action) => {
+        state.studentLoading = false;
+        state.students = action.payload;
+      })
+      .addCase(StudentsGet.rejected, (state, action) => {
+        state.studentLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(VouchersGet.pending, (state) => {
+        state.voucherLoading = true;
+      })
+      .addCase(VouchersGet.fulfilled, (state, action) => {
+        state.voucherLoading = false;
+        state.vouchers = action.payload;
+      })
+      .addCase(VouchersGet.rejected, (state, action) => {
+        state.voucherLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(ActionLogsGet.pending, (state) => {
+        state.actionLogLoading = true;
+      })
+      .addCase(ActionLogsGet.fulfilled, (state, action) => {
+        state.actionLogLoading = false;
+        state.actionLogs = action.payload;
+      })
+      .addCase(ActionLogsGet.rejected, (state, action) => {
+        state.actionLogLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(PermissionsGet.pending, (state) => {
+        state.permissionsLoading = true;
+      })
+      .addCase(PermissionsGet.fulfilled, (state, action) => {
+        state.permissionsLoading = false;
+        state.permissionsList = action.payload;
+      })
+      .addCase(PermissionsGet.rejected, (state, action) => {
+        state.permissionsLoading = false;
         state.error = action.error.message;
       });
   },

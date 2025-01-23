@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
   const [formData, setFormData] = useState({
     batchName: "",
-    course: "",
+    course: [], // Changed from string to array
     startDate: "",
     endDate: "",
     totalSeats: "",
@@ -29,7 +29,7 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
     if (batchData) {
       setFormData({
         batchName: batchData.batchName,
-        course: batchData.course[0]?._id || "",
+        course: batchData.course.map(c => c._id), // Extract course IDs
         startDate: batchData.startDate.split('T')[0],
         endDate: batchData.endDate.split('T')[0],
         totalSeats: batchData.totalSeats,
@@ -68,7 +68,7 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
   const handleSubmit = () => {
     const dataToSend = {
       ...formData,
-      course: [formData.course]
+      course: formData.course
     };
 
     setLoading(true);
@@ -259,6 +259,65 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
             </select>
           </div>
         </div>
+
+        <div className="mt-6 mb-6">
+  <Typography className="text-lg font-semibold text-c-grays mb-4">
+    Course Selection
+  </Typography>
+  <div className="w-full">
+    <div className="relative">
+      <select
+        multiple
+        name="course"
+        value={formData.course}
+        onChange={(e) => {
+          const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
+          setFormData({
+            ...formData,
+            course: selectedOptions
+          });
+        }}
+        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple min-h-[150px] bg-white shadow-sm"
+        required
+      >
+        {courses?.courses?.map((course) => (
+          <option 
+            key={course._id} 
+            value={course._id}
+            className="p-3 hover:bg-gray-100 cursor-pointer"
+          >
+            {course.name} - {course.Status}
+          </option>
+        ))}
+      </select>
+      <div className="mt-4 flex flex-wrap gap-3">
+        {formData.course.map(courseId => {
+          const selectedCourse = courses?.courses?.find(c => c._id === courseId);
+          return (
+            <span 
+              key={courseId}
+              className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
+            >
+              {selectedCourse?.name}
+              <button
+                type="button"
+                onClick={() => {
+                  setFormData({
+                    ...formData,
+                    course: formData.course.filter(id => id !== courseId)
+                  });
+                }}
+                className="hover:text-red-300 transition-colors"
+              >
+                ×
+              </button>
+            </span>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</div>
 
         {/* Schedule Section */}
         <div className="mt-6">

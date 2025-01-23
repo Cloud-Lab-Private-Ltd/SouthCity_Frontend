@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, Typography, Button } from "@material-tailwind/react";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
@@ -29,6 +29,8 @@ const CourseBody = () => {
   });
   const [loading, setLoading] = useState(false);
   const [degreeTypes, setDegreeTypes] = useState([]);
+
+  const fileInputRef = useRef(null);
   const token = localStorage.getItem("token");
   const dispatch = useDispatch();
 
@@ -235,6 +237,59 @@ const CourseBody = () => {
     });
   };
 
+  const [csvFile, setCSVFile] = useState(null);
+
+  // Add this function to handle file upload
+  const handleBulkUpload = async () => {
+    if (!csvFile) {
+      Swal.fire({
+        icon: "warning",
+        title: "File Required",
+        text: "Please select a CSV file",
+        confirmButtonColor: "#5570F1",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("csvFile", csvFile);
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `${BASE_URL}/api/v1/sch/import/course`,
+        formData,
+        {
+          headers: {
+            "x-access-token": token,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Courses imported successfully!",
+          confirmButtonColor: "#5570F1",
+        });
+        dispatch(CoursesGet());
+        setCSVFile(null);
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Failed to import courses",
+        confirmButtonColor: "#5570F1",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const { courses, courseLoading } = useSelector((state) => state.groupdata);
 
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
@@ -303,10 +358,36 @@ const CourseBody = () => {
       </div>
 
       <Card className="p-6 mb-8 bg-white">
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <Typography className="text-xl font-semibold text-c-grays">
             Add Course
           </Typography>
+          <div className="flex flex-wrap gap-4 items-center">
+            <input
+              type="file"
+              accept=".csv"
+              ref={fileInputRef}
+              onChange={(e) => setCSVFile(e.target.files[0])}
+              className="hidden"
+            />
+            <Button
+              className="bg-c-purple w-full md:w-auto"
+              onClick={() => fileInputRef.current.click()}
+            >
+              Select CSV
+            </Button>
+            <Button
+              className="bg-c-purple w-full md:w-auto"
+              onClick={handleBulkUpload}
+              disabled={loading || !csvFile}
+            >
+              {loading ? (
+                <span className="loading loading-dots loading-lg"></span>
+              ) : (
+                "Import CSV"
+              )}
+            </Button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit}>

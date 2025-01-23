@@ -1,249 +1,172 @@
-import React from "react";
-import { AreaChartHero } from "./AreaChart";
-// import { useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { AreaChartHero } from "./AreaChart";
 
 const DashCard = () => {
   const navigate = useNavigate();
-  // const { profile } = useSelector((state) => state.profiledata);
+  const { groups, members, batches, courses, students } = useSelector(
+    (state) => state.groupdata
+  );
 
   return (
     <div>
-      <div className="grid 2xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 my-4">
-        <div>
-          <div className="w-[100%] mx-auto mb-3">
-            <div className="bg-white shadow-lg dark:bg-d-back2 rounded-lg p-6 space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="p-2 bg-purple-200 rounded-full">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 text-purple-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-gray-600 text-sm dark:text-d-text">
-                    Total Users
-                  </div>
-                  <div className="text-gray-900 dark:text-white text-2xl font-semibold">
-                    0
-                    <span className="text-green-500 text-sm font-medium flex items-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 15l7-7 7 7"
-                        />
-                      </svg>
-                      122
-                    </span>
-                  </div>
-                </div>
+      <div className="grid 2xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6 my-4">
+        {/* Groups Card */}
+        <div
+          onClick={() => navigate("/group-role")}
+          className="transform hover:scale-105 transition-all cursor-pointer"
+        >
+          <div className="bg-white rounded-xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
+            <div className="flex justify-between items-start">
+              <div className="bg-[#5570F1]/10 p-3 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-[#5570F1]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
               </div>
-              <button
-                className="w-full text-purple-600 bg-purple-100 hover:bg-purple-200 text-sm py-2 px-4 rounded-md transition duration-300 ease-in-out"
-                onClick={() => navigate("/users")}
-              >
-                View all
-              </button>
+              <span className="text-[#5570F1] text-sm font-medium px-2.5 py-0.5 rounded-lg bg-[#5570F1]/10">
+                Active
+              </span>
+            </div>
+            <div className="mt-6">
+              <h3 className="text-3xl font-bold text-gray-700">
+                {groups?.groups?.length || 0}
+              </h3>
+              <p className="text-c-grays mt-1 text-sm">Total Groups</p>
             </div>
           </div>
         </div>
 
-        <div>
-          <div className="w-[100% mx-auto mb-3">
-            <div className="bg-white shadow-lg dark:bg-d-back2 rounded-lg p-6 space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="p-2 bg-green-200 rounded-full">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 text-green-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-gray-600 text-sm dark:text-d-text">
-                    Total Districts
-                  </div>
-                  <div className="text-gray-900 dark:text-white text-2xl font-semibold">
-                 0
-                    <span className="text-green-500 text-sm font-medium flex items-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 15l7-7 7 7"
-                        />
-                      </svg>
-                      122
-                    </span>
-                  </div>
-                </div>
+        {/* Members Card */}
+        <div
+          onClick={() => navigate("/members")}
+          className="transform hover:scale-105 transition-all cursor-pointer"
+        >
+          <div className="bg-white rounded-xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
+            <div className="flex justify-between items-start">
+              <div className="bg-[#5570F1]/10 p-3 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-[#5570F1]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                </svg>
               </div>
-              <button
-                className="w-full text-green-600 bg-green-100 hover:bg-green-200 text-sm py-2 px-4 rounded-md transition duration-300 ease-in-out"
-                onClick={() => navigate("/district")}
-              >
-                View all
-              </button>
+              <span className="text-[#5570F1] text-sm font-medium px-2.5 py-0.5 rounded-lg bg-[#5570F1]/10">
+                Active
+              </span>
+            </div>
+            <div className="mt-6">
+              <h3 className="text-3xl font-bold text-gray-700">
+                {members?.members?.length || 0}
+              </h3>
+              <p className="text-c-grays mt-1 text-sm">Total Members</p>
             </div>
           </div>
         </div>
 
-        <div>
-          <div className="w-[100% mx-auto mb-3">
-            <div className="bg-white shadow-lg dark:bg-d-back2 rounded-lg p-6 space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="p-2 bg-red-200 rounded-full">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 text-red-700"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-gray-600 text-sm dark:text-d-text">
-                    Total Bulletin Card
-                  </div>
-                  <div className="text-gray-900 dark:text-white text-2xl font-semibold">
-                   0
-                    <span className="text-green-500 text-sm font-medium flex items-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 15l7-7 7 7"
-                        />
-                      </svg>
-                      122
-                    </span>
-                  </div>
-                </div>
+        {/* Batches Card */}
+        <div
+          onClick={() => navigate("/batch")}
+          className="transform hover:scale-105 transition-all cursor-pointer"
+        >
+          <div className="bg-white rounded-xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
+            <div className="flex justify-between items-start">
+              <div className="bg-[#5570F1]/10 p-3 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-[#5570F1]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M4.26 10.147a60.436 60.436 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                </svg>
               </div>
-              <button
-                className="w-full text-red-600 bg-red-100 hover:bg-red-200 text-sm py-2 px-4 rounded-md transition duration-300 ease-in-out"
-                onClick={() => navigate("/bulletin-card")}
-              >
-                View all
-              </button>
+              <span className="text-[#5570F1] text-sm font-medium px-2.5 py-0.5 rounded-lg bg-[#5570F1]/10">
+                Active
+              </span>
+            </div>
+            <div className="mt-6">
+              <h3 className="text-3xl font-bold text-gray-700">
+                {batches?.batches?.length || 0}
+              </h3>
+              <p className="text-c-grays mt-1 text-sm">Total Batches</p>
             </div>
           </div>
         </div>
 
-        <div>
-          <div className="w-[100% mx-auto mb-3">
-            <div className="bg-white shadow-lg dark:bg-d-back2 rounded-lg p-6 space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="p-2 bg-yellow-200 rounded-full">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 text-yellow-900"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21.75 6.75a4.5 4.5 0 0 1-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 1 1-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 0 1 6.336-4.486l-3.276 3.276a3.004 3.004 0 0 0 2.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852Z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M4.867 19.125h.008v.008h-.008v-.008Z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-gray-600 text-sm dark:text-d-text">
-                    Total Reconstruction
-                  </div>
-                  <div className="text-gray-900 dark:text-white text-2xl font-semibold">
-                    0
-                    <span className="text-green-500 text-sm font-medium flex items-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4 mr-1"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 15l7-7 7 7"
-                        />
-                      </svg>
-                      122
-                    </span>
-                  </div>
-                </div>
+        {/* Courses Card */}
+        <div
+          onClick={() => navigate("/course")}
+          className="transform hover:scale-105 transition-all cursor-pointer"
+        >
+          <div className="bg-white rounded-xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
+            <div className="flex justify-between items-start">
+              <div className="bg-[#5570F1]/10 p-3 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-[#5570F1]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                </svg>
               </div>
-              <button
-                className="w-full text-yellow-900 bg-yellow-100 hover:bg-yellow-200 text-sm py-2 px-4 rounded-md transition duration-300 ease-in-out"
-                onClick={() => navigate("/reconstruction-card")}
-              >
-                View all
-              </button>
+              <span className="text-[#5570F1] text-sm font-medium px-2.5 py-0.5 rounded-lg bg-[#5570F1]/10">
+                Active
+              </span>
+            </div>
+            <div className="mt-6">
+              <h3 className="text-3xl font-bold text-gray-700">
+                {courses?.courses?.length || 0}
+              </h3>
+              <p className="text-c-grays mt-1 text-sm">Total Courses</p>
+            </div>
+          </div>
+        </div>
+        <div
+          onClick={() => navigate("/student")}
+          className="transform hover:scale-105 transition-all cursor-pointer"
+        >
+          <div className="bg-white rounded-xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)]">
+            <div className="flex justify-between items-start">
+              <div className="bg-[#5570F1]/10 p-3 rounded-lg">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-[#5570F1]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M4.26 10.147a60.436 60.436 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                </svg>
+              </div>
+              <span className="text-[#5570F1] text-sm font-medium px-2.5 py-0.5 rounded-lg bg-[#5570F1]/10">
+                Active
+              </span>
+            </div>
+            <div className="mt-6">
+              <h3 className="text-3xl font-bold text-gray-700">
+                {students?.students?.length || 0}
+              </h3>
+              <p className="text-c-grays mt-1 text-sm">Total Students</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-c-white dark:bg-d-back2 w-[100%] rounded-lg min-h-[300px] mt-4 shadow-lg px-6 py-10">
-        <div className="grid grid-cols-1">
-          <AreaChartHero />
-        </div>
+      <div className="bg-white rounded-xl shadow-sm mt-6 p-6">
+        <AreaChartHero />
       </div>
     </div>
   );

@@ -5,12 +5,16 @@ import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { ProfileGet } from "./features/ProfileSlice";
 import {
+  ActionLogsGet,
   BatchesGet,
   CoursesGet,
   DegreeTypesGet,
   GroupGet,
   MembersGet,
+  PermissionsGet,
   StatusesGet,
+  StudentsGet,
+  VouchersGet,
 } from "./features/GroupApiSlice";
 
 function App() {
@@ -34,6 +38,10 @@ function App() {
     dispatch(StatusesGet());
     dispatch(CoursesGet());
     dispatch(BatchesGet());
+    dispatch(StudentsGet());
+    dispatch(VouchersGet());
+    dispatch(ActionLogsGet());
+    dispatch(PermissionsGet());
   }, []);
 
   return (

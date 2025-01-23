@@ -61,15 +61,23 @@ const BatchDetailsModal = ({ open, handleOpen, batchData }) => {
             <Typography className="font-bold mb-4 text-lg text-c-grays">
               Course Information
             </Typography>
-            <div className="space-y-3">
-              <p>
-                <span className="font-semibold">Course Name:</span>{" "}
-                {batchData.course[0]?.name}
-              </p>
-              <p>
-                <span className="font-semibold">Per Semester Fee:</span>{" "}
-                {batchData.course[0]?.perSemesterFee}
-              </p>
+            <div className="space-y-4">
+              {batchData.course.map((course, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-gray-50 rounded-lg border border-gray-100"
+                >
+                  <div className="space-y-2">
+                    <p className="font-semibold text-purple-700">
+                      {course.name}
+                    </p>
+                    <p className="text-sm">
+                      <span className="font-medium">Per Semester Fee:</span> Rs.{" "}
+                      {course.perSemesterFee}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

@@ -15,6 +15,11 @@ import Degree from "../pages/degree type/Degree";
 import Status from "../pages/status/Status";
 import CoursePage from "../pages/course/Course";
 import BatchPage from "../pages/batch/Batch";
+import StudentPage from "../pages/student/Student";
+import VoucherPage from "../pages/voucher/Voucher";
+import ActionLogPage from "../pages/action log/ActionLog";
+import BulkMessagePage from "../pages/bulk message/BulkMessage";
+import PermissionPage from "../pages/permission/Permission";
 
 const Routess = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
@@ -73,19 +78,6 @@ const Routess = () => {
       document.documentElement.classList.add("dark");
     }
   }, []);
-
-  // Function to toggle dark mode
-  const handleToggle = () => {
-    if (isDarkMode) {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("darkMode", "disabled");
-    } else {
-      setIsDarkMode(true);
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("darkMode", "enabled");
-    }
-  };
 
   return (
     <div>
@@ -202,6 +194,14 @@ const Routess = () => {
                 <Route path="/course" element={<CoursePage />}></Route>
                 <Route path="/profile" element={<Profile />}></Route>
                 <Route path="/batch" element={<BatchPage />}></Route>
+                <Route path="/student" element={<StudentPage />}></Route>
+                <Route path="/voucher" element={<VoucherPage />}></Route>
+                <Route path="/action-log" element={<ActionLogPage />}></Route>
+                <Route path="/permission" element={<PermissionPage />}></Route>
+                <Route
+                  path="/bulk-message"
+                  element={<BulkMessagePage />}
+                ></Route>
               </Route>
             </Routes>
           </div>

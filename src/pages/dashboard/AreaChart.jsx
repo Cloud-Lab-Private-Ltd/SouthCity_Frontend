@@ -1,82 +1,34 @@
+import { useSelector } from "react-redux";
 import { AreaChart } from '@tremor/react';
 
-const chartdata = [
-  {
-    date: 'Jan 22',
-    SolarPanels: 2890,
-    'Inverters': 2338,
-  },
-  {
-    date: 'Feb 22',
-    SolarPanels: 2756,
-    'Inverters': 2103,
-  },
-  {
-    date: 'Mar 22',
-    SolarPanels: 3322,
-    'Inverters': 2194,
-  },
-  {
-    date: 'Apr 22',
-    SolarPanels: 3470,
-    'Inverters': 2108,
-  },
-  {
-    date: 'May 22',
-    SolarPanels: 3475,
-    'Inverters': 1812,
-  },
-  {
-    date: 'Jun 22',
-    SolarPanels: 3129,
-    'Inverters': 1726,
-  },
-  {
-    date: 'Jul 22',
-    SolarPanels: 3490,
-    'Inverters': 1982,
-  },
-  {
-    date: 'Aug 22',
-    SolarPanels: 2903,
-    'Inverters': 2012,
-  },
-  {
-    date: 'Sep 22',
-    SolarPanels: 2643,
-    'Inverters': 2342,
-  },
-  {
-    date: 'Oct 22',
-    SolarPanels: 2837,
-    'Inverters': 2473,
-  },
-  {
-    date: 'Nov 22',
-    SolarPanels: 2954,
-    'Inverters': 3848,
-  },
-  {
-    date: 'Dec 22',
-    SolarPanels: 3239,
-    'Inverters': 3736,
-  },
-];
-
-const dataFormatter = (number) =>
-  `$${Intl.NumberFormat('us').format(number).toString()}`;
-
 export function AreaChartHero() {
+  const { batches, courses } = useSelector((state) => state.groupdata);
+
+  // Process data for chart
+  const chartdata = [
+    {
+      category: 'Current',
+      'Active Batches': batches?.batches?.filter(b => b.status === 'Active').length || 0,
+      'Active Courses': courses?.courses?.filter(c => c.Status === 'Active').length || 0,
+      'Total Students': batches?.batches?.reduce((acc, batch) => acc + (batch.totalSeats - batch.availableSeats), 0) || 0,
+      'Available Seats': batches?.batches?.reduce((acc, batch) => acc + batch.availableSeats, 0) || 0,
+    }
+  ];
+
   return (
-    <AreaChart
-      className="h-80 text-white"
-      data={chartdata}
-      index="date"
-      categories={['SolarPanels', 'Inverters']}
-      colors={['indigo', 'rose']}
-      valueFormatter={dataFormatter}
-      yAxisWidth={60}
-      onValueChange={(v) => console.log(v)}
-    />
+    <div>
+      <h3 className="text-lg font-semibold text-gray-700 mb-4">
+      Analytics Overview
+      </h3>
+      <AreaChart
+        className="h-80"
+        data={chartdata}
+        index="category"
+        categories={['Active Batches', 'Active Courses', 'Total Students', 'Available Seats']}
+        colors={['#5570F1', '#7b9dff', '#4b5563', '#9ca3af']}
+        valueFormatter={(number) => number.toString()}
+        yAxisWidth={40}
+      />
+    </div>
   );
 }
