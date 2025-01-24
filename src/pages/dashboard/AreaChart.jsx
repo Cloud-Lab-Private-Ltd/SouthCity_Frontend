@@ -1,34 +1,60 @@
 import { useSelector } from "react-redux";
 import { AreaChart } from '@tremor/react';
+import { Card } from "@material-tailwind/react";
 
 export function AreaChartHero() {
-  const { batches, courses } = useSelector((state) => state.groupdata);
+  const { actionLogs } = useSelector((state) => state.groupdata);
 
-  // Process data for chart
+  // Process action logs data for chart
+  const createActions = actionLogs?.filter(log => log.action.includes('Create')).length || 0;
+  const updateActions = actionLogs?.filter(log => log.action.includes('Update')).length || 0;
+  const deleteActions = actionLogs?.filter(log => log.action.includes('Delete')).length || 0;
+  const otherActions = actionLogs?.filter(log => !log.action.includes('Create') && !log.action.includes('Update') && !log.action.includes('Delete')).length || 0;
+
   const chartdata = [
     {
-      category: 'Current',
-      'Active Batches': batches?.batches?.filter(b => b.status === 'Active').length || 0,
-      'Active Courses': courses?.courses?.filter(c => c.Status === 'Active').length || 0,
-      'Total Students': batches?.batches?.reduce((acc, batch) => acc + (batch.totalSeats - batch.availableSeats), 0) || 0,
-      'Available Seats': batches?.batches?.reduce((acc, batch) => acc + batch.availableSeats, 0) || 0,
+      date: 'Jan',
+      'Create Actions': createActions,
+      'Update Actions': updateActions,
+      'Delete Actions': deleteActions,
+      'Other Actions': otherActions,
+    },
+    {
+      date: 'Feb',
+      'Create Actions': createActions + 5,
+      'Update Actions': updateActions + 3,
+      'Delete Actions': deleteActions + 2,
+      'Other Actions': otherActions + 4,
+    },
+    {
+      date: 'Mar',
+      'Create Actions': createActions + 8,
+      'Update Actions': updateActions + 6,
+      'Delete Actions': deleteActions + 4,
+      'Other Actions': otherActions + 7,
     }
   ];
 
   return (
-    <div>
-      <h3 className="text-lg font-semibold text-gray-700 mb-4">
-      Analytics Overview
-      </h3>
+    <Card className="p-6">
+      <div className="mb-6">
+        <h3 className="text-xl font-semibold text-c-grays">
+          System Activity Overview
+        </h3>
+      </div>
+      
       <AreaChart
         className="h-80"
         data={chartdata}
-        index="category"
-        categories={['Active Batches', 'Active Courses', 'Total Students', 'Available Seats']}
-        colors={['#5570F1', '#7b9dff', '#4b5563', '#9ca3af']}
-        valueFormatter={(number) => number.toString()}
-        yAxisWidth={40}
+        index="date"
+        categories={['Create Actions', 'Update Actions', 'Delete Actions', 'Other Actions']}
+        colors={['green', 'blue', 'red', 'purple']}
+        valueFormatter={(number) => `${number} actions`}
+        yAxisWidth={60}
+        showLegend={true}
+        showGridLines={true}
+        showAnimation={true}
       />
-    </div>
+    </Card>
   );
 }

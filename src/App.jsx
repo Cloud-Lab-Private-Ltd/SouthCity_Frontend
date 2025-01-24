@@ -11,6 +11,7 @@ import {
   DegreeTypesGet,
   GroupGet,
   MembersGet,
+  NotificationsGet,
   PermissionsGet,
   StatusesGet,
   StudentsGet,
@@ -42,6 +43,7 @@ function App() {
     dispatch(VouchersGet());
     dispatch(ActionLogsGet());
     dispatch(PermissionsGet());
+    dispatch(NotificationsGet());
   }, []);
 
   return (

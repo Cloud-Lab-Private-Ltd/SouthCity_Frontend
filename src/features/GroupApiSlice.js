@@ -151,7 +151,20 @@ export const PermissionsGet = createAsyncThunk("PermissionsGet", async () => {
   }
 });
 
-
+export const NotificationsGet = createAsyncThunk("NotificationsGet", async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/sch/getNotification`, {
+      headers: {
+        "x-access-token": token,
+      },
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+});
 
 export const GroupSlice = createSlice({
   name: "GroupData",
@@ -166,6 +179,8 @@ export const GroupSlice = createSlice({
     vouchers: [],
     actionLogs: [],
     permissionsList: [],
+    notifications: [],
+    notificationLoading: false,
     permissionsLoading: false,
     actionLogLoading: false,
     voucherLoading: false,
@@ -291,6 +306,17 @@ export const GroupSlice = createSlice({
       })
       .addCase(PermissionsGet.rejected, (state, action) => {
         state.permissionsLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(NotificationsGet.pending, (state) => {
+        state.notificationLoading = true;
+      })
+      .addCase(NotificationsGet.fulfilled, (state, action) => {
+        state.notificationLoading = false;
+        state.notifications = action.payload;
+      })
+      .addCase(NotificationsGet.rejected, (state, action) => {
+        state.notificationLoading = false;
         state.error = action.error.message;
       });
   },

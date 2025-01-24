@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card, Typography, Button } from "@material-tailwind/react";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
@@ -152,6 +152,59 @@ const MemberBody = () => {
     });
   };
 
+  const [csvFile, setCSVFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // Add bulk upload handler
+  const handleBulkUpload = async () => {
+    if (!csvFile) {
+      Swal.fire({
+        icon: "warning",
+        title: "File Required",
+        text: "Please select a CSV file",
+        confirmButtonColor: "#5570F1",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("csvFile", csvFile);
+
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/api/v1/sch/import/member`,
+        formData,
+        {
+          headers: {
+            "x-access-token": token,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Members imported successfully!",
+          confirmButtonColor: "#5570F1",
+        });
+        dispatch(MembersGet());
+        setCSVFile(null);
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Failed to import members",
+        confirmButtonColor: "#5570F1",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleToggleStatus = (id, currentStatus) => {
     const action = currentStatus ? "verify" : "block";
 
@@ -176,6 +229,20 @@ const MemberBody = () => {
           confirmButtonColor: "#5570F1",
         });
       });
+  };
+
+  const { permissions } = useSelector(
+    (state) => state.profiledata?.profile?.member?.group || {}
+  );
+  const admin = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.name
+  );
+
+  // Create a helper function to check permissions
+  const checkPermission = (type) => {
+    if (admin === "admins") return true;
+    const memberPermission = permissions?.find((p) => p.pageName === "Member");
+    return memberPermission?.[type] || false;
   };
 
   const { groups, members, memberLoading } = useSelector(
@@ -252,242 +319,268 @@ const MemberBody = () => {
       <div className="mb-8">
         <h2 className="text-[1.5rem] font-semibold text-c-grays">MEMBERS</h2>
       </div>
-
-      <Card className="p-6 mb-8 bg-white">
-        <div className="mb-6">
-          <Typography className="text-xl font-semibold text-c-grays">
-            Add New Member
-          </Typography>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Name *
-              </label>
-              <input
-                type="text"
-                name="Name"
-                value={formData.Name}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter name"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Email *
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter email"
-                autoComplete="off"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Password *
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter password"
-                autoComplete="new-password"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Group *
-              </label>
-              <select
-                name="group"
-                value={formData.group}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              >
-                <option value="">Select group</option>
-                {groups?.groups?.map((group) => (
-                  <option key={group._id} value={group._id}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Address *
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter address"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                NIC *
-              </label>
-              <input
-                type="text"
-                name="nic"
-                value={formData.nic}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter NIC"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Qualification *
-              </label>
-              <input
-                type="text"
-                name="qulification"
-                value={formData.qulification}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter qualification"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Country *
-              </label>
-              <input
-                type="text"
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter country"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                City *
-              </label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter city"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Phone Number *
-              </label>
-              <input
-                type="text"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter phone number"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Gender *
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              >
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Profile Image *
-              </label>
+      {(admin === "admins" || checkPermission("insert")) && (
+        <Card className="p-6 mb-8 bg-white">
+          <div className="mb-6 flex flex-col md:flex-row justify-between gap-4">
+            <Typography className="text-xl font-semibold text-c-grays">
+              Add New Member
+            </Typography>
+            <div className="flex flex-wrap gap-4 items-center">
               <input
                 type="file"
-                name="profileImage"
-                onChange={handleFileChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
+                accept=".csv"
+                ref={fileInputRef}
+                onChange={(e) => setCSVFile(e.target.files[0])}
+                className="hidden"
               />
+              <Button
+                className="bg-c-purple w-full md:w-auto"
+                onClick={() => fileInputRef.current.click()}
+              >
+                Select CSV
+              </Button>
+              <Button
+                className="bg-c-purple w-full h-[45px] flex items-center justify-center overflow-hidden md:w-auto"
+                onClick={handleBulkUpload}
+                disabled={loading || !csvFile}
+              >
+                {loading ? (
+                  <span className="loading loading-dots loading-lg"></span>
+                ) : (
+                  "Import CSV"
+                )}
+              </Button>
             </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                CV *
-              </label>
-              <input
-                type="file"
-                name="cv"
-                onChange={handleFileChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Verification Status
-              </label>
-              <div className="flex items-center gap-2">
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Name *
+                </label>
                 <input
-                  type="checkbox"
-                  name="verified"
-                  checked={formData.verified}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      verified: e.target.checked,
-                    })
-                  }
-                  className="w-4 h-4 text-c-purple border-gray-300 rounded focus:ring-c-purple"
+                  type="text"
+                  name="Name"
+                  value={formData.Name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter name"
+                  required
                 />
-                <span className="text-c-grays">Verified Member</span>
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter email"
+                  autoComplete="off"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter password"
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Group *
+                </label>
+                <select
+                  name="group"
+                  value={formData.group}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                >
+                  <option value="">Select group</option>
+                  {groups?.groups?.map((group) => (
+                    <option key={group._id} value={group._id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Address *
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter address"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  NIC *
+                </label>
+                <input
+                  type="text"
+                  name="nic"
+                  value={formData.nic}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter NIC"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Qualification *
+                </label>
+                <input
+                  type="text"
+                  name="qulification"
+                  value={formData.qulification}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter qualification"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Country *
+                </label>
+                <input
+                  type="text"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter country"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  City *
+                </label>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter city"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Phone Number *
+                </label>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter phone number"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Gender *
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                >
+                  <option value="">Select gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Profile Image *
+                </label>
+                <input
+                  type="file"
+                  name="profileImage"
+                  onChange={handleFileChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  CV *
+                </label>
+                <input
+                  type="file"
+                  name="cv"
+                  onChange={handleFileChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Verification Status
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    name="verified"
+                    checked={formData.verified}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        verified: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-c-purple border-gray-300 rounded focus:ring-c-purple"
+                  />
+                  <span className="text-c-grays">Verified Member</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="mt-6 flex justify-end">
-            <Button
-              className="bg-c-purple h-[45px] overflow-hidden flex items-center justify-center"
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="loading loading-dots loading-lg"></span>
-              ) : (
-                "Add Member"
-              )}
-            </Button>
-          </div>
-        </form>
-      </Card>
-
+            <div className="mt-6 flex justify-end">
+              <Button
+                className="bg-c-purple h-[45px] overflow-hidden flex items-center justify-center"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="loading loading-dots loading-lg"></span>
+                ) : (
+                  "Add Member"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
       <Card className="overflow-hidden bg-white">
         <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Typography className="text-xl font-semibold text-c-grays">
@@ -589,17 +682,28 @@ const MemberBody = () => {
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          className={
-                            item.blocked ? "bg-green-500" : "bg-red-500"
-                          }
-                          onClick={() =>
-                            handleToggleStatus(item._id, item.blocked)
-                          }
-                        >
-                          {item.blocked ? "Unblock" : "Block"}
-                        </Button>
+                        {(admin === "admins" || checkPermission("update")) && (
+                          <>
+                            <Button
+                              size="sm"
+                              className={
+                                item.blocked ? "bg-green-500" : "bg-red-500"
+                              }
+                              onClick={() =>
+                                handleToggleStatus(item._id, item.blocked)
+                              }
+                            >
+                              {item.blocked ? "Unblock" : "Block"}
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="bg-c-purple"
+                              onClick={() => handleEdit(item)}
+                            >
+                              Edit
+                            </Button>
+                          </>
+                        )}
                         <Button
                           size="sm"
                           className="bg-blue-500"
@@ -607,20 +711,15 @@ const MemberBody = () => {
                         >
                           View Details
                         </Button>
-                        <Button
-                          size="sm"
-                          className="bg-c-purple"
-                          onClick={() => handleEdit(item)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-red-500"
-                          onClick={() => handleDelete(item._id)}
-                        >
-                          Delete
-                        </Button>
+                        {(admin === "admins" || checkPermission("delete")) && (
+                          <Button
+                            size="sm"
+                            className="bg-red-500"
+                            onClick={() => handleDelete(item._id)}
+                          >
+                            Delete
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

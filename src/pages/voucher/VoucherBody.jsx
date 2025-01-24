@@ -75,335 +75,45 @@ const VoucherBody = () => {
     setTotalFee(total.toString());
   }, [admissionFee, semesterFee, securityFee, libraryFee]);
 
-  // const generateVoucherPDF = () => {
-  //   const doc = new jsPDF("l", "mm", "a3");
-  //   const pageWidth = doc.internal.pageSize.width;
-  //   const columnWidth = pageWidth / 4;
-
-  //   for (let i = 0; i < 4; i++) {
-  //     const xOffset = i * columnWidth;
-  //     const yOffset = 10;
-
-  //     // Header Section
-  //     doc.setFontSize(8);
-  //     doc.setFont("helvetica", "bold");
-  //     doc.text("00915", xOffset + columnWidth / 2, 12 + yOffset, {
-  //       align: "center",
-  //     });
-  //     doc.text(
-  //       "South City Healthcare Education Hub",
-  //       xOffset + columnWidth / 2,
-  //       18 + yOffset,
-  //       {
-  //         align: "center",
-  //       }
-  //     );
-  //     doc.setFontSize(6);
-  //     doc.setFont("helvetica", "normal");
-  //     doc.text(
-  //       "Pvt. Ltd. Clifton, Karachi.",
-  //       xOffset + columnWidth / 2,
-  //       23 + yOffset,
-  //       {
-  //         align: "center",
-  //       }
-  //     );
-  //     doc.setFont("helvetica", "bold");
-  //     doc.text("SCPTR", xOffset + columnWidth / 2, 28 + yOffset, {
-  //       align: "center",
-  //     });
-  //     doc.setFont("helvetica", "normal");
-  //     doc.text("United Bank Ltd", xOffset + columnWidth / 2, 33 + yOffset, {
-  //       align: "center",
-  //     });
-  //     doc.text(
-  //       "Branch Name: Boat Basin",
-  //       xOffset + columnWidth / 2,
-  //       38 + yOffset,
-  //       {
-  //         align: "center",
-  //       }
-  //     );
-  //     doc.text("Branch Code: 1212", xOffset + columnWidth / 2, 43 + yOffset, {
-  //       align: "center",
-  //     });
-  //     doc.text(
-  //       "Account #: 2509114461",
-  //       xOffset + columnWidth / 2,
-  //       48 + yOffset,
-  //       { align: "center" }
-  //     );
-
-  //     // Student Information
-  //     doc.setFontSize(6);
-  //     doc.setFont("helvetica", "bold");
-  //     doc.text("Full Name", xOffset + 10, 55 + yOffset);
-  //     doc.line(
-  //       xOffset + 25,
-  //       55 + yOffset,
-  //       xOffset + columnWidth - 10,
-  //       55 + yOffset
-  //     );
-  //     doc.text("Father Name", xOffset + 10, 60 + yOffset);
-  //     doc.line(
-  //       xOffset + 25,
-  //       60 + yOffset,
-  //       xOffset + columnWidth - 10,
-  //       60 + yOffset
-  //     );
-  //     doc.text("CNIC", xOffset + 10, 65 + yOffset);
-  //     doc.line(
-  //       xOffset + 25,
-  //       65 + yOffset,
-  //       xOffset + columnWidth - 10,
-  //       65 + yOffset
-  //     );
-  //     doc.text("Application No", xOffset + 10, 70 + yOffset);
-  //     doc.line(
-  //       xOffset + 25,
-  //       70 + yOffset,
-  //       xOffset + columnWidth - 10,
-  //       70 + yOffset
-  //     );
-
-  //     // Fee Breakdown Section
-  //     doc.setFontSize(6);
-  //     doc.setFillColor(200, 200, 200);
-  //     doc.rect(xOffset + 10, 75 + yOffset, 40, 5, "F");
-  //     doc.rect(xOffset + 50, 75 + yOffset, 40, 5, "F");
-  //     doc.text("Detail of Fee", xOffset + 12, 78.5 + yOffset);
-  //     doc.text("Amount", xOffset + 52, 78.5 + yOffset);
-
-  //     const feeDetails = [
-  //       "Admission Fee",
-  //       "Semester Fee",
-  //       "Examination Fee",
-  //       "Security Deposit",
-  //       "Library Charges",
-  //       "Total",
-  //     ];
-  //     let yPos = 85 + yOffset;
-  //     feeDetails.forEach((item) => {
-  //       doc.text(item, xOffset + 12, yPos);
-  //       doc.line(xOffset + 50, yPos - 1, xOffset + columnWidth - 10, yPos - 1);
-  //       yPos += 5;
-  //     });
-
-  //     // Amount in Words
-  //     doc.setFont("helvetica", "bold");
-  //     doc.text("In word:", xOffset + 10, 120 + yOffset);
-  //     doc.line(
-  //       xOffset + 25,
-  //       120 + yOffset,
-  //       xOffset + columnWidth - 10,
-  //       120 + yOffset
-  //     );
-
-  //     // Footer Section
-  //     doc.text("Applicant Signature", xOffset + 10, 125 + yOffset);
-  //     doc.line(
-  //       xOffset + 35,
-  //       125 + yOffset,
-  //       xOffset + columnWidth - 10,
-  //       125 + yOffset
-  //     );
-  //     doc.text(
-  //       "Receiving Branch Stamp and Signature",
-  //       xOffset + 10,
-  //       130 + yOffset
-  //     );
-  //     doc.line(
-  //       xOffset + 55,
-  //       130 + yOffset,
-  //       xOffset + columnWidth - 10,
-  //       130 + yOffset
-  //     );
-
-  //     // Border around each voucher
-  //     doc.rect(xOffset + 5, 5 + yOffset, columnWidth - 10, 130);
-  //   }
-
-  //   const pdfBlob = doc.output("blob");
-  //   const pdfUrl = URL.createObjectURL(pdfBlob);
-  //   window.open(pdfUrl, "_blank");
-  // };
-
-  console.log("Voucher generated successfully!");
-
-<<<<<<< HEAD
-=======
-
-  const generateVoucherPDF = () => {
+  const generateVoucherPDF = (voucherData) => {
     const doc = new jsPDF("p", "mm", "a4");
     const pageWidth = doc.internal.pageSize.width;
     const pageHeight = doc.internal.pageSize.height;
     const voucherWidth = pageWidth / 2;
     const voucherHeight = pageHeight / 2;
 
-    for (let row = 0; row < 2; row++) {
-        for (let col = 0; col < 2; col++) {
-            const xOffset = col * voucherWidth;
-            const yOffset = row * voucherHeight;
-
-            // Header Section
-            doc.setFontSize(6);
-            doc.setFont("helvetica", "bold");
-            doc.text("00915", xOffset + voucherWidth/2, 8 + yOffset, {
-                align: "center",
-            });
-            doc.text(
-                "South City Healthcare Education Hub",
-                xOffset + voucherWidth/2,
-                12 + yOffset,
-                { align: "center" }
-            );
-            doc.setFontSize(5);
-            doc.setFont("helvetica", "normal");
-            doc.text(
-                "Pvt. Ltd. Clifton, Karachi.",
-                xOffset + voucherWidth/2,
-                16 + yOffset,
-                { align: "center" }
-            );
-            doc.setFont("helvetica", "bold");
-            doc.text("SCPTR", xOffset + voucherWidth/2, 20 + yOffset, {
-                align: "center",
-            });
-            doc.setFont("helvetica", "normal");
-            doc.text(
-                "United Bank Ltd",
-                xOffset + voucherWidth/2,
-                24 + yOffset,
-                { align: "center" }
-            );
-            doc.text(
-                "Branch Name: Boat Basin",
-                xOffset + voucherWidth/2,
-                28 + yOffset,
-                { align: "center" }
-            );
-            doc.text(
-                "Branch Code: 1212",
-                xOffset + voucherWidth/2,
-                32 + yOffset,
-                { align: "center" }
-            );
-            doc.text(
-                "Account #: 2509114461",
-                xOffset + voucherWidth/2,
-                36 + yOffset,
-                { align: "center" }
-            );
-
-            // Student Information
-            doc.setFont("helvetica", "bold");
-            doc.text("Full Name", xOffset + 5, 42 + yOffset);
-            doc.line(
-                xOffset + 20,
-                42 + yOffset,
-                xOffset + voucherWidth - 5,
-                42 + yOffset
-            );
-            doc.text("Father Name", xOffset + 5, 47 + yOffset);
-            doc.line(
-                xOffset + 20,
-                47 + yOffset,
-                xOffset + voucherWidth - 5,
-                47 + yOffset
-            );
-            doc.text("CNIC", xOffset + 5, 52 + yOffset);
-            doc.line(
-                xOffset + 20,
-                52 + yOffset,
-                xOffset + voucherWidth - 5,
-                52 + yOffset
-            );
-            doc.text("Application No", xOffset + 5, 57 + yOffset);
-            doc.line(
-                xOffset + 20,
-                57 + yOffset,
-                xOffset + voucherWidth - 5,
-                57 + yOffset
-            );
-
-            // Fee Breakdown Section
-            doc.setFillColor(200, 200, 200);
-            doc.rect(xOffset + 5, 62 + yOffset, 35, 4, "F");
-            doc.rect(xOffset + 40, 62 + yOffset, 35, 4, "F");
-            doc.text("Detail of Fee", xOffset + 7, 65 + yOffset);
-            doc.text("Amount", xOffset + 42, 65 + yOffset);
-
-            const feeDetails = [
-                "Admission Fee",
-                "Semester Fee",
-                "Examination Fee",
-                "Security Deposit",
-                "Library Charges",
-                "Total",
-            ];
-            let yPos = 71 + yOffset;
-            feeDetails.forEach((item) => {
-                doc.text(item, xOffset + 7, yPos);
-                doc.line(
-                    xOffset + 40,
-                    yPos - 1,
-                    xOffset + voucherWidth - 5,
-                    yPos - 1
-                );
-                yPos += 4;
-            });
-
-            // Amount in Words
-            doc.text("In word:", xOffset + 5, 95 + yOffset);
-            doc.line(
-                xOffset + 20,
-                95 + yOffset,
-                xOffset + voucherWidth - 5,
-                95 + yOffset
-            );
-
-            // Footer Section
-            doc.text("Applicant Signature", xOffset + 5, 100 + yOffset);
-            doc.line(
-                xOffset + 30,
-                100 + yOffset,
-                xOffset + voucherWidth - 5,
-                100 + yOffset
-            );
-            doc.text(
-                "Receiving Branch Stamp and Signature",
-                xOffset + 5,
-                105 + yOffset
-            );
-            doc.line(
-                xOffset + 50,
-                105 + yOffset,
-                xOffset + voucherWidth - 5,
-                105 + yOffset
-            );
-
-            // Border around voucher
-            doc.rect(xOffset + 2, yOffset + 2, voucherWidth - 4, voucherHeight - 4);
-        }
->>>>>>> e6fbc0ca74ea26d6d6d890970349300772cf5660
-  const generateVoucherPDF = () => {
-    const doc = new jsPDF("p", "mm", "a4");
-    const pageWidth = doc.internal.pageSize.width;
-    const pageHeight = doc.internal.pageSize.height;
-    const voucherWidth = pageWidth / 2;
-    const voucherHeight = pageHeight / 2;
+    const copyTypes = [
+      "Bank Copy",
+      "Institute A/C Copy",
+      "Application Form Copy",
+      "Applicant Copy",
+    ];
 
     for (let row = 0; row < 2; row++) {
       for (let col = 0; col < 2; col++) {
         const xOffset = col * voucherWidth;
         const yOffset = row * voucherHeight;
+        const copyIndex = row * 2 + col;
 
         // Header Section
         doc.setFontSize(6);
         doc.setFont("helvetica", "bold");
-        doc.text("00915", xOffset + voucherWidth / 2, 8 + yOffset, {
-          align: "center",
-        });
+        doc.text(
+          voucherData.voucherNumber,
+          xOffset + voucherWidth / 2,
+          8 + yOffset,
+          {
+            align: "center",
+          }
+        );
+        doc.text(
+          copyTypes[copyIndex],
+          xOffset + voucherWidth - 10,
+          8 + yOffset,
+          {
+            align: "right",
+          }
+        );
         doc.text(
           "South City Healthcare Education Hub",
           xOffset + voucherWidth / 2,
@@ -454,6 +164,14 @@ const VoucherBody = () => {
           xOffset + voucherWidth - 5,
           42 + yOffset
         );
+        doc.setFont("helvetica", "normal");
+        doc.text(
+          voucherData.student?.fullName || "",
+          xOffset + 22,
+          41 + yOffset
+        );
+
+        doc.setFont("helvetica", "bold");
         doc.text("Father Name", xOffset + 5, 47 + yOffset);
         doc.line(
           xOffset + 20,
@@ -461,6 +179,14 @@ const VoucherBody = () => {
           xOffset + voucherWidth - 5,
           47 + yOffset
         );
+        doc.setFont("helvetica", "normal");
+        doc.text(
+          voucherData.student?.fatherName || "",
+          xOffset + 22,
+          46 + yOffset
+        );
+
+        doc.setFont("helvetica", "bold");
         doc.text("CNIC", xOffset + 5, 52 + yOffset);
         doc.line(
           xOffset + 20,
@@ -468,6 +194,10 @@ const VoucherBody = () => {
           xOffset + voucherWidth - 5,
           52 + yOffset
         );
+        doc.setFont("helvetica", "normal");
+        doc.text(voucherData.student?.nic || "", xOffset + 22, 51 + yOffset);
+
+        doc.setFont("helvetica", "bold");
         doc.text("Application No", xOffset + 5, 57 + yOffset);
         doc.line(
           xOffset + 20,
@@ -475,35 +205,53 @@ const VoucherBody = () => {
           xOffset + voucherWidth - 5,
           57 + yOffset
         );
+        doc.setFont("helvetica", "normal");
+        doc.text(
+          voucherData.student?.registrationId || "",
+          xOffset + 22,
+          56 + yOffset
+        );
 
-        // Fee Breakdown Section
+        // Fee Breakdown Section with full width background
         doc.setFillColor(200, 200, 200);
-        doc.rect(xOffset + 5, 62 + yOffset, 35, 4, "F");
-        doc.rect(xOffset + 40, 62 + yOffset, 35, 4, "F");
+        doc.rect(xOffset + 5, 62 + yOffset, voucherWidth - 10, 4, "F");
+        doc.setFont("helvetica", "bold");
         doc.text("Detail of Fee", xOffset + 7, 65 + yOffset);
-        doc.text("Amount", xOffset + 42, 65 + yOffset);
+        doc.text("Amount", xOffset + voucherWidth - 25, 65 + yOffset);
 
         const feeDetails = [
           "Admission Fee",
           "Semester Fee",
-          "Examination Fee",
+
           "Security Deposit",
           "Library Charges",
           "Total",
         ];
+
+        const feeAmounts = [
+          voucherData.admissionFee,
+          voucherData.semesterFee,
+
+          voucherData.securityFee,
+          voucherData.libraryFee,
+          voucherData.totalFee,
+        ];
+
         let yPos = 71 + yOffset;
-        feeDetails.forEach((item) => {
+        feeDetails.forEach((item, index) => {
+          doc.setFont("helvetica", "normal");
           doc.text(item, xOffset + 7, yPos);
-          doc.line(
-            xOffset + 40,
-            yPos - 1,
-            xOffset + voucherWidth - 5,
-            yPos - 1
+          // Align amounts to the right
+          doc.text(
+            `Rs. ${feeAmounts[index]}`,
+            xOffset + voucherWidth - 25,
+            yPos
           );
           yPos += 4;
         });
 
         // Amount in Words
+        doc.setFont("helvetica", "bold");
         doc.text("In word:", xOffset + 5, 95 + yOffset);
         doc.line(
           xOffset + 20,
@@ -511,6 +259,8 @@ const VoucherBody = () => {
           xOffset + voucherWidth - 5,
           95 + yOffset
         );
+        doc.setFont("helvetica", "normal");
+        doc.text(voucherData.inWordAmount, xOffset + 22, 94 + yOffset);
 
         // Footer Section
         doc.text("Applicant Signature", xOffset + 5, 100 + yOffset);
@@ -540,68 +290,63 @@ const VoucherBody = () => {
     const pdfBlob = doc.output("blob");
     const pdfUrl = URL.createObjectURL(pdfBlob);
     window.open(pdfUrl, "_blank");
-<<<<<<< HEAD
-};
-=======
   };
->>>>>>> 7a3f2bd7adbb5f82ace5f9b32101f0ff0b2bff5f
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // setLoading(true);
-    generateVoucherPDF();
+    setLoading(true);
 
-    // try {
-    //   await axios.post(
-    //     `${BASE_URL}/api/v1/sch/voucher`,
-    //     {
-    //       student: selectedStudent.value,
-    //       course: selectedCourse.value,
-    //       admissionFee,
-    //       semesterFee,
-    //       securityFee,
-    //       libraryFee,
-    //       totalFee,
-    //       inWordAmount,
-    //       dueDate,
-    //       monthOf,
-    //     },
-    //     {
-    //       headers: {
-    //         "x-access-token": token,
-    //       },
-    //     }
-    //   );
+    try {
+      await axios.post(
+        `${BASE_URL}/api/v1/sch/voucher`,
+        {
+          student: selectedStudent.value,
+          course: selectedCourse.value,
+          admissionFee,
+          semesterFee,
+          securityFee,
+          libraryFee,
+          totalFee,
+          inWordAmount,
+          dueDate,
+          monthOf,
+        },
+        {
+          headers: {
+            "x-access-token": token,
+          },
+        }
+      );
 
-    //   Swal.fire({
-    //     icon: "success",
-    //     title: "Success",
-    //     text: "Voucher created successfully!",
-    //     confirmButtonColor: "#5570F1",
-    //   });
-    //   dispatch(VouchersGet());
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Voucher created successfully!",
+        confirmButtonColor: "#5570F1",
+      });
+      dispatch(VouchersGet());
 
-    //   // Reset all states
-    //   setSelectedStudent(null);
-    //   setSelectedCourse(null);
-    //   setAdmissionFee("");
-    //   setSemesterFee("");
-    //   setSecurityFee("");
-    //   setLibraryFee("");
-    //   setTotalFee("");
-    //   setInWordAmount("");
-    //   setDueDate("");
-    //   setMonthOf("");
-    // } catch (error) {
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Error",
-    //     text: error.response?.data?.error || "Failed to create voucher",
-    //     confirmButtonColor: "#5570F1",
-    //   });
-    // } finally {
-    //   setLoading(false);
-    // }
+      // Reset all states
+      setSelectedStudent(null);
+      setSelectedCourse(null);
+      setAdmissionFee("");
+      setSemesterFee("");
+      setSecurityFee("");
+      setLibraryFee("");
+      setTotalFee("");
+      setInWordAmount("");
+      setDueDate("");
+      setMonthOf("");
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.error || "Failed to create voucher",
+        confirmButtonColor: "#5570F1",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = (id) => {
@@ -784,6 +529,23 @@ const VoucherBody = () => {
     }
   };
 
+  // Add at the top with other imports
+  const { permissions } = useSelector(
+    (state) => state.profiledata?.profile?.member?.group || {}
+  );
+  const admin = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.name
+  );
+
+  // Add permission check function
+  const checkPermission = (type) => {
+    if (admin === "admins") return true;
+    const voucherPermission = permissions?.find(
+      (p) => p.pageName === "Voucher"
+    );
+    return voucherPermission?.[type] || false;
+  };
+
   return (
     <div className="bg-[#F5F5F5]">
       <VoucherDetailsModal
@@ -801,166 +563,167 @@ const VoucherBody = () => {
       <div className="mb-8">
         <h2 className="text-[1.5rem] font-semibold text-c-grays">VOUCHER</h2>
       </div>
-      <Card className="p-6 mb-8 bg-white">
-        <Typography className="text-xl font-semibold text-c-grays mb-6">
-          Create Voucher
-        </Typography>
+      {(admin === "admins" || checkPermission("insert")) && (
+        <Card className="p-6 mb-8 bg-white">
+          <Typography className="text-xl font-semibold text-c-grays mb-6">
+            Create Voucher
+          </Typography>
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Select Student *
-              </label>
-              <Select
-                value={selectedStudent}
-                onChange={handleStudentSelect}
-                options={studentOptions}
-                styles={selectStyles}
-                placeholder="Select Student"
-                isSearchable
-                isClearable
-                required
-              />
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Select Student *
+                </label>
+                <Select
+                  value={selectedStudent}
+                  onChange={handleStudentSelect}
+                  options={studentOptions}
+                  styles={selectStyles}
+                  placeholder="Select Student"
+                  isSearchable
+                  isClearable
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Select Course *
+                </label>
+                <Select
+                  value={selectedCourse}
+                  onChange={(selected) => setSelectedCourse(selected)}
+                  options={courseOptions}
+                  styles={selectStyles}
+                  placeholder="Select Course"
+                  isSearchable
+                  isClearable
+                  required
+                  isDisabled={!selectedStudent}
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Admission Fee *
+                </label>
+                <input
+                  type="number"
+                  value={admissionFee}
+                  onChange={(e) => setAdmissionFee(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Semester Fee *
+                </label>
+                <input
+                  type="number"
+                  value={semesterFee}
+                  onChange={(e) => setSemesterFee(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Security Fee *
+                </label>
+                <input
+                  type="number"
+                  value={securityFee}
+                  onChange={(e) => setSecurityFee(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Library Fee *
+                </label>
+                <input
+                  type="number"
+                  value={libraryFee}
+                  onChange={(e) => setLibraryFee(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Total Fee
+                </label>
+                <input
+                  type="number"
+                  value={totalFee}
+                  readOnly
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Amount in Words *
+                </label>
+                <input
+                  type="text"
+                  value={inWordAmount}
+                  onChange={(e) => setInWordAmount(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Due Date *
+                </label>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Month Of *
+                </label>
+                <input
+                  type="month"
+                  value={monthOf}
+                  onChange={(e) => setMonthOf(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Select Course *
-              </label>
-              <Select
-                value={selectedCourse}
-                onChange={(selected) => setSelectedCourse(selected)}
-                options={courseOptions}
-                styles={selectStyles}
-                placeholder="Select Course"
-                isSearchable
-                isClearable
-                required
-                isDisabled={!selectedStudent}
-              />
+            <div className="mt-6 flex justify-end">
+              <Button
+                type="submit"
+                className="bg-c-purple h-[45px] overflow-hidden flex items-center justify-center"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="loading loading-dots loading-lg"></span>
+                ) : (
+                  "Create Voucher"
+                )}
+              </Button>
             </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Admission Fee *
-              </label>
-              <input
-                type="number"
-                value={admissionFee}
-                onChange={(e) => setAdmissionFee(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Semester Fee *
-              </label>
-              <input
-                type="number"
-                value={semesterFee}
-                onChange={(e) => setSemesterFee(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Security Fee *
-              </label>
-              <input
-                type="number"
-                value={securityFee}
-                onChange={(e) => setSecurityFee(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Library Fee *
-              </label>
-              <input
-                type="number"
-                value={libraryFee}
-                onChange={(e) => setLibraryFee(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Total Fee
-              </label>
-              <input
-                type="number"
-                value={totalFee}
-                readOnly
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Amount in Words *
-              </label>
-              <input
-                type="text"
-                value={inWordAmount}
-                onChange={(e) => setInWordAmount(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Due Date *
-              </label>
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Month Of *
-              </label>
-              <input
-                type="month"
-                value={monthOf}
-                onChange={(e) => setMonthOf(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <Button
-              type="submit"
-              className="bg-c-purple h-[45px] overflow-hidden flex items-center justify-center"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="loading loading-dots loading-lg"></span>
-              ) : (
-                "Create Voucher"
-              )}
-            </Button>
-          </div>
-        </form>
-      </Card>
-
+          </form>
+        </Card>
+      )}
       <Card className="overflow-hidden bg-white">
         <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Typography className="text-xl font-semibold text-c-grays">
@@ -1010,6 +773,11 @@ const VoucherBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
+                    Payment Slip
+                  </Typography>
+                </th>
+                <th className="p-4 border-b border-gray-100">
+                  <Typography className="text-c-grays font-semibold">
                     Actions
                   </Typography>
                 </th>
@@ -1030,6 +798,9 @@ const VoucherBody = () => {
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-32"></div>
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
+                      <div className="skeleton h-4 w-24"></div>
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-24"></div>
@@ -1077,8 +848,25 @@ const VoucherBody = () => {
                         {item.status}
                       </span>
                     </td>
+
+                    <td className="p-4 border-b border-gray-100">
+                      <Button
+                        size="sm"
+                        className="bg-blue-500"
+                        onClick={() => generateVoucherPDF(item)}
+                      >
+                        View Slip
+                      </Button>
+                    </td>
                     <td className="p-4 border-b border-gray-100">
                       <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-blue-500"
+                          onClick={() => generateVoucherPDF(item)}
+                        >
+                          View Slip
+                        </Button>
                         <Button
                           size="sm"
                           className="bg-blue-500"
@@ -1086,20 +874,24 @@ const VoucherBody = () => {
                         >
                           View Details
                         </Button>
-                        <Button
-                          size="sm"
-                          className="bg-red-500"
-                          onClick={() => handleDelete(item._id)}
-                        >
-                          Delete
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-c-purple"
-                          onClick={() => handleEdit(item)}
-                        >
-                          Edit
-                        </Button>
+                        {(admin === "admins" || checkPermission("delete")) && (
+                          <Button
+                            size="sm"
+                            className="bg-red-500"
+                            onClick={() => handleDelete(item._id)}
+                          >
+                            Delete
+                          </Button>
+                        )}
+                        {(admin === "admins" || checkPermission("update")) && (
+                          <Button
+                            size="sm"
+                            className="bg-c-purple"
+                            onClick={() => handleEdit(item)}
+                          >
+                            Edit
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

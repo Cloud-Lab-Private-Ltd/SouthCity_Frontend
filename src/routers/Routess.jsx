@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import { Index } from "../compunent/sidebar/Sidebar";
 import ProfileDrop from "../compunent/header/ProfileDrop";
-import { IconButton } from "@material-tailwind/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
+import { Badge, IconButton } from "@material-tailwind/react";
+import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import Private from "./Private";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Login from "../pages/login/Login";
@@ -20,10 +20,12 @@ import VoucherPage from "../pages/voucher/Voucher";
 import ActionLogPage from "../pages/action log/ActionLog";
 import BulkMessagePage from "../pages/bulk message/BulkMessage";
 import PermissionPage from "../pages/permission/Permission";
+import Notification from "../pages/notifications/Notification";
 
 const Routess = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => {
@@ -64,20 +66,34 @@ const Routess = () => {
 
   const formattedDate = currentDateTime.toLocaleDateString();
   const formattedTime = currentDateTime.toLocaleTimeString();
-
   const { profile } = useSelector((state) => state.profiledata);
 
-  // State to manage dark mode
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const notifications = useSelector(
+    (state) => state.groupdata?.notifications || []
+  );
 
-  // Check localStorage for dark mode preference on initial load
-  useEffect(() => {
-    const darkMode = localStorage.getItem("darkMode");
-    if (darkMode === "enabled") {
-      setIsDarkMode(true);
-      document.documentElement.classList.add("dark");
-    }
-  }, []);
+  // Get unread count with proper array check
+  const unreadCount = Array.isArray(notifications)
+    ? notifications.filter((n) => !n.isRead).length
+    : 0;
+
+  const permissions = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.permissions || []
+  );
+
+  const admin = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.name || []
+  );
+
+  const memberpermissions = permissions[0]?.read;
+  const coursepermissions = permissions[1]?.read;
+  const batchpermissions = permissions[2]?.read;
+  const studentpermissions = permissions[3]?.read;
+  const voucherpermissions = permissions[4]?.read;
+  const actionlogpermissions = permissions[5]?.read;
+  const bulkpermissions = permissions[6]?.read;
+  const degreepermissions = permissions[7]?.read;
+  const statuspermissions = permissions[8]?.read;
 
   return (
     <div>
@@ -128,8 +144,16 @@ const Routess = () => {
                   <div className="h-[70px] flex items-center justify-end gap-4 dark:text-d-text">
                     <span>{formattedDate}</span>
                     <span>{formattedTime}</span>
-
-                    {/* <NotificationsMenu /> */}
+                    <div
+                      className="relative cursor-pointer"
+                      onClick={() => navigate("/notifications")}
+                    >
+                      <Badge content={unreadCount} color="red">
+                        <IconButton variant="text" className="relative">
+                          <BellIcon className="h-6 w-6 text-gray-600" />
+                        </IconButton>
+                      </Badge>
+                    </div>
                     <ProfileDrop />
                   </div>
                 </div>
@@ -138,13 +162,22 @@ const Routess = () => {
                 <div className="grid grid-cols-2 px-3 flex-initial w-[100%]">
                   <div className="h-[70px] flex items-center justify-start gap-2">
                     <ProfileDrop />
-                    {/* <NotificationsMenu /> */}
                   </div>
                   <div className="flex items-center gap-1 justify-end">
                     <h1 className="text-[#282F3E] font-medium text-[0.9rem]">
                       {type}
                     </h1>
                     <div className="h-[70px] flex items-center">
+                      <div
+                        className="relative cursor-pointer"
+                        onClick={() => navigate("/notifications")}
+                      >
+                        <Badge content={unreadCount} color="red">
+                          <IconButton variant="text" className="relative">
+                            <BellIcon className="h-6 w-6 text-gray-600" />
+                          </IconButton>
+                        </Badge>
+                      </div>
                       <IconButton
                         variant="text"
                         size="lg"
@@ -187,21 +220,141 @@ const Routess = () => {
               <Route path="*" element={<Dashboard />}></Route>
               <Route element={<Private />}>
                 <Route path="/" element={<Dashboard />}></Route>
-                <Route path="/group-role" element={<GroupPage />}></Route>
-                <Route path="/members" element={<Member />}></Route>
-                <Route path="/degree-type" element={<Degree />}></Route>
-                <Route path="/status" element={<Status />}></Route>
-                <Route path="/course" element={<CoursePage />}></Route>
+                {admin === "admins" ? (
+                  <>
+                    <Route path="/group-role" element={<GroupPage />}></Route>
+                    <Route
+                      path="/permission"
+                      element={<PermissionPage />}
+                    ></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route path="/members" element={<Member />}></Route>
+                  </>
+                ) : memberpermissions ? (
+                  <>
+                    <Route path="/members" element={<Member />}></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route path="/degree-type" element={<Degree />}></Route>
+                  </>
+                ) : degreepermissions ? (
+                  <>
+                    <Route path="/degree-type" element={<Degree />}></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route path="/status" element={<Status />}></Route>
+                  </>
+                ) : statuspermissions ? (
+                  <>
+                    <Route path="/status" element={<Status />}></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route path="/course" element={<CoursePage />}></Route>
+                  </>
+                ) : coursepermissions ? (
+                  <>
+                    <Route path="/course" element={<CoursePage />}></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route path="/batch" element={<BatchPage />}></Route>
+                  </>
+                ) : batchpermissions ? (
+                  <>
+                    <Route path="/batch" element={<BatchPage />}></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route path="/student" element={<StudentPage />}></Route>
+                  </>
+                ) : studentpermissions ? (
+                  <>
+                    <Route path="/student" element={<StudentPage />}></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route path="/voucher" element={<VoucherPage />}></Route>
+                  </>
+                ) : voucherpermissions ? (
+                  <>
+                    <Route path="/voucher" element={<VoucherPage />}></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route
+                      path="/action-log"
+                      element={<ActionLogPage />}
+                    ></Route>
+                  </>
+                ) : actionlogpermissions ? (
+                  <>
+                    <Route
+                      path="/action-log"
+                      element={<ActionLogPage />}
+                    ></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route
+                      path="/bulk-message"
+                      element={<BulkMessagePage />}
+                    ></Route>
+                  </>
+                ) : bulkpermissions ? (
+                  <>
+                    <Route
+                      path="/bulk-message"
+                      element={<BulkMessagePage />}
+                    ></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
                 <Route path="/profile" element={<Profile />}></Route>
-                <Route path="/batch" element={<BatchPage />}></Route>
-                <Route path="/student" element={<StudentPage />}></Route>
-                <Route path="/voucher" element={<VoucherPage />}></Route>
-                <Route path="/action-log" element={<ActionLogPage />}></Route>
-                <Route path="/permission" element={<PermissionPage />}></Route>
-                <Route
-                  path="/bulk-message"
-                  element={<BulkMessagePage />}
-                ></Route>
+
+                <Route path="/notifications" element={<Notification />}></Route>
               </Route>
             </Routes>
           </div>

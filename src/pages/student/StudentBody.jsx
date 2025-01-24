@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card, Typography, Button } from "@material-tailwind/react";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
@@ -224,6 +224,60 @@ const StudentBody = () => {
     });
   };
 
+  // Add states
+  const [csvFile, setCSVFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  // Add bulk upload handler
+  const handleBulkUpload = async () => {
+    if (!csvFile) {
+      Swal.fire({
+        icon: "warning",
+        title: "File Required",
+        text: "Please select a CSV file",
+        confirmButtonColor: "#5570F1",
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("csvFile", csvFile);
+
+    setLoading(true);
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/api/v1/sch/import/student`,
+        formData,
+        {
+          headers: {
+            "x-access-token": token,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Students imported successfully!",
+          confirmButtonColor: "#5570F1",
+        });
+        dispatch(StudentsGet());
+        setCSVFile(null);
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Failed to import students",
+        confirmButtonColor: "#5570F1",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const [searchTerm, setSearchTerm] = useState("");
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
   const [selectedStudentDetails, setSelectedStudentDetails] = useState(null);
@@ -270,6 +324,22 @@ const StudentBody = () => {
     }
   };
 
+  const { permissions } = useSelector(
+    (state) => state.profiledata?.profile?.member?.group || {}
+  );
+  const admin = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.name
+  );
+
+  // Add permission check function
+  const checkPermission = (type) => {
+    if (admin === "admins") return true;
+    const studentPermission = permissions?.find(
+      (p) => p.pageName === "Student"
+    );
+    return studentPermission?.[type] || false;
+  };
+
   return (
     <div className="bg-[#F5F5F5]">
       <EditStudentModal
@@ -282,334 +352,365 @@ const StudentBody = () => {
       <div className="mb-8">
         <h2 className="text-[1.5rem] font-semibold text-c-grays">STUDENTS</h2>
       </div>
-      <Card className="p-6 mb-8 bg-white">
-        <Typography className="text-xl font-semibold text-c-grays mb-6">
-          Add Student
-        </Typography>
-
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Select Batch *
-              </label>
-              <Select
-                name="batch"
-                value={batchOptions?.find(
-                  (option) => option.value === formData.batch
-                )}
-                onChange={(selected) => {
-                  const selectedBatch = batches.batches.find(
-                    (batch) => batch._id === selected.value
-                  );
-                  setFormData({
-                    ...formData,
-                    batch: selected.value,
-                    course: [],
-                  });
-                  if (selectedBatch) {
-                    setCourseOptions(selectedBatch.course);
-                  }
-                }}
-                options={batchOptions}
-                styles={selectStyles}
-                placeholder="Select Batch"
-                isSearchable
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Email *
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                NIC *
-              </label>
-              <input
-                type="text"
-                name="nic"
-                value={formData.nic}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Password *
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Father Name *
-              </label>
-              <input
-                type="text"
-                name="fatherName"
-                value={formData.fatherName}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Address *
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Phone Number *
-              </label>
-              <input
-                type="text"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Gender *
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Date of Birth *
-              </label>
-              <input
-                type="date"
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                City *
-              </label>
-              <Select
-                name="city"
-                value={cityOptions.find(
-                  (option) => option.value === formData.city
-                )}
-                onChange={(selected) =>
-                  setFormData({
-                    ...formData,
-                    city: selected.value,
-                  })
-                }
-                options={cityOptions}
-                styles={selectStyles}
-                placeholder="Select City"
-                isSearchable
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Father Phone Number *
-              </label>
-              <input
-                type="text"
-                name="fatherPhone_number"
-                value={formData.fatherPhone_number}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Father Occupation *
-              </label>
-              <input
-                type="text"
-                name="fatherOccupation"
-                value={formData.fatherOccupation}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Profile Image
-              </label>
+      {(admin === "admins" || checkPermission("insert")) && (
+        <Card className="p-6 mb-8 bg-white">
+          <div className="mb-6 flex flex-col md:flex-row justify-between gap-4">
+            <Typography className="text-xl font-semibold text-c-grays">
+              Add Student
+            </Typography>
+            <div className="flex flex-wrap gap-4 items-center">
               <input
                 type="file"
-                name="profileImage"
-                onChange={(e) =>
-                  setFormData({ ...formData, profileImage: e.target.files[0] })
-                }
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                accept="image/*"
+                accept=".csv"
+                ref={fileInputRef}
+                onChange={(e) => setCSVFile(e.target.files[0])}
+                className="hidden"
               />
+              <Button
+                className="bg-c-purple w-full md:w-auto"
+                onClick={() => fileInputRef.current.click()}
+              >
+                Select CSV
+              </Button>
+              <Button
+                className="bg-c-purple w-full h-[45px] flex items-center justify-center overflow-hidden md:w-auto"
+                onClick={handleBulkUpload}
+                disabled={loading || !csvFile}
+              >
+                {loading ? (
+                  <span className="loading loading-dots loading-lg"></span>
+                ) : (
+                  "Import CSV"
+                )}
+              </Button>
             </div>
           </div>
-
-          <div className="mt-6 mb-6">
-            <Typography className="text-lg font-semibold text-c-grays mb-4">
-              Course Selection
-            </Typography>
-            <div className="w-full">
-              <div className="relative">
-                <select
-                  multiple
-                  name="course"
-                  value={formData.course}
-                  onChange={(e) => {
-                    const selectedOptions = Array.from(
-                      e.target.selectedOptions
-                    ).map((opt) => opt.value);
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Select Batch *
+                </label>
+                <Select
+                  name="batch"
+                  value={batchOptions?.find(
+                    (option) => option.value === formData.batch
+                  )}
+                  onChange={(selected) => {
+                    const selectedBatch = batches.batches.find(
+                      (batch) => batch._id === selected.value
+                    );
                     setFormData({
                       ...formData,
-                      course: selectedOptions,
+                      batch: selected.value,
+                      course: [],
                     });
+                    if (selectedBatch) {
+                      setCourseOptions(selectedBatch.course);
+                    }
                   }}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple min-h-[150px] bg-white shadow-sm"
+                  options={batchOptions}
+                  styles={selectStyles}
+                  placeholder="Select Batch"
+                  isSearchable
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  NIC *
+                </label>
+                <input
+                  type="text"
+                  name="nic"
+                  value={formData.nic}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Father Name *
+                </label>
+                <input
+                  type="text"
+                  name="fatherName"
+                  value={formData.fatherName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Address *
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Phone Number *
+                </label>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Gender *
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   required
                 >
-                  {courseOptions.map((course) => (
-                    <option
-                      key={course._id}
-                      value={course._id}
-                      className="p-3 hover:bg-gray-100 cursor-pointer"
-                    >
-                      {course.name}
-                    </option>
-                  ))}
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
                 </select>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  {formData.course.map((courseId) => {
-                    const selectedCourse = courseOptions.find(
-                      (c) => c._id === courseId
-                    );
-                    return (
-                      <span
-                        key={courseId}
-                        className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Date of Birth *
+                </label>
+                <input
+                  type="date"
+                  name="dob"
+                  value={formData.dob}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  City *
+                </label>
+                <Select
+                  name="city"
+                  value={cityOptions.find(
+                    (option) => option.value === formData.city
+                  )}
+                  onChange={(selected) =>
+                    setFormData({
+                      ...formData,
+                      city: selected.value,
+                    })
+                  }
+                  options={cityOptions}
+                  styles={selectStyles}
+                  placeholder="Select City"
+                  isSearchable
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Father Phone Number *
+                </label>
+                <input
+                  type="text"
+                  name="fatherPhone_number"
+                  value={formData.fatherPhone_number}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Father Occupation *
+                </label>
+                <input
+                  type="text"
+                  name="fatherOccupation"
+                  value={formData.fatherOccupation}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Profile Image
+                </label>
+                <input
+                  type="file"
+                  name="profileImage"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      profileImage: e.target.files[0],
+                    })
+                  }
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  accept="image/*"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 mb-6">
+              <Typography className="text-lg font-semibold text-c-grays mb-4">
+                Course Selection
+              </Typography>
+              <div className="w-full">
+                <div className="relative">
+                  <select
+                    multiple
+                    name="course"
+                    value={formData.course}
+                    onChange={(e) => {
+                      const selectedOptions = Array.from(
+                        e.target.selectedOptions
+                      ).map((opt) => opt.value);
+                      setFormData({
+                        ...formData,
+                        course: selectedOptions,
+                      });
+                    }}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple min-h-[150px] bg-white shadow-sm"
+                    required
+                  >
+                    {courseOptions.map((course) => (
+                      <option
+                        key={course._id}
+                        value={course._id}
+                        className="p-3 hover:bg-gray-100 cursor-pointer"
                       >
-                        {selectedCourse?.name}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormData({
-                              ...formData,
-                              course: formData.course.filter(
-                                (id) => id !== courseId
-                              ),
-                            });
-                          }}
-                          className="hover:text-red-300 transition-colors"
+                        {course.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {formData.course.map((courseId) => {
+                      const selectedCourse = courseOptions.find(
+                        (c) => c._id === courseId
+                      );
+                      return (
+                        <span
+                          key={courseId}
+                          className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
                         >
-                          ×
-                        </button>
-                      </span>
-                    );
-                  })}
+                          {selectedCourse?.name}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormData({
+                                ...formData,
+                                course: formData.course.filter(
+                                  (id) => id !== courseId
+                                ),
+                              });
+                            }}
+                            className="hover:text-red-300 transition-colors"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              name="verified"
-              checked={formData.verified}
-              onChange={(e) =>
-                setFormData({ ...formData, verified: e.target.checked })
-              }
-              className="mr-2"
-            />
-            <label className="text-c-grays text-sm font-medium">
-              Verified Student
-            </label>
-          </div>
-          <div className="mt-6 flex justify-end">
-            <Button
-              type="submit"
-              className="bg-c-purple h-[45px] overflow-hidden flex items-center justify-center"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="loading loading-dots loading-lg"></span>
-              ) : (
-                "Create Student"
-              )}
-            </Button>
-          </div>
-        </form>
-      </Card>
-
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="verified"
+                checked={formData.verified}
+                onChange={(e) =>
+                  setFormData({ ...formData, verified: e.target.checked })
+                }
+                className="mr-2"
+              />
+              <label className="text-c-grays text-sm font-medium">
+                Verified Student
+              </label>
+            </div>
+            <div className="mt-6 flex justify-end">
+              <Button
+                type="submit"
+                className="bg-c-purple h-[45px] overflow-hidden flex items-center justify-center"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="loading loading-dots loading-lg"></span>
+                ) : (
+                  "Create Student"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
       <Card className="overflow-hidden bg-white">
         <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Typography className="text-xl font-semibold text-c-grays">
@@ -736,20 +837,24 @@ const StudentBody = () => {
                         >
                           View Details
                         </Button>
-                        <Button
-                          size="sm"
-                          className="bg-c-purple"
-                          onClick={() => handleEdit(student)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-red-500"
-                          onClick={() => handleDelete(student._id)}
-                        >
-                          Delete
-                        </Button>
+                        {(admin === "admins" || checkPermission("update")) && (
+                          <Button
+                            size="sm"
+                            className="bg-c-purple"
+                            onClick={() => handleEdit(student)}
+                          >
+                            Edit
+                          </Button>
+                        )}
+                        {(admin === "admins" || checkPermission("delete")) && (
+                          <Button
+                            size="sm"
+                            className="bg-red-500"
+                            onClick={() => handleDelete(student._id)}
+                          >
+                            Delete
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

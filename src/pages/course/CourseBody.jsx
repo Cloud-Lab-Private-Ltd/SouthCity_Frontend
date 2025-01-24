@@ -343,6 +343,20 @@ const CourseBody = () => {
     }
   };
 
+  const { permissions } = useSelector(
+    (state) => state.profiledata?.profile?.member?.group || {}
+  );
+  const admin = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.name
+  );
+
+  // Add permission check function
+  const checkPermission = (type) => {
+    if (admin === "admins") return true;
+    const coursePermission = permissions?.find((p) => p.pageName === "Course");
+    return coursePermission?.[type] || false;
+  };
+
   return (
     <div className="bg-[#F5F5F5]">
       <EditCourseModal
@@ -356,324 +370,328 @@ const CourseBody = () => {
       <div className="mb-8">
         <h2 className="text-[1.5rem] font-semibold text-c-grays">COURSES</h2>
       </div>
-
-      <Card className="p-6 mb-8 bg-white">
-        <div className="mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <Typography className="text-xl font-semibold text-c-grays">
-            Add Course
-          </Typography>
-          <div className="flex flex-wrap gap-4 items-center">
-            <input
-              type="file"
-              accept=".csv"
-              ref={fileInputRef}
-              onChange={(e) => setCSVFile(e.target.files[0])}
-              className="hidden"
-            />
-            <Button
-              className="bg-c-purple w-full md:w-auto"
-              onClick={() => fileInputRef.current.click()}
-            >
-              Select CSV
-            </Button>
-            <Button
-              className="bg-c-purple w-full md:w-auto"
-              onClick={handleBulkUpload}
-              disabled={loading || !csvFile}
-            >
-              {loading ? (
-                <span className="loading loading-dots loading-lg"></span>
-              ) : (
-                "Import CSV"
-              )}
-            </Button>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Course Name *
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter course name"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Description *
-              </label>
-              <input
-                type="text"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter description"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Degree Type *
-              </label>
-              <select
-                name="degreeType"
-                value={formData.degreeType}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              >
-                <option value="">Select Degree Type</option>
-                {degreeTypes.map((type) => (
-                  <option key={type._id} value={type._id}>
-                    {type.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Course Code *
-              </label>
-              <input
-                type="text"
-                name="code"
-                value={formData.code}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter course code"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Duration *
-              </label>
-              <input
-                type="text"
-                name="duration"
-                value={formData.duration}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="e.g. 4 years"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Number of Semesters *
-              </label>
-              <input
-                type="number"
-                name="noOfSemesters"
-                value={formData.noOfSemesters}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Per Semester Fee *
-              </label>
-              <input
-                type="number"
-                name="perSemesterFee"
-                value={formData.perSemesterFee}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Admission Fee *
-              </label>
-              <input
-                type="number"
-                name="admissionFee"
-                value={formData.admissionFee}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Total Fee *
-              </label>
-              <input
-                type="number"
-                name="totalFee"
-                value={formData.totalFee}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Level *
-              </label>
-              <select
-                name="Level"
-                value={formData.Level}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              >
-                <option value="">Select Level</option>
-                <option value="Bachelors">Bachelors</option>
-                <option value="Masters">Masters</option>
-                <option value="Diploma">Diploma</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Category *
-              </label>
-              <input
-                type="text"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="e.g. Engineering"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Enrollment Start Date *
-              </label>
-              <input
-                type="date"
-                name="enrollment_Start_date"
-                value={formData.enrollment_Start_date}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Enrollment End Date *
-              </label>
-              <input
-                type="date"
-                name="enrollment_End_date"
-                value={formData.enrollment_End_date}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Syllabus (PDF/DOC) *
-              </label>
+      {(admin === "admins" || checkPermission("insert")) && (
+        <Card className="p-6 mb-8 bg-white">
+          <div className="mb-6 flex flex-col md:flex-row justify-between  gap-4">
+            <Typography className="text-xl font-semibold text-c-grays">
+              Add Course
+            </Typography>
+            <div className="flex flex-wrap gap-4 items-center">
               <input
                 type="file"
-                name="Syllabus"
-                onChange={handleFileChange}
-                accept=".pdf,.doc,.docx"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
+                accept=".csv"
+                ref={fileInputRef}
+                onChange={(e) => setCSVFile(e.target.files[0])}
+                className="hidden"
               />
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <div className="flex justify-between items-center mb-4">
-              <Typography className="text-lg font-semibold text-c-grays">
-                Semesters
-              </Typography>
               <Button
-                type="button"
-                onClick={addSemester}
-                className="bg-c-purple"
+                className="bg-c-purple w-full md:w-auto"
+                onClick={() => fileInputRef.current.click()}
               >
-                Add Semester
+                Select CSV
+              </Button>
+              <Button
+                className="bg-c-purple w-full h-[45px] flex items-center justify-center overflow-hidden md:w-auto"
+                onClick={handleBulkUpload}
+                disabled={loading || !csvFile}
+              >
+                {loading ? (
+                  <span className="loading loading-dots loading-lg"></span>
+                ) : (
+                  "Import CSV"
+                )}
               </Button>
             </div>
+          </div>
 
-            {formData.semesters.map((semester, index) => (
-              <div key={index} className="mb-4 p-4 border rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-c-grays text-sm font-medium mb-2">
-                      Semester No
-                    </label>
-                    <input
-                      type="text"
-                      value={semester.semesterNo}
-                      onChange={(e) =>
-                        handleSemesterChange(
-                          index,
-                          "semesterNo",
-                          e.target.value
-                        )
-                      }
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                      readOnly
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-c-grays text-sm font-medium mb-2">
-                      Subjects (comma separated)
-                    </label>
-                    <input
-                      type="text"
-                      value={semester.subjects}
-                      onChange={(e) =>
-                        handleSemesterChange(index, "subjects", e.target.value)
-                      }
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                      placeholder="e.g. Programming, Calculus, Physics"
-                    />
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Course Name *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter course name"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Description *
+                </label>
+                <input
+                  type="text"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter description"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Degree Type *
+                </label>
+                <select
+                  name="degreeType"
+                  value={formData.degreeType}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                >
+                  <option value="">Select Degree Type</option>
+                  {degreeTypes.map((type) => (
+                    <option key={type._id} value={type._id}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Course Code *
+                </label>
+                <input
+                  type="text"
+                  name="code"
+                  value={formData.code}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter course code"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Duration *
+                </label>
+                <input
+                  type="text"
+                  name="duration"
+                  value={formData.duration}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="e.g. 4 years"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Number of Semesters *
+                </label>
+                <input
+                  type="number"
+                  name="noOfSemesters"
+                  value={formData.noOfSemesters}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Per Semester Fee *
+                </label>
+                <input
+                  type="number"
+                  name="perSemesterFee"
+                  value={formData.perSemesterFee}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Admission Fee *
+                </label>
+                <input
+                  type="number"
+                  name="admissionFee"
+                  value={formData.admissionFee}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Total Fee *
+                </label>
+                <input
+                  type="number"
+                  name="totalFee"
+                  value={formData.totalFee}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Level *
+                </label>
+                <select
+                  name="Level"
+                  value={formData.Level}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                >
+                  <option value="">Select Level</option>
+                  <option value="Bachelors">Bachelors</option>
+                  <option value="Masters">Masters</option>
+                  <option value="Diploma">Diploma</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Category *
+                </label>
+                <input
+                  type="text"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="e.g. Engineering"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Enrollment Start Date *
+                </label>
+                <input
+                  type="date"
+                  name="enrollment_Start_date"
+                  value={formData.enrollment_Start_date}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Enrollment End Date *
+                </label>
+                <input
+                  type="date"
+                  name="enrollment_End_date"
+                  value={formData.enrollment_End_date}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Syllabus (PDF/DOC) *
+                </label>
+                <input
+                  type="file"
+                  name="Syllabus"
+                  onChange={handleFileChange}
+                  accept=".pdf,.doc,.docx"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <div className="flex justify-between items-center mb-4">
+                <Typography className="text-lg font-semibold text-c-grays">
+                  Semesters
+                </Typography>
+                <Button
+                  type="button"
+                  onClick={addSemester}
+                  className="bg-c-purple"
+                >
+                  Add Semester
+                </Button>
+              </div>
+
+              {formData.semesters.map((semester, index) => (
+                <div key={index} className="mb-4 p-4 border rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-c-grays text-sm font-medium mb-2">
+                        Semester No
+                      </label>
+                      <input
+                        type="text"
+                        value={semester.semesterNo}
+                        onChange={(e) =>
+                          handleSemesterChange(
+                            index,
+                            "semesterNo",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                        readOnly
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-c-grays text-sm font-medium mb-2">
+                        Subjects (comma separated)
+                      </label>
+                      <input
+                        type="text"
+                        value={semester.subjects}
+                        onChange={(e) =>
+                          handleSemesterChange(
+                            index,
+                            "subjects",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                        placeholder="e.g. Programming, Calculus, Physics"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          <div className="mt-6 flex justify-end">
-            <Button
-              type="submit"
-              className="bg-c-purple h-[45px] overflow-hidden flex items-center justify-center"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="loading loading-dots loading-lg"></span>
-              ) : (
-                "Add Course"
-              )}
-            </Button>
-          </div>
-        </form>
-      </Card>
-
+            <div className="mt-6 flex justify-end">
+              <Button
+                type="submit"
+                className="bg-c-purple h-[45px] overflow-hidden flex items-center justify-center"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="loading loading-dots loading-lg"></span>
+                ) : (
+                  "Add Course"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
       <Card className="overflow-hidden bg-white">
         <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Typography className="text-xl font-semibold text-c-grays">
@@ -794,20 +812,24 @@ const CourseBody = () => {
                         >
                           View Details
                         </Button>
-                        <Button
-                          size="sm"
-                          className="bg-c-purple"
-                          onClick={() => handleEdit(course)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-red-500"
-                          onClick={() => handleDelete(course._id)}
-                        >
-                          Delete
-                        </Button>
+                        {(admin === "admins" || checkPermission("update")) && (
+                          <Button
+                            size="sm"
+                            className="bg-c-purple"
+                            onClick={() => handleEdit(course)}
+                          >
+                            Edit
+                          </Button>
+                        )}
+                        {(admin === "admins" || checkPermission("delete")) && (
+                          <Button
+                            size="sm"
+                            className="bg-red-500"
+                            onClick={() => handleDelete(course._id)}
+                          >
+                            Delete
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

@@ -160,6 +160,22 @@ const DegreeBody = () => {
     }
   };
 
+  const { permissions } = useSelector(
+    (state) => state.profiledata?.profile?.member?.group || {}
+  );
+  const admin = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.name
+  );
+
+  // Add permission check function
+  const checkPermission = (type) => {
+    if (admin === "admins") return true;
+    const degreePermission = permissions?.find(
+      (p) => p.pageName === "Degree Type"
+    );
+    return degreePermission?.[type] || false;
+  };
+
   return (
     <div className="bg-[#F5F5F5]">
       <EditDegreeModal
@@ -175,62 +191,62 @@ const DegreeBody = () => {
           DEGREE TYPES
         </h2>
       </div>
-
-      <Card className="p-6 mb-8 bg-white">
-        <div className="mb-6">
-          <Typography className="text-xl font-semibold text-c-grays">
-            Add Degree Type
-          </Typography>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Name *
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter degree type name"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Description *
-              </label>
-              <input
-                type="text"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Enter description"
-                required
-              />
-            </div>
+      {(admin === "admins" || checkPermission("insert")) && (
+        <Card className="p-6 mb-8 bg-white">
+          <div className="mb-6">
+            <Typography className="text-xl font-semibold text-c-grays">
+              Add Degree Type
+            </Typography>
           </div>
 
-          <div className="mt-6 flex justify-end">
-            <Button
-              className="bg-c-purple h-[45px] overflow-hidden flex items-center justify-center"
-              type="submit"
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="loading loading-dots loading-lg"></span>
-              ) : (
-                "Add Degree Type"
-              )}
-            </Button>
-          </div>
-        </form>
-      </Card>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Name *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter degree type name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Description *
+                </label>
+                <input
+                  type="text"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  placeholder="Enter description"
+                  required
+                />
+              </div>
+            </div>
 
+            <div className="mt-6 flex justify-end">
+              <Button
+                className="bg-c-purple h-[45px] overflow-hidden flex items-center justify-center"
+                type="submit"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="loading loading-dots loading-lg"></span>
+                ) : (
+                  "Add Degree Type"
+                )}
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
       <Card className="overflow-hidden bg-white">
         <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Typography className="text-xl font-semibold text-c-grays">
@@ -305,20 +321,24 @@ const DegreeBody = () => {
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          className="bg-c-purple"
-                          onClick={() => handleEdit(item)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-red-500"
-                          onClick={() => handleDelete(item._id)}
-                        >
-                          Delete
-                        </Button>
+                        {(admin === "admins" || checkPermission("update")) && (
+                          <Button
+                            size="sm"
+                            className="bg-c-purple"
+                            onClick={() => handleEdit(item)}
+                          >
+                            Edit
+                          </Button>
+                        )}
+                        {(admin === "admins" || checkPermission("delete")) && (
+                          <Button
+                            size="sm"
+                            className="bg-red-500"
+                            onClick={() => handleDelete(item._id)}
+                          >
+                            Delete
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>

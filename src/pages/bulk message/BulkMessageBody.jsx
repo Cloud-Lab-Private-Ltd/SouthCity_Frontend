@@ -110,6 +110,23 @@ const BulkMessageBody = () => {
     }
   };
 
+  // Add at the top with other imports
+  const { permissions } = useSelector(
+    (state) => state.profiledata?.profile?.member?.group || {}
+  );
+  const admin = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.name
+  );
+
+  // Add permission check function
+  const checkPermission = (type) => {
+    if (admin === "admins") return true;
+    const bulkMessagePermission = permissions?.find(
+      (p) => p.pageName === "Bulk Message"
+    );
+    return bulkMessagePermission?.[type] || false;
+  };
+
   return (
     <div className="bg-[#F5F5F5] min-h-screen">
       <div className="mb-8">
@@ -117,152 +134,153 @@ const BulkMessageBody = () => {
           Bulk Message
         </h2>
       </div>
+      {(admin === "admins" || checkPermission("insert")) && (
+        <Card className="p-6 bg-white">
+          <div className="space-y-6">
+            <div>
+              <Typography className="text-c-grays font-medium mb-2">
+                Send to All Groups
+              </Typography>
+              <Checkbox
+                checked={formData.allGroups}
+                onChange={(e) => {
+                  setFormData({
+                    ...formData,
+                    allGroups: e.target.checked,
+                    groups: [], // Initialize as empty array instead of empty string
+                    recipients: [],
+                  });
+                  setSelectedGroup(null);
+                }}
+                label="Send to all groups"
+                className="text-c-purple"
+              />
+            </div>
 
-      <Card className="p-6 bg-white">
-        <div className="space-y-6">
-          <div>
-            <Typography className="text-c-grays font-medium mb-2">
-              Send to All Groups
-            </Typography>
-            <Checkbox
-              checked={formData.allGroups}
-              onChange={(e) => {
-                setFormData({
-                  ...formData,
-                  allGroups: e.target.checked,
-                  groups: [], // Initialize as empty array instead of empty string
-                  recipients: [],
-                });
-                setSelectedGroup(null);
-              }}
-              label="Send to all groups"
-              className="text-c-purple"
-            />
-          </div>
-
-          {!formData.allGroups && (
-            <>
-              <div>
-                <Typography className="text-c-grays font-medium mb-2">
-                  Select Group
-                </Typography>
-                <Select
-                  options={groupOptions}
-                  value={groupOptions?.find((option) =>
-                    formData.groups.includes(option.value)
-                  )}
-                  onChange={(selected) => {
-                    setFormData({
-                      ...formData,
-                      groups: [selected.value], // Wrap the value in an array
-                      recipients: [],
-                    });
-                    setSelectedGroup(selected);
-                  }}
-                  className="text-c-grays"
-                />
-              </div>
-
-              {selectedGroup && (
+            {!formData.allGroups && (
+              <>
                 <div>
                   <Typography className="text-c-grays font-medium mb-2">
-                    Select Recipients
+                    Select Group
                   </Typography>
                   <Select
-                    isMulti
-                    options={getRecipientOptions()}
-                    value={getRecipientOptions().filter((option) =>
-                      formData.recipients.includes(option.value)
+                    options={groupOptions}
+                    value={groupOptions?.find((option) =>
+                      formData.groups.includes(option.value)
                     )}
                     onChange={(selected) => {
                       setFormData({
                         ...formData,
-                        recipients: selected.map((item) => item.value),
+                        groups: [selected.value], // Wrap the value in an array
+                        recipients: [],
                       });
+                      setSelectedGroup(selected);
                     }}
                     className="text-c-grays"
                   />
                 </div>
-              )}
-            </>
-          )}
 
-          <div>
-            <Typography className="text-c-grays font-medium mb-2">
-              Subject *
-            </Typography>
-            <input
-              type="text"
-              value={formData.subject}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  subject: e.target.value,
-                })
-              }
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Enter message subject"
-            />
-          </div>
+                {selectedGroup && (
+                  <div>
+                    <Typography className="text-c-grays font-medium mb-2">
+                      Select Recipients
+                    </Typography>
+                    <Select
+                      isMulti
+                      options={getRecipientOptions()}
+                      value={getRecipientOptions().filter((option) =>
+                        formData.recipients.includes(option.value)
+                      )}
+                      onChange={(selected) => {
+                        setFormData({
+                          ...formData,
+                          recipients: selected.map((item) => item.value),
+                        });
+                      }}
+                      className="text-c-grays"
+                    />
+                  </div>
+                )}
+              </>
+            )}
 
-          <div>
-            <Typography className="text-c-grays font-medium mb-2">
-              Message *
-            </Typography>
-            <textarea
-              value={formData.message}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  message: e.target.value,
-                })
-              }
-              rows={4}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Enter your message"
-            />
-          </div>
+            <div>
+              <Typography className="text-c-grays font-medium mb-2">
+                Subject *
+              </Typography>
+              <input
+                type="text"
+                value={formData.subject}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    subject: e.target.value,
+                  })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                placeholder="Enter message subject"
+              />
+            </div>
 
-          <div className="flex gap-6">
-            <Checkbox
-              checked={formData.sendEmail}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  sendEmail: e.target.checked,
-                })
-              }
-              label="Send Email"
-              className="text-c-purple"
-            />
-            <Checkbox
-              checked={formData.sendNotification}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  sendNotification: e.target.checked,
-                })
-              }
-              label="Send Notification"
-              className="text-c-purple"
-            />
-          </div>
+            <div>
+              <Typography className="text-c-grays font-medium mb-2">
+                Message *
+              </Typography>
+              <textarea
+                value={formData.message}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    message: e.target.value,
+                  })
+                }
+                rows={4}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                placeholder="Enter your message"
+              />
+            </div>
 
-          <div className="flex justify-end">
-            <Button
-              className="bg-c-purple h-[45px] flex items-center justify-center"
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="loading loading-dots loading-lg"></span>
-              ) : (
-                "Send Message"
-              )}
-            </Button>
+            <div className="flex gap-6">
+              <Checkbox
+                checked={formData.sendEmail}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    sendEmail: e.target.checked,
+                  })
+                }
+                label="Send Email"
+                className="text-c-purple"
+              />
+              <Checkbox
+                checked={formData.sendNotification}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    sendNotification: e.target.checked,
+                  })
+                }
+                label="Send Notification"
+                className="text-c-purple"
+              />
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                className="bg-c-purple h-[45px] flex items-center justify-center"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="loading loading-dots loading-lg"></span>
+                ) : (
+                  "Send Message"
+                )}
+              </Button>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
     </div>
   );
 };

@@ -65,6 +65,20 @@ const EditPermissionModal = ({
       delete: false,
       read: false,
     },
+    {
+      pageName: "Degree Type",
+      insert: false,
+      update: false,
+      delete: false,
+      read: false,
+    },
+    {
+      pageName: "Status",
+      insert: false,
+      update: false,
+      delete: false,
+      read: false,
+    },
   ]);
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");

@@ -36,7 +36,7 @@ const Profile = () => {
               <div className="space-y-4">
                 <div>
                   <label className="text-gray-600 dark:text-gray-400 text-sm">Name</label>
-                  <p className="text-gray-900 dark:text-d-text font-medium">{profile.member?.name}</p>
+                  <p className="text-gray-900 dark:text-d-text font-medium">{profile.member?.Name}</p>
                 </div>
                 <div>
                   <label className="text-gray-600 dark:text-gray-400 text-sm">Email</label>

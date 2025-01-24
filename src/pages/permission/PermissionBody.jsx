@@ -6,7 +6,7 @@ import Select from "react-select";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
 import Swal from "sweetalert2";
-import EditPermissionModal from "./EditPermissionModal"
+import EditPermissionModal from "./EditPermissionModal";
 
 const PermissionBody = () => {
   const dispatch = useDispatch();
@@ -59,6 +59,20 @@ const PermissionBody = () => {
     },
     {
       pageName: "Bulk Message",
+      insert: false,
+      update: false,
+      delete: false,
+      read: false,
+    },
+    {
+      pageName: "Degree Type",
+      insert: false,
+      update: false,
+      delete: false,
+      read: false,
+    },
+    {
+      pageName: "Status",
       insert: false,
       update: false,
       delete: false,
@@ -164,6 +178,20 @@ const PermissionBody = () => {
           },
           {
             pageName: "Bulk Message",
+            insert: false,
+            update: false,
+            delete: false,
+            read: false,
+          },
+          {
+            pageName: "Degree Type",
+            insert: false,
+            update: false,
+            delete: false,
+            read: false,
+          },
+          {
+            pageName: "Status",
             insert: false,
             update: false,
             delete: false,
