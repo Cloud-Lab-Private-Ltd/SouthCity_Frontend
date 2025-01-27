@@ -14,6 +14,7 @@ import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
+import { allCountries } from "../../assets/json data/allCountries";
 
 const EditStudentModal = ({
   open,
@@ -44,19 +45,6 @@ const EditStudentModal = ({
   const [courseOptions, setCourseOptions] = useState([]);
   const { batches } = useSelector((state) => state.groupdata);
 
-  const pakistanCities = [
-    "Karachi",
-    "Lahore",
-    "Islamabad",
-    "Rawalpindi",
-    "Faisalabad",
-    "Multan",
-    "Peshawar",
-    "Quetta",
-    "Sialkot",
-    "Gujranwala",
-  ];
-
   const selectStyles = {
     control: (base) => ({
       ...base,
@@ -76,6 +64,11 @@ const EditStudentModal = ({
     }),
   };
 
+  // Get Pakistan cities from allCountries
+  const pakistanCities =
+    allCountries.find((country) => country.name === "Pakistan")?.cities || [];
+
+  // Create city options for Select component
   const cityOptions = pakistanCities.map((city) => ({
     value: city,
     label: city,
@@ -208,7 +201,6 @@ const EditStudentModal = ({
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Full Name *
@@ -224,7 +216,6 @@ const EditStudentModal = ({
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Email *
@@ -240,7 +231,6 @@ const EditStudentModal = ({
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   NIC *
@@ -256,7 +246,6 @@ const EditStudentModal = ({
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Father Name *
@@ -272,7 +261,6 @@ const EditStudentModal = ({
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Address *
@@ -288,7 +276,6 @@ const EditStudentModal = ({
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Phone Number *
@@ -304,7 +291,6 @@ const EditStudentModal = ({
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Gender *
@@ -323,7 +309,6 @@ const EditStudentModal = ({
                   <option value="Female">Female</option>
                 </select>
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Date of Birth *
@@ -350,7 +335,10 @@ const EditStudentModal = ({
                     (option) => option.value === formData.city
                   )}
                   onChange={(selected) =>
-                    setFormData({ ...formData, city: selected.value })
+                    setFormData({
+                      ...formData,
+                      city: selected.value,
+                    })
                   }
                   options={cityOptions}
                   styles={selectStyles}
@@ -359,7 +347,6 @@ const EditStudentModal = ({
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Father Phone Number *
@@ -378,7 +365,6 @@ const EditStudentModal = ({
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Father Occupation *

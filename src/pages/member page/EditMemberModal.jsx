@@ -4,6 +4,8 @@ import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
+import Select from "react-select";
+import { allCountries } from "../../assets/json data/allCountries";
 
 const EditMemberModal = ({
   open,
@@ -43,8 +45,34 @@ const EditMemberModal = ({
     }
   };
 
+  // Add these states
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [cityOptions, setCityOptions] = useState([]);
+
+  // Create country options
+  const countryOptions = allCountries.map((country) => ({
+    value: country.name,
+    label: country.name,
+  }));
+
   useEffect(() => {
     if (memberData) {
+      // Set initial country selection
+      const countryOption = countryOptions.find(
+        (option) => option.value === memberData.country
+      );
+      setSelectedCountry(countryOption);
+
+      // Set initial city options
+      const country = allCountries.find((c) => c.name === memberData.country);
+      if (country) {
+        const cities = country.cities.map((city) => ({
+          value: city,
+          label: city,
+        }));
+        setCityOptions(cities);
+      }
+
       setFormData({
         Name: memberData.Name,
         email: memberData.email,
@@ -60,6 +88,33 @@ const EditMemberModal = ({
       });
     }
   }, [memberData]);
+
+  // Handle country change
+  const handleCountryChange = (selected) => {
+    setSelectedCountry(selected);
+    setFormData({
+      ...formData,
+      country: selected.value,
+      city: "", // Reset city when country changes
+    });
+
+    const country = allCountries.find((c) => c.name === selected.value);
+    const cities = country
+      ? country.cities.map((city) => ({
+          value: city,
+          label: city,
+        }))
+      : [];
+    setCityOptions(cities);
+  };
+
+  // Handle city change
+  const handleCityChange = (selected) => {
+    setFormData({
+      ...formData,
+      city: selected.value,
+    });
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -206,17 +261,17 @@ const EditMemberModal = ({
               required
             />
           </div>
+       
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
               Country *
             </label>
-            <input
-              type="text"
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Enter country"
+            <Select
+              value={selectedCountry}
+              options={countryOptions}
+              onChange={handleCountryChange}
+              className="w-full"
+              placeholder="Select country"
               required
             />
           </div>
@@ -224,13 +279,15 @@ const EditMemberModal = ({
             <label className="block text-c-grays text-sm font-medium mb-2">
               City *
             </label>
-            <input
-              type="text"
-              name="city"
-              value={formData.city}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Enter city"
+            <Select
+              value={cityOptions.find(
+                (option) => option.value === formData.city
+              )}
+              options={cityOptions}
+              onChange={handleCityChange}
+              className="w-full"
+              placeholder="Select city"
+              isDisabled={!selectedCountry}
               required
             />
           </div>

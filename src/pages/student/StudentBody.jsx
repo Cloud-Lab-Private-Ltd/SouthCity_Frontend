@@ -8,6 +8,7 @@ import StudentDetailsModal from "./StudentDetailsModal";
 import { StudentsGet } from "../../features/GroupApiSlice";
 import Select from "react-select";
 import EditStudentModal from "./EditStudentModal";
+import { allCountries } from "../../assets/json data/allCountries";
 
 const StudentBody = () => {
   const [formData, setFormData] = useState({
@@ -37,19 +38,6 @@ const StudentBody = () => {
   const { students, studentLoading } = useSelector((state) => state.groupdata);
   const dispatch = useDispatch();
 
-  const pakistanCities = [
-    "Karachi",
-    "Lahore",
-    "Islamabad",
-    "Rawalpindi",
-    "Faisalabad",
-    "Multan",
-    "Peshawar",
-    "Quetta",
-    "Sialkot",
-    "Gujranwala",
-  ];
-
   const selectStyles = {
     control: (base) => ({
       ...base,
@@ -69,6 +57,11 @@ const StudentBody = () => {
     }),
   };
 
+  // Get Pakistan cities from allCountries
+  const pakistanCities =
+    allCountries.find((country) => country.name === "Pakistan")?.cities || [];
+
+  // Create city options for Select component
   const cityOptions = pakistanCities.map((city) => ({
     value: city,
     label: city,

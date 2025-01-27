@@ -158,17 +158,18 @@ const Routess = () => {
                       className="relative cursor-pointer"
                       onClick={() => navigate("/notifications")}
                     >
-             <Badge 
-  content={unreadCount} 
-  color="red"
-  invisible={unreadCount === 0}
-  className={`${unreadCount > 9 ? 'rounded-full px-2' : ''}`}
->
-  <IconButton variant="text" className="relative">
-    <BellIcon className="h-6 w-6 text-gray-600" />
-  </IconButton>
-</Badge>
-
+                      <Badge
+                        content={unreadCount}
+                        color="red"
+                        invisible={unreadCount === 0}
+                        className={`${
+                          unreadCount > 9 ? "rounded-full px-2" : ""
+                        }`}
+                      >
+                        <IconButton variant="text" className="relative">
+                          <BellIcon className="h-6 w-6 text-gray-600" />
+                        </IconButton>
+                      </Badge>
                     </div>
                     <ProfileDrop />
                   </div>
