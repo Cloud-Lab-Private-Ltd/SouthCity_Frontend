@@ -131,11 +131,17 @@ const GroupBody = () => {
     handleOpen();
   };
 
-  const filteredGroups = groups?.groups?.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredGroups = groups?.groups
+    ?.filter(
+      (item) =>
+        item.name.toLowerCase() !== "students" &&
+        item.description.toLowerCase() !== "group for students"
+    )
+    .filter(
+      (item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 5;

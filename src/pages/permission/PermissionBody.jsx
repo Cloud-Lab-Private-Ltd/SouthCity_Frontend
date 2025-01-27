@@ -80,9 +80,11 @@ const PermissionBody = () => {
     },
   ]);
 
-  const groupOptions = groups?.groups?.map((group) => ({
+  const groupOptions = groups?.groups?.filter(
+    group => group.name.toLowerCase() !== "students"
+  ).map(group => ({
     value: group._id,
-    label: group.name,
+    label: group.name
   }));
 
   const handlePermissionChange = (pageIndex, field) => {
