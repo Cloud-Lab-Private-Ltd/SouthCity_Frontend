@@ -44,6 +44,8 @@ const EditStudentModal = ({
   const [loading, setLoading] = useState(false);
   const [courseOptions, setCourseOptions] = useState([]);
   const { batches } = useSelector((state) => state.groupdata);
+  const [profileImage, setProfileImage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const selectStyles = {
     control: (base) => ({
@@ -115,14 +117,30 @@ const EditStudentModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage("");
+    const formDataToSend = new FormData();
+    Object.keys(formData).forEach((key) => {
+      if (key === "course") {
+        formData[key].forEach((courseId) => {
+          formDataToSend.append("course[]", courseId);
+        });
+      } else {
+        formDataToSend.append(key, formData[key]);
+      }
+    });
+
+    if (profileImage) {
+      formDataToSend.append("profileImage", profileImage);
+    }
 
     try {
       const response = await axios.put(
         `${BASE_URL}/api/v1/sch/students/${studentData._id}`,
-        formData,
+        formDataToSend,
         {
           headers: {
             "x-access-token": token,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -137,12 +155,9 @@ const EditStudentModal = ({
       handleOpen();
       onSuccess();
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.response?.data?.message || "Failed to update student",
-        confirmButtonColor: "#5570F1",
-      });
+      setErrorMessage(
+        error.response?.data?.message || "Failed to update student"
+      );
     } finally {
       setLoading(false);
     }
@@ -383,6 +398,26 @@ const EditStudentModal = ({
                   required
                 />
               </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2s">
+                  Profile Image
+                </label>
+                <input
+                  type="file"
+                  onChange={(e) => setProfileImage(e.target.files[0])}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  accept="image/*"
+                />
+                {studentData?.profileImage && (
+                  <div className="mt-2">
+                    <img
+                      src={studentData.profileImage}
+                      alt="Current profile"
+                      className="w-20 h-20 object-cover rounded-full"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             <div className="mt-6 mb-6">
               <Typography className="text-lg font-semibold text-c-grays mb-4">
@@ -464,11 +499,22 @@ const EditStudentModal = ({
               </label>
             </div>
 
+            {errorMessage && (
+              <div className="px-6 py-3 mb-4">
+                <div
+                  className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative"
+                  role="alert"
+                >
+                  <span className="block sm:inline">{errorMessage}</span>
+                </div>
+              </div>
+            )}
+
             <div className="mt-10 flex justify-end gap-4">
               <Button
                 variant="outlined"
                 onClick={handleOpen}
-                className="text-c-purple border-c-purple px-6"
+                className="text-c-purple h-[45px] border-c-purple px-6"
                 size="lg"
               >
                 Cancel
