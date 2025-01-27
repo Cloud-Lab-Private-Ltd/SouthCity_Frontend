@@ -9,23 +9,24 @@ import {
   Typography,
 } from "@material-tailwind/react";
 import {
-  Cog6ToothIcon,
-  InboxArrowDownIcon,
-  LifebuoyIcon,
   PowerIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/solid";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const ProfileDrop = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { profile, student } = useSelector((state) => state.profiledata);
+  const studentName = localStorage.getItem("groupName");
+
   const closeMenu = (label) => {
     if (label === "Sign Out") {
       localStorage.clear();
       navigate("/login");
       setIsMenuOpen(false);
-    }else if(label === "My Profile"){
+    } else if(label === "My Profile") {
       navigate("/profile");
     } else {
       setIsMenuOpen(false);
@@ -37,23 +38,12 @@ const ProfileDrop = () => {
       label: "My Profile",
       icon: UserCircleIcon,
     },
-    // {
-    //   label: "Edit Profile",
-    //   icon: Cog6ToothIcon,
-    // },
-    // {
-    //   label: "Inbox",
-    //   icon: InboxArrowDownIcon,
-    // },
-    // {
-    //   label: "Help",
-    //   icon: LifebuoyIcon,
-    // },
     {
       label: "Sign Out",
       icon: PowerIcon,
     },
   ];
+
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
       <MenuHandler>
@@ -65,11 +55,13 @@ const ProfileDrop = () => {
           <Avatar
             variant="circular"
             size="md"
-            alt="tania andrew"
+            alt="profile"
             withBorder={true}
             color="blue-gray"
-            className=" p-0.5"
-            src="https://cdn.pixabay.com/photo/2019/08/11/18/59/icon-4399701_1280.png"
+            className="p-0.5"
+            src={studentName === "Students" 
+              ? student?.student?.profileImage 
+              : profile?.member?.profileImage || "https://cdn.pixabay.com/photo/2019/08/11/18/59/icon-4399701_1280.png"}
           />
         </Button>
       </MenuHandler>

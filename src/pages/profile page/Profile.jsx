@@ -1,72 +1,170 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ProfileGet } from "../../features/ProfileSlice";
+import { ProfileGet, StudentGet } from "../../features/ProfileSlice";
 
 const Profile = () => {
   const dispatch = useDispatch();
   const userId = localStorage.getItem("userId");
+  const studentName = localStorage.getItem("groupName");
+  const { profile, student } = useSelector((state) => state.profiledata);
 
   useEffect(() => {
-    dispatch(ProfileGet(userId));
-  }, []);
-
-  const { profile } = useSelector((state) => state.profiledata);
-  if (profile.message === "Invalid token") {
-    localStorage.clear();
-    window.location.reload();
-    navigate("/login");
-  }
+    if (studentName === "Students") {
+      dispatch(StudentGet());
+    } else {
+      dispatch(ProfileGet(userId));
+    }
+  }, [dispatch, userId, studentName]);
 
   return (
-    <div>
-      <div className="flex h-[100vh w-[100%]">
-        <div className="w-[100%] bg-c-back dark:bg-d-back min-h-[90vh] px-6 py-5 dash-body">
-          {/* Header matching Dashboard style */}
-          <div className="grid grid-cols-2 mb-8">
-            <div>
-              <h2 className="text-c-grays dark:text-d-text font-semibold text-[1.5rem] uppercase">
-                PROFILE
-              </h2>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">Profile</h1>
 
-          {/* Profile Content */}
-          <div className="bg-white dark:bg-d-back2 rounded-xl p-6 shadow-tremor-card">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <label className="text-gray-600 dark:text-gray-400 text-sm">Name</label>
-                  <p className="text-gray-900 dark:text-d-text font-medium">{profile.member?.Name}</p>
+        {studentName === "Students" ? (
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            {/* Profile Header */}
+            <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-6">
+              <div className="flex items-center space-x-4">
+                <div className="avatar">
+                  <div className="w-24 rounded-full ring ring-white">
+                    <img src={student?.student?.profileImage} alt="Profile" />
+                  </div>
                 </div>
-                <div>
-                  <label className="text-gray-600 dark:text-gray-400 text-sm">Email</label>
-                  <p className="text-gray-900 dark:text-d-text font-medium">{profile.member?.email}</p>
-                </div>
-                <div>
-                  <label className="text-gray-600 dark:text-gray-400 text-sm">Staff ID</label>
-                  <p className="text-gray-900 dark:text-d-text font-medium">{profile.member?.staffId}</p>
+                <div className="text-white">
+                  <h2 className="text-2xl font-bold">{student?.student?.fullName}</h2>
+                  <p className="text-blue-100">{student?.student?.registrationId}</p>
                 </div>
               </div>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="text-gray-600 dark:text-gray-400 text-sm">Group</label>
-                  <p className="text-gray-900 dark:text-d-text font-medium">{profile.member?.group?.name}</p>
+            </div>
+
+            {/* Profile Content */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Personal Information */}
+                <div className="card bg-base-100 shadow-md">
+                  <div className="card-body">
+                    <h3 className="card-title text-gray-700 mb-4">Personal Information</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm text-gray-500">Father's Name</label>
+                        <p className="font-medium">{student?.student?.fatherName}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">Email</label>
+                        <p className="font-medium">{student?.student?.email}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">Phone</label>
+                        <p className="font-medium">{student?.student?.phoneNumber}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-gray-600 dark:text-gray-400 text-sm">Phone</label>
-                  <p className="text-gray-900 dark:text-d-text font-medium">{profile.member?.phoneNumber}</p>
+
+                {/* Academic Information */}
+                <div className="card bg-base-100 shadow-md">
+                  <div className="card-body">
+                    <h3 className="card-title text-gray-700 mb-4">Academic Details</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm text-gray-500">Course</label>
+                        <p className="font-medium">{student?.student?.course[0]?.name}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">Batch</label>
+                        <p className="font-medium">{student?.student?.batch?.batchName}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">Current Semester</label>
+                        <p className="font-medium">{student?.student?.currentSemester}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-gray-600 dark:text-gray-400 text-sm">Location</label>
-                  <p className="text-gray-900 dark:text-d-text font-medium">
-                    {profile.member?.city}, {profile.member?.country}
-                  </p>
+
+                {/* Contact Information */}
+                <div className="card bg-base-100 shadow-md">
+                  <div className="card-body">
+                    <h3 className="card-title text-gray-700 mb-4">Contact Details</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm text-gray-500">Address</label>
+                        <p className="font-medium">{student?.student?.address}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">City</label>
+                        <p className="font-medium">{student?.student?.city}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">Country</label>
+                        <p className="font-medium">{student?.student?.country}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            {/* Staff Profile Header */}
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-6">
+              <div className="flex items-center space-x-4">
+                <div className="avatar placeholder">
+                  <div className="w-24 rounded-full bg-white text-gray-700 ring ring-white">
+                    <span className="text-3xl">{profile?.member?.Name?.[0]}</span>
+                  </div>
+                </div>
+                <div className="text-white">
+                  <h2 className="text-2xl font-bold">{profile?.member?.Name}</h2>
+                  <p className="text-indigo-100">{profile?.member?.staffId}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Staff Profile Content */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="card bg-base-100 shadow-md">
+                  <div className="card-body">
+                    <h3 className="card-title text-gray-700 mb-4">Professional Details</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm text-gray-500">Email</label>
+                        <p className="font-medium">{profile?.member?.email}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">Group</label>
+                        <p className="font-medium">{profile?.member?.group?.name}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">Phone</label>
+                        <p className="font-medium">{profile?.member?.phoneNumber}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="card bg-base-100 shadow-md">
+                  <div className="card-body">
+                    <h3 className="card-title text-gray-700 mb-4">Location Details</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm text-gray-500">City</label>
+                        <p className="font-medium">{profile?.member?.city}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">Country</label>
+                        <p className="font-medium">{profile?.member?.country}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

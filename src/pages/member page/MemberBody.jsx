@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { MembersGet } from "../../features/GroupApiSlice";
 import EditMemberModal from "./EditMemberModal";
 import MemberDetailsModal from "./MemberDetailsModal";
+import Select from "react-select";
+import {allCountries} from "../../assets/json data/allCountries";
 
 const MemberBody = () => {
   const [formData, setFormData] = useState({
@@ -229,6 +231,42 @@ const MemberBody = () => {
           confirmButtonColor: "#5570F1",
         });
       });
+  };
+
+  // Add these states
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [cityOptions, setCityOptions] = useState([]);
+
+  // Create country options
+  const countryOptions = allCountries?.map((country) => ({
+    value: country.name,
+    label: country.name,
+  }));
+
+  // Handle country change
+  const handleCountryChange = (selected) => {
+    setSelectedCountry(selected);
+    setFormData({
+      ...formData,
+      country: selected.value,
+    });
+
+    const country = allCountries?.find((c) => c.name === selected.value);
+    const cities = country
+      ? country.cities.map((city) => ({
+          value: city,
+          label: city,
+        }))
+      : [];
+    setCityOptions(cities);
+  };
+
+  // Handle city change
+  const handleCityChange = (selected) => {
+    setFormData({
+      ...formData,
+      city: selected.value,
+    });
   };
 
   const { permissions } = useSelector(
@@ -465,27 +503,25 @@ const MemberBody = () => {
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Country *
                 </label>
-                <input
-                  type="text"
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  placeholder="Enter country"
+                <Select
+                  options={countryOptions}
+                  onChange={handleCountryChange}
+                  className="w-full"
+                  placeholder="Select country"
                   required
                 />
               </div>
+
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   City *
                 </label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  placeholder="Enter city"
+                <Select
+                  options={cityOptions}
+                  onChange={handleCityChange}
+                  className="w-full"
+                  placeholder="Select city"
+                  isDisabled={!selectedCountry}
                   required
                 />
               </div>

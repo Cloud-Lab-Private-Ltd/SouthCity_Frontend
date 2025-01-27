@@ -21,6 +21,7 @@ import ActionLogPage from "../pages/action log/ActionLog";
 import BulkMessagePage from "../pages/bulk message/BulkMessage";
 import PermissionPage from "../pages/permission/Permission";
 import Notification from "../pages/notifications/Notification";
+import StudentVoucher from "../pages/student vouncher/StudentVoucher";
 
 const Routess = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
@@ -66,7 +67,8 @@ const Routess = () => {
 
   const formattedDate = currentDateTime.toLocaleDateString();
   const formattedTime = currentDateTime.toLocaleTimeString();
-  const { profile } = useSelector((state) => state.profiledata);
+  const { profile, student } = useSelector((state) => state.profiledata);
+  const studentName = localStorage.getItem("groupName");
 
   const notifications = useSelector(
     (state) => state.groupdata?.notifications || []
@@ -133,12 +135,20 @@ const Routess = () => {
                     <div className="avatar online placeholder">
                       <div className="bg-neutral text-neutral-content w-10 rounded-full">
                         <span className="text-lg">
-                          {profile?.member?.Name?.[0]}
+                          {studentName === "Students" ? (
+                            <>{student?.student?.fullName?.[0]}</>
+                          ) : (
+                            <>{profile?.member?.Name?.[0]}</>
+                          )}
                         </span>
                       </div>
                     </div>
                     <h1 className="text-[#282F3E] font-semibold dark:text-d-text">
-                      {profile?.member?.Name}
+                      {studentName === "Students" ? (
+                        <>{student?.student?.fullName}</>
+                      ) : (
+                        <>{profile?.member?.Name}</>
+                      )}
                     </h1>
                   </div>
                   <div className="h-[70px] flex items-center justify-end gap-4 dark:text-d-text">
@@ -219,6 +229,17 @@ const Routess = () => {
               <Route path="/login" element={<Login />}></Route>
               <Route path="*" element={<Dashboard />}></Route>
               <Route element={<Private />}>
+                {studentName === "Students" ? (
+                  <>
+                    <Route
+                      path="/student-voucher"
+                      element={<StudentVoucher />}
+                    ></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
                 <Route path="/" element={<Dashboard />}></Route>
                 {admin === "admins" ? (
                   <>

@@ -20,6 +20,8 @@ export function Index({ isDrawerOpen }) {
     (state) => state.profiledata?.profile?.member?.group?.name || []
   );
 
+  const studentName = localStorage.getItem("groupName")
+
   const memberpermissions = permissions[0]?.read;
   const coursepermissions = permissions[1]?.read;
   const batchpermissions = permissions[2]?.read;
@@ -523,6 +525,36 @@ export function Index({ isDrawerOpen }) {
               ) : (
                 ""
               )}
+
+              {
+                studentName === "Students"?<>
+                 <ListItem
+                    className="text-c-grays group-hover:text-gray-800"
+                    onClick={() => navigate("/student-voucher")}
+                  >
+                    <ListItemPrefix>
+                      <svg
+                        width="100%"
+                        height="100%"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                      >
+                        <path
+                          d="M19.5 3.5L18 2L16.5 3.5L15 2L13.5 3.5L12 2L10.5 3.5L9 2L7.5 3.5L6 2V13.5C6 13.5 6 22 12 22C18 22 18 13.5 18 13.5V2L16.5 3.5M13 17H11V15H13V17M13 13H11V7H13V13Z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </ListItemPrefix>
+                    Voucher
+                  </ListItem>
+                
+                </>:""
+              }
 
               {admin === "admins" ? (
                 <>

@@ -773,6 +773,11 @@ const VoucherBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
+                    Slip
+                  </Typography>
+                </th>
+                <th className="p-4 border-b border-gray-100">
+                  <Typography className="text-c-grays font-semibold">
                     Payment Slip
                   </Typography>
                 </th>
@@ -859,14 +864,25 @@ const VoucherBody = () => {
                       </Button>
                     </td>
                     <td className="p-4 border-b border-gray-100">
+                      {item?.paymentSlip ? (
+                        <>
+                          {" "}
+                          <Button
+                            size="sm"
+                            className="bg-blue-500"
+                            onClick={() =>
+                              window.open(item?.paymentSlip, "_blank")
+                            }
+                          >
+                            View Payment
+                          </Button>
+                        </>
+                      ) : (
+                        <>Payment Pending</>
+                      )}
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
                       <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          className="bg-blue-500"
-                          onClick={() => generateVoucherPDF(item)}
-                        >
-                          View Slip
-                        </Button>
                         <Button
                           size="sm"
                           className="bg-blue-500"

@@ -3,7 +3,7 @@ import "./App.css";
 import Routess from "./routers/Routess";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { ProfileGet } from "./features/ProfileSlice";
+import { ProfileGet, StudentGet, VoucherGet } from "./features/ProfileSlice";
 import {
   ActionLogsGet,
   BatchesGet,
@@ -33,6 +33,8 @@ function App() {
 
   useEffect(() => {
     dispatch(ProfileGet(userId));
+    dispatch(StudentGet());
+    dispatch(VoucherGet());
     dispatch(GroupGet());
     dispatch(MembersGet());
     dispatch(DegreeTypesGet());
