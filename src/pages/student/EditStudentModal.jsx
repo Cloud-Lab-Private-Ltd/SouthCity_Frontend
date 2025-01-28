@@ -76,10 +76,13 @@ const EditStudentModal = ({
     label: city,
   }));
 
-  const batchOptions = batches?.batches?.map((batch) => ({
-    value: batch._id,
-    label: `${batch.batchName} - ${batch.status}`,
-  }));
+  // Filter batches to show only Active ones
+  const batchOptions = batches?.batches
+    ?.filter((batch) => batch.status === "Active")
+    .map((batch) => ({
+      value: batch._id,
+      label: `${batch.batchName} - ${batch.status}`,
+    }));
 
   useEffect(() => {
     if (studentData) {

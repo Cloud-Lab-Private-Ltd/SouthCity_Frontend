@@ -239,6 +239,29 @@ const BatchBody = () => {
     setEditModalOpen(true);
   };
 
+  const coordinatorOptions = members?.members
+    ?.filter(
+      (member) => member.group?.name === "Coordinator" && !member.blocked
+    )
+    .map((member) => (
+      <option key={member._id} value={member._id}>
+        {member.Name} - {member.staffId}
+      </option>
+    ));
+
+  // Filter courses to show only Active ones
+  const activeCoursesOptions = courses?.courses
+    ?.filter((course) => course.Status === "Active")
+    .map((course) => (
+      <option
+        key={course._id}
+        value={course._id}
+        className="p-3 hover:bg-gray-100 cursor-pointer"
+      >
+        {course.name} - {course.code}
+      </option>
+    ));
+
   // Add pagination logic
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 5;
@@ -368,11 +391,7 @@ const BatchBody = () => {
                   required
                 >
                   <option value="">Select Coordinator</option>
-                  {members?.members?.map((member) => (
-                    <option key={member._id} value={member._id}>
-                      {member.Name} - {member.group?.name}
-                    </option>
-                  ))}
+                  {coordinatorOptions}
                 </select>
               </div>
 
@@ -473,15 +492,7 @@ const BatchBody = () => {
                     className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple min-h-[150px] bg-white shadow-sm"
                     required
                   >
-                    {courses?.courses?.map((course) => (
-                      <option
-                        key={course._id}
-                        value={course._id}
-                        className="p-3 hover:bg-gray-100 cursor-pointer"
-                      >
-                        {course.name} - {course.Status}
-                      </option>
-                    ))}
+                    {activeCoursesOptions}
                   </select>
                   <div className="mt-4 flex flex-wrap gap-3">
                     {formData.course.map((courseId) => {

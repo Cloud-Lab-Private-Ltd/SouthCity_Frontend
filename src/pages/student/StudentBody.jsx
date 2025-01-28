@@ -289,6 +289,13 @@ const StudentBody = () => {
     setEditModalOpen(true);
   };
 
+  const activeBatchOptions = batches?.batches
+    ?.filter((batch) => batch.status === "Active")
+    .map((batch) => ({
+      value: batch._id,
+      label: `${batch.batchName} - ${batch.status}`,
+    }));
+
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 5;
   const lastIndex = currentPage * recordsPerPage;
@@ -402,7 +409,7 @@ const StudentBody = () => {
                       setCourseOptions(selectedBatch.course);
                     }
                   }}
-                  options={batchOptions}
+                  options={activeBatchOptions}
                   styles={selectStyles}
                   placeholder="Select Batch"
                   isSearchable

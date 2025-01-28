@@ -16,13 +16,13 @@ const EditPermissionModal = ({
   onSuccess,
 }) => {
   const [permissions, setPermissions] = useState([
-    {
-      pageName: "Members",
-      insert: false,
-      update: false,
-      delete: false,
-      read: false,
-    },
+    // {
+    //   pageName: "Members",
+    //   insert: false,
+    //   update: false,
+    //   delete: false,
+    //   read: false,
+    // },
     {
       pageName: "Courses",
       insert: false,

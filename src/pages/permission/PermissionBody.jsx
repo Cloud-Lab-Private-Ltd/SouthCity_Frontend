@@ -15,13 +15,13 @@ const PermissionBody = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
 
   const [permissions, setPermissions] = useState([
-    {
-      pageName: "Member",
-      insert: false,
-      update: false,
-      delete: false,
-      read: false,
-    },
+    // {
+    //   pageName: "Member",
+    //   insert: false,
+    //   update: false,
+    //   delete: false,
+    //   read: false,
+    // },
     {
       pageName: "Course",
       insert: false,
@@ -136,13 +136,13 @@ const PermissionBody = () => {
         dispatch(PermissionsGet());
 
         setPermissions([
-          {
-            pageName: "Member",
-            insert: false,
-            update: false,
-            delete: false,
-            read: false,
-          },
+          // {
+          //   pageName: "Member",
+          //   insert: false,
+          //   update: false,
+          //   delete: false,
+          //   read: false,
+          // },
           {
             pageName: "Course",
             insert: false,

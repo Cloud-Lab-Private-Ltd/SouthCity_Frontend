@@ -16,7 +16,7 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
     status: "",
     schedule: [{ day: "", time: "" }],
     sessionType: "",
-    batchCoordinator: ""
+    batchCoordinator: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -29,15 +29,15 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
     if (batchData) {
       setFormData({
         batchName: batchData.batchName,
-        course: batchData.course.map(c => c._id), // Extract course IDs
-        startDate: batchData.startDate.split('T')[0],
-        endDate: batchData.endDate.split('T')[0],
+        course: batchData.course.map((c) => c._id), // Extract course IDs
+        startDate: batchData.startDate.split("T")[0],
+        endDate: batchData.endDate.split("T")[0],
         totalSeats: batchData.totalSeats,
         currentSemester: batchData.currentSemester,
         status: batchData.status,
         schedule: batchData.schedule,
         sessionType: batchData.sessionType,
-        batchCoordinator: batchData.batchCoordinator
+        batchCoordinator: batchData.batchCoordinator,
       });
     }
   }, [batchData]);
@@ -45,7 +45,7 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -54,49 +54,73 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
     updatedSchedule[index][field] = value;
     setFormData({
       ...formData,
-      schedule: updatedSchedule
+      schedule: updatedSchedule,
     });
   };
 
   const addSchedule = () => {
     setFormData({
       ...formData,
-      schedule: [...formData.schedule, { day: "", time: "" }]
+      schedule: [...formData.schedule, { day: "", time: "" }],
     });
   };
+
+  // Filter members to show only Coordinators and unblocked members
+  const coordinatorOptions = members?.members
+    ?.filter(
+      (member) => member.group?.name === "Coordinator" && !member.blocked
+    )
+    .map((member) => (
+      <option key={member._id} value={member._id}>
+        {member.Name} - {member.staffId}
+      </option>
+    ));
+
+  const activeCoursesOptions = courses?.courses
+    ?.filter((course) => course.Status === "Active")
+    .map((course) => (
+      <option
+        key={course._id}
+        value={course._id}
+        className="p-3 hover:bg-gray-100 cursor-pointer"
+      >
+        {course.name} - {course.code}
+      </option>
+    ));
 
   const handleSubmit = () => {
     const dataToSend = {
       ...formData,
-      course: formData.course
+      course: formData.course,
     };
 
     setLoading(true);
-    axios.put(`${BASE_URL}/api/v1/sch/batches/${batchData._id}`, dataToSend, {
-      headers: {
-        "x-access-token": token
-      }
-    })
-    .then((res) => {
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Batch updated successfully!",
-        confirmButtonColor: "#5570F1",
+    axios
+      .put(`${BASE_URL}/api/v1/sch/batches/${batchData._id}`, dataToSend, {
+        headers: {
+          "x-access-token": token,
+        },
+      })
+      .then((res) => {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Batch updated successfully!",
+          confirmButtonColor: "#5570F1",
+        });
+        setLoading(false);
+        onSuccess();
+        handleOpen();
+      })
+      .catch((error) => {
+        setLoading(false);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.response?.data?.message || "Failed to update batch",
+          confirmButtonColor: "#5570F1",
+        });
       });
-      setLoading(false);
-      onSuccess();
-      handleOpen();
-    })
-    .catch((error) => {
-      setLoading(false);
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: error.response?.data?.message || "Failed to update batch",
-        confirmButtonColor: "#5570F1",
-      });
-    });
   };
 
   return (
@@ -125,7 +149,6 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
               required
             />
           </div>
-
 
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
@@ -159,11 +182,7 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
               required
             >
               <option value="">Select Coordinator</option>
-              {members?.members?.map((member) => (
-                <option key={member._id} value={member._id}>
-                  {member.Name} - {member.group?.name}
-                </option>
-              ))}
+              {coordinatorOptions}
             </select>
           </div>
 
@@ -242,63 +261,61 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
         </div>
 
         <div className="mt-6 mb-6">
-  <Typography className="text-lg font-semibold text-c-grays mb-4">
-    Course Selection
-  </Typography>
-  <div className="w-full">
-    <div className="relative">
-      <select
-        multiple
-        name="course"
-        value={formData.course}
-        onChange={(e) => {
-          const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
-          setFormData({
-            ...formData,
-            course: selectedOptions
-          });
-        }}
-        className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple min-h-[150px] bg-white shadow-sm"
-        required
-      >
-        {courses?.courses?.map((course) => (
-          <option 
-            key={course._id} 
-            value={course._id}
-            className="p-3 hover:bg-gray-100 cursor-pointer"
-          >
-            {course.name} - {course.Status}
-          </option>
-        ))}
-      </select>
-      <div className="mt-4 flex flex-wrap gap-3">
-        {formData.course.map(courseId => {
-          const selectedCourse = courses?.courses?.find(c => c._id === courseId);
-          return (
-            <span 
-              key={courseId}
-              className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
-            >
-              {selectedCourse?.name}
-              <button
-                type="button"
-                onClick={() => {
+          <Typography className="text-lg font-semibold text-c-grays mb-4">
+            Course Selection
+          </Typography>
+          <div className="w-full">
+            <div className="relative">
+              <select
+                multiple
+                name="course"
+                value={formData.course}
+                onChange={(e) => {
+                  const selectedOptions = Array.from(
+                    e.target.selectedOptions
+                  ).map((opt) => opt.value);
                   setFormData({
                     ...formData,
-                    course: formData.course.filter(id => id !== courseId)
+                    course: selectedOptions,
                   });
                 }}
-                className="hover:text-red-300 transition-colors"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple min-h-[150px] bg-white shadow-sm"
+                required
               >
-                ×
-              </button>
-            </span>
-          );
-        })}
-      </div>
-    </div>
-  </div>
-</div>
+                {activeCoursesOptions}
+              </select>
+              <div className="mt-4 flex flex-wrap gap-3">
+                {formData.course.map((courseId) => {
+                  const selectedCourse = courses?.courses?.find(
+                    (c) => c._id === courseId
+                  );
+                  return (
+                    <span
+                      key={courseId}
+                      className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
+                    >
+                      {selectedCourse?.name}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData({
+                            ...formData,
+                            course: formData.course.filter(
+                              (id) => id !== courseId
+                            ),
+                          });
+                        }}
+                        className="hover:text-red-300 transition-colors"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Schedule Section */}
         <div className="mt-6">
@@ -306,11 +323,7 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
             <Typography className="text-lg font-semibold text-c-grays">
               Schedule
             </Typography>
-            <Button
-              type="button"
-              onClick={addSchedule}
-              className="bg-c-purple"
-            >
+            <Button type="button" onClick={addSchedule} className="bg-c-purple">
               Add Schedule
             </Button>
           </div>
@@ -324,7 +337,9 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
                   </label>
                   <select
                     value={item.day}
-                    onChange={(e) => handleScheduleChange(index, 'day', e.target.value)}
+                    onChange={(e) =>
+                      handleScheduleChange(index, "day", e.target.value)
+                    }
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   >
                     <option value="">Select Day</option>
@@ -344,7 +359,9 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
                   <input
                     type="text"
                     value={item.time}
-                    onChange={(e) => handleScheduleChange(index, 'time', e.target.value)}
+                    onChange={(e) =>
+                      handleScheduleChange(index, "time", e.target.value)
+                    }
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                     placeholder="e.g. 09:00 AM - 11:00 AM"
                   />
@@ -355,14 +372,14 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
-          <Button 
+          <Button
             variant="outlined"
             onClick={handleOpen}
             className="text-c-purple border-c-purple"
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             className="bg-c-purple overflow-hidden h-[45px] flex items-center justify-center"
             onClick={handleSubmit}
             disabled={loading}
