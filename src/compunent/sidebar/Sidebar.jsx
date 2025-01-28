@@ -20,7 +20,7 @@ export function Index({ isDrawerOpen }) {
     (state) => state.profiledata?.profile?.member?.group?.name || []
   );
 
-  const studentName = localStorage.getItem("groupName")
+  const studentName = localStorage.getItem("groupName");
 
   const memberpermissions = permissions[0]?.read;
   const coursepermissions = permissions[1]?.read;
@@ -526,9 +526,9 @@ export function Index({ isDrawerOpen }) {
                 ""
               )}
 
-              {
-                studentName === "Students"?<>
-                 <ListItem
+              {studentName === "Students" ? (
+                <>
+                  <ListItem
                     className="text-c-grays group-hover:text-gray-800"
                     onClick={() => navigate("/student-voucher")}
                   >
@@ -552,9 +552,10 @@ export function Index({ isDrawerOpen }) {
                     </ListItemPrefix>
                     Voucher
                   </ListItem>
-                
-                </>:""
-              }
+                </>
+              ) : (
+                ""
+              )}
 
               {admin === "admins" ? (
                 <>
