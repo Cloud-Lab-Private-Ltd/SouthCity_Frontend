@@ -7,7 +7,7 @@ import {
   Card,
 } from "@material-tailwind/react";
 import { PresentationChartBarIcon } from "@heroicons/react/24/solid";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import logo from "../../assets/img/logo.png";
 
@@ -21,7 +21,7 @@ export function Index({ isDrawerOpen }) {
   );
 
   const studentName = localStorage.getItem("groupName");
-
+  const location = useLocation();
   const memberpermissions = permissions[0]?.read;
   const coursepermissions = permissions[1]?.read;
   const batchpermissions = permissions[2]?.read;
@@ -63,11 +63,17 @@ export function Index({ isDrawerOpen }) {
             </div>
             <List>
               <ListItem
-                className="text-c-grays group-hover:text-gray-800 "
+                className={`text-c-grays hover:bg-[#F5F5F5] ${
+                  location.pathname === "/" ? "bg-[#F5F5F5]" : ""
+                }`}
                 onClick={() => navigate("/")}
               >
                 <ListItemPrefix>
-                  <PresentationChartBarIcon className="h-5 w-5" />
+                  <PresentationChartBarIcon
+                    className={`h-5 w-5 ${
+                      location.pathname === "/dashboard" ? "text-c-purple" : ""
+                    }`}
+                  />
                 </ListItemPrefix>
                 Dashboard
               </ListItem>
@@ -75,7 +81,9 @@ export function Index({ isDrawerOpen }) {
               {admin === "admins" ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/group-role" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/group-role")}
                   >
                     <ListItemPrefix>
@@ -103,7 +111,9 @@ export function Index({ isDrawerOpen }) {
               {admin === "admins" ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/permission" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/permission")}
                   >
                     <ListItemPrefix>
@@ -134,7 +144,9 @@ export function Index({ isDrawerOpen }) {
               {admin === "admins" ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/members" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/members")}
                   >
                     <ListItemPrefix>
@@ -161,7 +173,9 @@ export function Index({ isDrawerOpen }) {
               ) : memberpermissions ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/members" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/members")}
                   >
                     <ListItemPrefix>
@@ -306,7 +320,11 @@ export function Index({ isDrawerOpen }) {
                         {admin === "admins" ? (
                           <>
                             <ListItem
-                              className="text-c-grays group-hover:text-gray-800"
+                              className={`text-c-grays hover:bg-[#F5F5F5] ${
+                                location.pathname === "/degree-type"
+                                  ? "bg-[#F5F5F5]"
+                                  : ""
+                              }`}
                               onClick={() => navigate("/degree-type")}
                             >
                               Degree Type
@@ -315,7 +333,11 @@ export function Index({ isDrawerOpen }) {
                         ) : degreepermissions ? (
                           <>
                             <ListItem
-                              className="text-c-grays group-hover:text-gray-800"
+                              className={`text-c-grays hover:bg-[#F5F5F5] ${
+                                location.pathname === "/degree-type"
+                                  ? "bg-[#F5F5F5]"
+                                  : ""
+                              }`}
                               onClick={() => navigate("/degree-type")}
                             >
                               Degree Type
@@ -328,7 +350,11 @@ export function Index({ isDrawerOpen }) {
                         {admin === "admins" ? (
                           <>
                             <ListItem
-                              className="text-c-grays group-hover:text-gray-800"
+                              className={`text-c-grays hover:bg-[#F5F5F5] ${
+                                location.pathname === "/status"
+                                  ? "bg-[#F5F5F5]"
+                                  : ""
+                              }`}
                               onClick={() => navigate("/status")}
                             >
                               Status
@@ -337,7 +363,11 @@ export function Index({ isDrawerOpen }) {
                         ) : statuspermissions ? (
                           <>
                             <ListItem
-                              className="text-c-grays group-hover:text-gray-800"
+                              className={`text-c-grays hover:bg-[#F5F5F5] ${
+                                location.pathname === "/status"
+                                  ? "bg-[#F5F5F5]"
+                                  : ""
+                              }`}
                               onClick={() => navigate("/status")}
                             >
                               Status
@@ -355,7 +385,9 @@ export function Index({ isDrawerOpen }) {
               {admin === "admins" ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/course" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/course")}
                   >
                     <ListItemPrefix>
@@ -382,7 +414,9 @@ export function Index({ isDrawerOpen }) {
               ) : coursepermissions ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/course" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/course")}
                   >
                     <ListItemPrefix>
@@ -413,7 +447,9 @@ export function Index({ isDrawerOpen }) {
               {admin === "admins" ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/batch" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/batch")}
                   >
                     <ListItemPrefix>
@@ -440,7 +476,9 @@ export function Index({ isDrawerOpen }) {
               ) : batchpermissions ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/batch" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/batch")}
                   >
                     <ListItemPrefix>
@@ -471,7 +509,9 @@ export function Index({ isDrawerOpen }) {
               {admin === "admins" ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/student" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/student")}
                   >
                     <ListItemPrefix>
@@ -498,7 +538,9 @@ export function Index({ isDrawerOpen }) {
               ) : studentpermissions ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/student" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/student")}
                   >
                     <ListItemPrefix>
@@ -529,7 +571,11 @@ export function Index({ isDrawerOpen }) {
               {studentName === "Students" ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/student-voucher"
+                        ? "bg-[#F5F5F5]"
+                        : ""
+                    }`}
                     onClick={() => navigate("/student-voucher")}
                   >
                     <ListItemPrefix>
@@ -560,7 +606,9 @@ export function Index({ isDrawerOpen }) {
               {admin === "admins" ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/voucher" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/voucher")}
                   >
                     <ListItemPrefix>
@@ -587,7 +635,9 @@ export function Index({ isDrawerOpen }) {
               ) : voucherpermissions ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/voucher" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/voucher")}
                   >
                     <ListItemPrefix>
@@ -618,7 +668,9 @@ export function Index({ isDrawerOpen }) {
               {admin === "admins" ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/action-log" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/action-log")}
                   >
                     <ListItemPrefix>
@@ -645,7 +697,9 @@ export function Index({ isDrawerOpen }) {
               ) : actionlogpermissions ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/action-log" ? "bg-[#F5F5F5]" : ""
+                    }`}
                     onClick={() => navigate("/action-log")}
                   >
                     <ListItemPrefix>
@@ -676,7 +730,11 @@ export function Index({ isDrawerOpen }) {
               {admin === "admins" ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/bulk-message"
+                        ? "bg-[#F5F5F5]"
+                        : ""
+                    }`}
                     onClick={() => navigate("/bulk-message")}
                   >
                     <ListItemPrefix>
@@ -703,7 +761,11 @@ export function Index({ isDrawerOpen }) {
               ) : bulkpermissions ? (
                 <>
                   <ListItem
-                    className="text-c-grays group-hover:text-gray-800"
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/bulk-message"
+                        ? "bg-[#F5F5F5]"
+                        : ""
+                    }`}
                     onClick={() => navigate("/bulk-message")}
                   >
                     <ListItemPrefix>
