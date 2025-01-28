@@ -17,6 +17,7 @@ import {
   StudentsGet,
   VouchersGet,
 } from "./features/GroupApiSlice";
+import { DotLoader } from "react-spinners";
 
 function App() {
   const navigate = useNavigate();
@@ -51,13 +52,11 @@ function App() {
   return (
     <div className="app">
       {loading ? (
-        <section className="dots-container">
-          <div className="dot bg-c-purple"></div>
-          <div className="dot bg-c-yellow"></div>
-          <div className="dot bg-c-purple"></div>
-          <div className="dot bg-c-yellow"></div>
-          <div className="dot bg-c-purple"></div>
-        </section>
+        <>
+          <div className="w-full h-[100vh] z-[1000] fixed bg-white flex items-center justify-center">
+            <DotLoader color="#5570F1" />
+          </div>
+        </>
       ) : (
         ""
       )}
