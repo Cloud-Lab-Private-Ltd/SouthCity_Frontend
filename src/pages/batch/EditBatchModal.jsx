@@ -126,25 +126,6 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
             />
           </div>
 
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Course *
-            </label>
-            <select
-              name="course"
-              value={formData.course}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              required
-            >
-              <option value="">Select Course</option>
-              {courses?.courses?.map((course) => (
-                <option key={course._id} value={course._id}>
-                  {course.name} - {course.Status}
-                </option>
-              ))}
-            </select>
-          </div>
 
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">

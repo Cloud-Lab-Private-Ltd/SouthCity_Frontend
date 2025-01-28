@@ -263,7 +263,7 @@ const StudentBody = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.response?.data?.message || "Failed to import students",
+        text: error.response?.data?.error || "Failed to import students",
         confirmButtonColor: "#5570F1",
       });
     } finally {

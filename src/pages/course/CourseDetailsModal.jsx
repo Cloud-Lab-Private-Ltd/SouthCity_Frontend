@@ -16,6 +16,7 @@ const CourseDetailsModal = ({ open, handleOpen, courseData }) => {
       open={open}
       handler={handleOpen}
       className="min-w-[80%] max-h-[90vh] overflow-y-auto"
+      size="lg"
     >
       <DialogHeader className="flex justify-between items-center border-b">
         <Typography variant="h5" className="text-c-grays font-bold">

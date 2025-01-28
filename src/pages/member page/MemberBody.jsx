@@ -8,7 +8,7 @@ import { MembersGet } from "../../features/GroupApiSlice";
 import EditMemberModal from "./EditMemberModal";
 import MemberDetailsModal from "./MemberDetailsModal";
 import Select from "react-select";
-import {allCountries} from "../../assets/json data/allCountries";
+import { allCountries } from "../../assets/json data/allCountries";
 
 const MemberBody = () => {
   const [formData, setFormData] = useState({
@@ -199,7 +199,7 @@ const MemberBody = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.response?.data?.message || "Failed to import members",
+        text: error.response?.data?.error || "Failed to import members",
         confirmButtonColor: "#5570F1",
       });
     } finally {
@@ -318,6 +318,14 @@ const MemberBody = () => {
     setSelectedMemberDetails(member);
     setViewDetailsOpen(true);
   };
+
+  const groupOptions = groups?.groups
+    ?.filter((group) => group.name.toLowerCase() !== "students")
+    .map((group) => (
+      <option key={group._id} value={group._id}>
+        {group.name}
+      </option>
+    ));
 
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 5;
@@ -450,11 +458,7 @@ const MemberBody = () => {
                   required
                 >
                   <option value="">Select group</option>
-                  {groups?.groups?.map((group) => (
-                    <option key={group._id} value={group._id}>
-                      {group.name}
-                    </option>
-                  ))}
+                  {groupOptions}
                 </select>
               </div>
               <div>

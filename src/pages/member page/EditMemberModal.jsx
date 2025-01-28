@@ -108,6 +108,14 @@ const EditMemberModal = ({
     setCityOptions(cities);
   };
 
+  const groupOptions = groups?.groups
+    ?.filter((group) => group.name.toLowerCase() !== "students")
+    .map((group) => (
+      <option key={group._id} value={group._id}>
+        {group.name}
+      </option>
+    ));
+
   // Handle city change
   const handleCityChange = (selected) => {
     setFormData({
@@ -261,7 +269,7 @@ const EditMemberModal = ({
               required
             />
           </div>
-       
+
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
               Country *
@@ -328,16 +336,14 @@ const EditMemberModal = ({
             <select
               name="group"
               value={formData.group}
-              onChange={handleChange}
+              onChange={(e) =>
+                setFormData({ ...formData, group: e.target.value })
+              }
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
               required
             >
               <option value="">Select group</option>
-              {groups?.groups?.map((group) => (
-                <option key={group._id} value={group._id}>
-                  {group.name}
-                </option>
-              ))}
+              {groupOptions}
             </select>
           </div>
           <div>
