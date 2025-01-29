@@ -599,11 +599,15 @@ const StudentBody = () => {
 
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Profile Image
+                  Profile Image *{" "}
+                  <span className="text-[11px] text-c-purple">
+                    (JPG, PNG only)
+                  </span>
                 </label>
                 <input
                   type="file"
                   name="profileImage"
+                  accept=".jpg,.jpeg,.png"
                   onChange={(e) =>
                     setFormData({
                       ...formData,
@@ -611,7 +615,6 @@ const StudentBody = () => {
                     })
                   }
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  accept="image/*"
                 />
               </div>
             </div>

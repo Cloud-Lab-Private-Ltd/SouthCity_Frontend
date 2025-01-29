@@ -51,7 +51,10 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
 
   const handleScheduleChange = (index, field, value) => {
     const updatedSchedule = [...formData.schedule];
-    updatedSchedule[index][field] = value;
+    updatedSchedule[index] = {
+      ...updatedSchedule[index],
+      [field]: value,
+    };
     setFormData({
       ...formData,
       schedule: updatedSchedule,
@@ -62,6 +65,14 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
     setFormData({
       ...formData,
       schedule: [...formData.schedule, { day: "", time: "" }],
+    });
+  };
+
+  // Add remove schedule function
+  const removeSchedule = (indexToRemove) => {
+    setFormData({
+      ...formData,
+      schedule: formData.schedule.filter((_, index) => index !== indexToRemove),
     });
   };
 
@@ -329,7 +340,25 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
           </div>
 
           {formData.schedule.map((item, index) => (
-            <div key={index} className="mb-4 p-4 border rounded-lg">
+            <div key={index} className="mb-4 p-4 border rounded-lg relative">
+              <button
+                type="button"
+                onClick={() => removeSchedule(index)}
+                className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-c-grays text-sm font-medium mb-2">

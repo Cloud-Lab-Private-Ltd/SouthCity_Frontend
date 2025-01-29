@@ -47,11 +47,26 @@ const CourseBody = () => {
       .catch((error) => console.error("Error fetching degree types:", error));
   };
 
+  // Update the noOfSemesters handler
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    if (name === "noOfSemesters") {
+      const numSemesters = parseInt(value) || 0;
+      const newSemesters = Array.from({ length: numSemesters }, (_, index) => ({
+        semesterNo: (index + 1).toString(),
+        subjects: "",
+      }));
+      setFormData({
+        ...formData,
+        [name]: value,
+        semesters: newSemesters,
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const addSemester = () => {
@@ -101,9 +116,7 @@ const CourseBody = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const formDataToSend = new FormData();
-
     // Regular fields
     formDataToSend.append("name", formData.name);
     formDataToSend.append("description", formData.description);
@@ -619,19 +632,9 @@ const CourseBody = () => {
             </div>
 
             <div className="mt-6">
-              <div className="flex justify-between items-center mb-4">
-                <Typography className="text-lg font-semibold text-c-grays">
-                  Semesters
-                </Typography>
-                <Button
-                  type="button"
-                  onClick={addSemester}
-                  className="bg-c-purple"
-                >
-                  Add Semester
-                </Button>
-              </div>
-
+              <Typography className="text-lg font-semibold text-c-grays mb-4">
+                Semesters
+              </Typography>
               {formData.semesters.map((semester, index) => (
                 <div key={index} className="mb-4 p-4 border rounded-lg">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -642,13 +645,6 @@ const CourseBody = () => {
                       <input
                         type="text"
                         value={semester.semesterNo}
-                        onChange={(e) =>
-                          handleSemesterChange(
-                            index,
-                            "semesterNo",
-                            e.target.value
-                          )
-                        }
                         className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                         readOnly
                       />

@@ -561,24 +561,32 @@ const MemberBody = () => {
               </div>
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Profile Image *
+                  Profile Image *{" "}
+                  <span className="text-[11px] text-c-purple">
+                    (JPG, PNG only)
+                  </span>
                 </label>
                 <input
                   type="file"
                   name="profileImage"
                   onChange={handleFileChange}
+                  accept=".jpg,.jpeg,.png"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   required
                 />
               </div>
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  CV *
+                  CV *{" "}
+                  <span className="text-[11px] text-c-purple">
+                    (PDF, DOC, DOCX only)
+                  </span>
                 </label>
                 <input
                   type="file"
                   name="cv"
                   onChange={handleFileChange}
+                  accept=".pdf,.doc,.docx"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   required
                 />
@@ -721,14 +729,14 @@ const MemberBody = () => {
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 items-center">
                         {(admin === "admins" || checkPermission("update")) && (
                           <>
                             <Button
                               size="sm"
-                              className={
+                              className={`${
                                 item.blocked ? "bg-green-500" : "bg-red-500"
-                              }
+                              } w-[90px]`}
                               onClick={() =>
                                 handleToggleStatus(item._id, item.blocked)
                               }
@@ -737,7 +745,7 @@ const MemberBody = () => {
                             </Button>
                             <Button
                               size="sm"
-                              className="bg-c-purple"
+                              className="bg-c-purple w-[90px]"
                               onClick={() => handleEdit(item)}
                             >
                               Edit
@@ -746,7 +754,7 @@ const MemberBody = () => {
                         )}
                         <Button
                           size="sm"
-                          className="bg-blue-500"
+                          className="bg-blue-500 w-[120px]"
                           onClick={() => handleViewDetails(item)}
                         >
                           View Details
@@ -754,7 +762,7 @@ const MemberBody = () => {
                         {(admin === "admins" || checkPermission("delete")) && (
                           <Button
                             size="sm"
-                            className="bg-red-500"
+                            className="bg-red-500 w-[90px]"
                             onClick={() => handleDelete(item._id)}
                           >
                             Delete

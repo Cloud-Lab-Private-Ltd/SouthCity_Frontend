@@ -1,4 +1,4 @@
-import { Dialog, Card, Typography, Button } from "@material-tailwind/react";
+import { Dialog, Card, Typography } from "@material-tailwind/react";
 
 const MemberDetailsModal = ({ open, handleOpen, memberData }) => {
   return (
@@ -53,69 +53,73 @@ const MemberDetailsModal = ({ open, handleOpen, memberData }) => {
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">Personal Information</h4>
+            <h4 className="font-bold mb-2 text-c-purple">
+              Personal Information
+            </h4>
             <div className="space-y-2">
               <p>
-                <span className="font-medium">Gender:</span>{" "}
+                <span className="font-semibold">Gender:</span>{" "}
                 {memberData?.gender}
               </p>
               <p>
-                <span className="font-medium">Phone:</span>{" "}
+                <span className="font-semibold">Phone:</span>{" "}
                 {memberData?.phoneNumber}
               </p>
               <p>
-                <span className="font-medium">NIC:</span> {memberData?.nic}
+                <span className="font-semibold">NIC:</span> {memberData?.nic}
               </p>
             </div>
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">Professional Information</h4>
+            <h4 className="font-bold mb-2 text-c-purple">
+              Professional Information
+            </h4>
             <div className="space-y-2">
               <p>
-                <span className="font-medium">Qualification:</span>{" "}
+                <span className="font-semibold">Qualification:</span>{" "}
                 {memberData?.qualification}
               </p>
               <p>
-                <span className="font-medium">Status:</span>{" "}
+                <span className="font-semibold">Status:</span>{" "}
                 {memberData?.verified ? "Verified" : "Unverified"}
               </p>
             </div>
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">Location</h4>
+            <h4 className="font-bold mb-2 text-c-purple">Location</h4>
             <div className="space-y-2">
               <p>
-                <span className="font-medium">Address:</span>{" "}
+                <span className="font-semibold">Address:</span>{" "}
                 {memberData?.address}
               </p>
               <p>
-                <span className="font-medium">City:</span> {memberData?.city}
+                <span className="font-semibold">City:</span> {memberData?.city}
               </p>
               <p>
-                <span className="font-medium">Country:</span>{" "}
+                <span className="font-semibold">Country:</span>{" "}
                 {memberData?.country}
               </p>
             </div>
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">Group Information</h4>
+            <h4 className="font-bold mb-2 text-c-purple">Group Information</h4>
             <div className="space-y-2">
               <p>
-                <span className="font-medium">Group Name:</span>{" "}
+                <span className="font-semibold">Group Name:</span>{" "}
                 {memberData?.group?.name}
               </p>
               <p>
-                <span className="font-medium">Description:</span>{" "}
+                <span className="font-semibold">Description:</span>{" "}
                 {memberData?.group?.description}
               </p>
             </div>
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">Documents</h4>
+            <h4 className="font-bold mb-2 text-c-purple">Documents</h4>
             <div className="space-y-2">
               <a
                 href={memberData?.cv}

@@ -313,6 +313,7 @@ const PermissionBody = () => {
               value={selectedGroup}
               onChange={setSelectedGroup}
               className="text-c-grays"
+              
             />
           </div>
 

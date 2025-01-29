@@ -348,10 +348,12 @@ const EditMemberModal = ({
           </div>
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
-              Profile Image
+              Profile Image *{" "}
+              <span className="text-[11px] text-c-purple">(JPG, PNG only)</span>
             </label>
             <input
               type="file"
+              accept=".jpg,.jpeg,.png"
               name="profileImage"
               onChange={handleFileChange}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
@@ -359,11 +361,16 @@ const EditMemberModal = ({
           </div>
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
-              CV
+              CV *{" "}
+              <span className="text-[11px] text-c-purple">
+                (PDF, DOC, DOCX only)
+              </span>
             </label>
+
             <input
               type="file"
               name="cv"
+              accept=".pdf,.doc,.docx"
               onChange={handleFileChange}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
             />

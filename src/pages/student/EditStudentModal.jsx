@@ -189,7 +189,7 @@ const EditStudentModal = ({
     >
       <DialogHeader className="flex justify-between items-center border-b bg-gray-50 sticky top-0 z-10">
         <div className="flex items-center gap-4">
-          <Typography variant="h4" className="text-c-grays font-bold">
+          <Typography variant="h5" className="text-c-grays">
             Edit Student Details
           </Typography>
         </div>
@@ -198,8 +198,8 @@ const EditStudentModal = ({
         </IconButton>
       </DialogHeader>
 
-      <DialogBody className="overflow-y-auto p-6">
-        <Card className="p-6 shadow-sm">
+      <DialogBody className="overflow-y-auto">
+        <Card className=" shadow-none p-2">
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
               <div>
@@ -402,14 +402,17 @@ const EditStudentModal = ({
                 />
               </div>
               <div>
-                <label className="block text-c-grays text-sm font-medium mb-2s">
-                  Profile Image
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Profile Image *{" "}
+                  <span className="text-[11px] text-c-purple">
+                    (JPG, PNG only)
+                  </span>
                 </label>
                 <input
                   type="file"
                   onChange={(e) => setProfileImage(e.target.files[0])}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png"
                 />
                 {studentData?.profileImage && (
                   <div className="mt-2">
