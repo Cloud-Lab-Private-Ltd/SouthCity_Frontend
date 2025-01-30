@@ -87,15 +87,14 @@ const Routess = () => {
     (state) => state.profiledata?.profile?.member?.group?.name || []
   );
 
-  const memberpermissions = permissions[0]?.read;
-  const coursepermissions = permissions[1]?.read;
-  const batchpermissions = permissions[2]?.read;
-  const studentpermissions = permissions[3]?.read;
-  const voucherpermissions = permissions[4]?.read;
-  const actionlogpermissions = permissions[5]?.read;
-  const bulkpermissions = permissions[6]?.read;
-  const degreepermissions = permissions[7]?.read;
-  const statuspermissions = permissions[8]?.read;
+  const coursepermissions = permissions[0]?.read;
+  const batchpermissions = permissions[1]?.read;
+  const studentpermissions = permissions[2]?.read;
+  const voucherpermissions = permissions[3]?.read;
+  const actionlogpermissions = permissions[4]?.read;
+  const bulkpermissions = permissions[5]?.read;
+  const degreepermissions = permissions[6]?.read;
+  const statuspermissions = permissions[7]?.read;
 
   return (
     <div>
@@ -268,10 +267,6 @@ const Routess = () => {
                 )}
 
                 {admin === "admins" ? (
-                  <>
-                    <Route path="/members" element={<Member />}></Route>
-                  </>
-                ) : memberpermissions ? (
                   <>
                     <Route path="/members" element={<Member />}></Route>
                   </>
