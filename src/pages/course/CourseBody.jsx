@@ -69,18 +69,7 @@ const CourseBody = () => {
     }
   };
 
-  const addSemester = () => {
-    setFormData({
-      ...formData,
-      semesters: [
-        ...formData.semesters,
-        {
-          semesterNo: String(formData.semesters.length + 1),
-          subjects: "",
-        },
-      ],
-    });
-  };
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];

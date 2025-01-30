@@ -31,6 +31,8 @@ const VoucherBody = () => {
   const { students } = useSelector((state) => state.groupdata);
   const { vouchers, voucherLoading } = useSelector((state) => state.groupdata);
 
+  console.log(students);
+
   const selectStyles = {
     control: (base) => ({
       ...base,
@@ -56,13 +58,24 @@ const VoucherBody = () => {
     studentData: student,
   }));
 
+  // Update the handleStudentSelect function
   const handleStudentSelect = (selected) => {
     setSelectedStudent(selected);
     const courseOptions = selected.studentData.course.map((course) => ({
       value: course._id,
       label: `${course.name} - ${course.code}`,
+      courseData: course, // Store full course data
     }));
     setCourseOptions(courseOptions);
+  };
+
+  // Add a new function to handle course selection
+  const handleCourseSelect = (selected) => {
+    setSelectedCourse(selected);
+    if (selected?.courseData) {
+      setAdmissionFee(selected.courseData.admissionFee);
+      setSemesterFee(selected.courseData.perSemesterFee);
+    }
   };
 
   // Calculate total whenever fees change
@@ -593,7 +606,7 @@ const VoucherBody = () => {
                 </label>
                 <Select
                   value={selectedCourse}
-                  onChange={(selected) => setSelectedCourse(selected)}
+                  onChange={handleCourseSelect}
                   options={courseOptions}
                   styles={selectStyles}
                   placeholder="Select Course"
