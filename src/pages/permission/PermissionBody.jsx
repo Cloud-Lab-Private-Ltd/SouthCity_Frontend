@@ -81,10 +81,10 @@ const PermissionBody = () => {
   ]);
 
   const groupOptions = groups?.groups?.filter(
-    group => group.name.toLowerCase() !== "students"
+    group => group?.name.toLowerCase() !== "students"
   ).map(group => ({
     value: group._id,
-    label: group.name
+    label: group?.name
   }));
 
   const handlePermissionChange = (pageIndex, field) => {
@@ -436,7 +436,7 @@ const PermissionBody = () => {
                   <tr key={`${item._id}-${index}`} className="hover:bg-gray-50">
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
-                        {item.group.name}
+                        {item?.group?.name}
                       </Typography>
                     </td>
 
