@@ -38,25 +38,6 @@ const StudentBody = () => {
   const { students, studentLoading } = useSelector((state) => state.groupdata);
   const dispatch = useDispatch();
 
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      padding: "2px",
-      borderColor: "#e5e7eb",
-      "&:hover": {
-        borderColor: "#6b21a8",
-      },
-    }),
-    option: (base, { isFocused }) => ({
-      ...base,
-      backgroundColor: isFocused ? "#f3e8ff" : "white",
-      color: "#111827",
-      "&:hover": {
-        backgroundColor: "#f3e8ff",
-      },
-    }),
-  };
-
   // Get Pakistan cities from allCountries
   const pakistanCities =
     allCountries.find((country) => country.name === "Pakistan")?.cities || [];
@@ -78,20 +59,6 @@ const StudentBody = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-  };
-
-  const handleBatchChange = (e) => {
-    const selectedBatch = batches.batches.find(
-      (batch) => batch._id === e.target.value
-    );
-    setFormData({
-      ...formData,
-      batch: e.target.value,
-      course: [],
-    });
-    if (selectedBatch) {
-      setCourseOptions(selectedBatch.course);
-    }
   };
 
   const handleSubmit = async (e) => {
@@ -410,7 +377,14 @@ const StudentBody = () => {
                     }
                   }}
                   options={activeBatchOptions}
-                  styles={selectStyles}
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
                   placeholder="Select Batch"
                   isSearchable
                   required
@@ -562,7 +536,14 @@ const StudentBody = () => {
                     })
                   }
                   options={cityOptions}
-                  styles={selectStyles}
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
                   placeholder="Select City"
                   isSearchable
                   required

@@ -513,6 +513,14 @@ const MemberBody = () => {
                   className="w-full"
                   placeholder="Select country"
                   required
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
                 />
               </div>
 
@@ -527,6 +535,14 @@ const MemberBody = () => {
                   placeholder="Select city"
                   isDisabled={!selectedCountry}
                   required
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
                 />
               </div>
               <div>

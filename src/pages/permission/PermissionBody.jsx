@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, Typography, Button, Checkbox } from "@material-tailwind/react";
 import { useDispatch, useSelector } from "react-redux";
-import { GroupGet, PermissionsGet } from "../../features/GroupApiSlice";
+import { PermissionsGet } from "../../features/GroupApiSlice";
 import Select from "react-select";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
@@ -80,12 +80,12 @@ const PermissionBody = () => {
     },
   ]);
 
-  const groupOptions = groups?.groups?.filter(
-    group => group?.name.toLowerCase() !== "students"
-  ).map(group => ({
-    value: group._id,
-    label: group?.name
-  }));
+  const groupOptions = groups?.groups
+    ?.filter((group) => group?.name.toLowerCase() !== "students")
+    .map((group) => ({
+      value: group._id,
+      label: group?.name,
+    }));
 
   const handlePermissionChange = (pageIndex, field) => {
     setPermissions((prevPermissions) => {
@@ -313,7 +313,14 @@ const PermissionBody = () => {
               value={selectedGroup}
               onChange={setSelectedGroup}
               className="text-c-grays"
-              
+              styles={{
+                input: (base) => ({
+                  ...base,
+                  "input:focus": {
+                    boxShadow: "none",
+                  },
+                }),
+              }}
             />
           </div>
 
@@ -381,6 +388,14 @@ const PermissionBody = () => {
               isClearable
               placeholder="Filter by group..."
               className="text-c-grays"
+              styles={{
+                input: (base) => ({
+                  ...base,
+                  "input:focus": {
+                    boxShadow: "none",
+                  },
+                }),
+              }}
             />
           </div>
         </div>

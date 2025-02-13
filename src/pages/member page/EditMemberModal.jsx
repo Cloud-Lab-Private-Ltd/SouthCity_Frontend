@@ -281,6 +281,14 @@ const EditMemberModal = ({
               className="w-full"
               placeholder="Select country"
               required
+              styles={{
+                input: (base) => ({
+                  ...base,
+                  "input:focus": {
+                    boxShadow: "none",
+                  },
+                }),
+              }}
             />
           </div>
           <div>
@@ -297,6 +305,14 @@ const EditMemberModal = ({
               placeholder="Select city"
               isDisabled={!selectedCountry}
               required
+              styles={{
+                input: (base) => ({
+                  ...base,
+                  "input:focus": {
+                    boxShadow: "none",
+                  },
+                }),
+              }}
             />
           </div>
           <div>

@@ -176,6 +176,14 @@ const BulkMessageBody = () => {
                       });
                       setSelectedGroup(selected);
                     }}
+                    styles={{
+                      input: (base) => ({
+                        ...base,
+                        "input:focus": {
+                          boxShadow: "none",
+                        },
+                      }),
+                    }}
                     className="text-c-grays"
                   />
                 </div>
@@ -198,6 +206,14 @@ const BulkMessageBody = () => {
                         });
                       }}
                       className="text-c-grays"
+                      styles={{
+                        input: (base) => ({
+                          ...base,
+                          "input:focus": {
+                            boxShadow: "none",
+                          },
+                        }),
+                      }}
                     />
                   </div>
                 )}

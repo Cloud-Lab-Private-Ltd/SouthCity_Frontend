@@ -592,11 +592,18 @@ const VoucherBody = () => {
                   value={selectedStudent}
                   onChange={handleStudentSelect}
                   options={studentOptions}
-                  styles={selectStyles}
                   placeholder="Select Student"
                   isSearchable
                   isClearable
                   required
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
                 />
               </div>
 
@@ -608,7 +615,14 @@ const VoucherBody = () => {
                   value={selectedCourse}
                   onChange={handleCourseSelect}
                   options={courseOptions}
-                  styles={selectStyles}
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
                   placeholder="Select Course"
                   isSearchable
                   isClearable
