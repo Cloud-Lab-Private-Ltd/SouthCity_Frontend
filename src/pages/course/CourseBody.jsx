@@ -11,21 +11,14 @@ import EditCourseModal from "./EditCourseModal";
 const CourseBody = () => {
   const [formData, setFormData] = useState({
     name: "",
-    description: "",
     degreeType: "",
-    code: "",
     duration: "",
     noOfSemesters: "",
     semesters: [{ semesterNo: "1", subjects: "" }],
     perSemesterFee: "",
     admissionFee: "",
     totalFee: "",
-    status: "active",
-    Level: "",
-    category: "",
-    enrollment_Start_date: "",
-    enrollment_End_date: "",
-    Syllabus: null,
+    Status: "Active",
   });
   const [loading, setLoading] = useState(false);
   const [degreeTypes, setDegreeTypes] = useState([]);
@@ -47,49 +40,50 @@ const CourseBody = () => {
       .catch((error) => console.error("Error fetching degree types:", error));
   };
 
-  // Update the noOfSemesters handler
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "noOfSemesters") {
       const numSemesters = parseInt(value) || 0;
       const newSemesters = Array.from({ length: numSemesters }, (_, index) => ({
         semesterNo: (index + 1).toString(),
-        subjects: "",
+        subjects: formData.semesters[index]?.subjects || "",
       }));
+
+      // Recalculate total fee with new number of semesters
+      const perSemFee = parseFloat(formData.perSemesterFee) || 0;
+      const admFee = parseFloat(formData.admissionFee) || 0;
+      const totalFee = perSemFee * numSemesters + admFee;
+
       setFormData({
         ...formData,
         [name]: value,
         semesters: newSemesters,
+        totalFee: totalFee.toString(),
       });
+    } else if (name === "perSemesterFee" || name === "admissionFee") {
+      const updatedFormData = {
+        ...formData,
+        [name]: value,
+      };
+
+      const perSemFee =
+        parseFloat(
+          name === "perSemesterFee" ? value : formData.perSemesterFee
+        ) || 0;
+      const admFee =
+        parseFloat(name === "admissionFee" ? value : formData.admissionFee) ||
+        0;
+      const numSemesters = parseInt(formData.noOfSemesters) || 0;
+
+      const totalFee = perSemFee * numSemesters + admFee;
+
+      updatedFormData.totalFee = totalFee.toString();
+      setFormData(updatedFormData);
     } else {
       setFormData({
         ...formData,
         [name]: value,
-      });
-    }
-  };
-
-
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (
-      file &&
-      (file.type === "application/pdf" ||
-        file.type === "application/msword" ||
-        file.type ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-    ) {
-      setFormData({
-        ...formData,
-        Syllabus: file,
-      });
-    } else {
-      Swal.fire({
-        icon: "warning",
-        title: "Invalid File",
-        text: "Please upload PDF or DOC files only",
-        confirmButtonColor: "#5570F1",
       });
     }
   };
@@ -108,22 +102,13 @@ const CourseBody = () => {
     const formDataToSend = new FormData();
     // Regular fields
     formDataToSend.append("name", formData.name);
-    formDataToSend.append("description", formData.description);
     formDataToSend.append("degreeType", formData.degreeType);
-    formDataToSend.append("code", formData.code);
     formDataToSend.append("duration", formData.duration);
     formDataToSend.append("noOfSemesters", formData.noOfSemesters);
     formDataToSend.append("perSemesterFee", formData.perSemesterFee);
     formDataToSend.append("admissionFee", formData.admissionFee);
     formDataToSend.append("totalFee", formData.totalFee);
     formDataToSend.append("Status", formData.Status);
-    formDataToSend.append("Level", formData.Level);
-    formDataToSend.append("category", formData.category);
-    formDataToSend.append(
-      "enrollment_Start_date",
-      formData.enrollment_Start_date
-    );
-    formDataToSend.append("enrollment_End_date", formData.enrollment_End_date);
 
     // Append Semesters data in array format
     formData.semesters.forEach((semester, index) => {
@@ -133,11 +118,6 @@ const CourseBody = () => {
       );
       formDataToSend.append(`Semesters[${index}][subjects]`, semester.subjects);
     });
-
-    // Append Syllabus file
-    if (formData.Syllabus) {
-      formDataToSend.append("Syllabus", formData.Syllabus);
-    }
 
     setLoading(true);
     axios
@@ -159,21 +139,14 @@ const CourseBody = () => {
         // Reset form
         setFormData({
           name: "",
-          description: "",
           degreeType: "",
-          code: "",
           duration: "",
           noOfSemesters: "",
           semesters: [{ semesterNo: "1", subjects: "" }],
           perSemesterFee: "",
           admissionFee: "",
           totalFee: "",
-          status: "active",
-          Level: "",
-          category: "",
-          enrollment_Start_date: "",
-          enrollment_End_date: "",
-          Syllabus: null,
+          Status: "Active",
         });
       })
       .catch((error) => {
@@ -425,21 +398,6 @@ const CourseBody = () => {
 
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Description *
-                </label>
-                <input
-                  type="text"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  placeholder="Enter description"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
                   Degree Type *
                 </label>
                 <select
@@ -451,26 +409,11 @@ const CourseBody = () => {
                 >
                   <option value="">Select Degree Type</option>
                   {degreeTypes.map((type) => (
-                    <option key={type._id} value={type._id}>
-                      {type.name}
+                    <option key={type?._id} value={type?._id}>
+                      {type?.name} {type?.duration}
                     </option>
                   ))}
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Course Code *
-                </label>
-                <input
-                  type="text"
-                  name="code"
-                  value={formData.code}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  placeholder="Enter course code"
-                  required
-                />
               </div>
 
               <div>
@@ -539,81 +482,6 @@ const CourseBody = () => {
                   name="totalFee"
                   value={formData.totalFee}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Level *
-                </label>
-                <select
-                  name="Level"
-                  value={formData.Level}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                >
-                  <option value="">Select Level</option>
-                  <option value="Bachelors">Bachelors</option>
-                  <option value="Masters">Masters</option>
-                  <option value="Diploma">Diploma</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Category *
-                </label>
-                <input
-                  type="text"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  placeholder="e.g. Engineering"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Enrollment Start Date *
-                </label>
-                <input
-                  type="date"
-                  name="enrollment_Start_date"
-                  value={formData.enrollment_Start_date}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Enrollment End Date *
-                </label>
-                <input
-                  type="date"
-                  name="enrollment_End_date"
-                  value={formData.enrollment_End_date}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Syllabus (PDF/DOC) *
-                </label>
-                <input
-                  type="file"
-                  name="Syllabus"
-                  onChange={handleFileChange}
-                  accept=".pdf,.doc,.docx"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   required
                 />
@@ -706,16 +574,6 @@ const CourseBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
-                    Code
-                  </Typography>
-                </th>
-                <th className="p-4 border-b border-gray-100">
-                  <Typography className="text-c-grays font-semibold">
-                    Level
-                  </Typography>
-                </th>
-                <th className="p-4 border-b border-gray-100">
-                  <Typography className="text-c-grays font-semibold">
                     Duration
                   </Typography>
                 </th>
@@ -745,12 +603,6 @@ const CourseBody = () => {
                       <div className="skeleton h-4 w-32"></div>
                     </td>
                     <td className="p-4 border-b border-gray-100">
-                      <div className="skeleton h-4 w-32"></div>
-                    </td>
-                    <td className="p-4 border-b border-gray-100">
-                      <div className="skeleton h-4 w-32"></div>
-                    </td>
-                    <td className="p-4 border-b border-gray-100">
                       <div className="flex gap-2">
                         <div className="skeleton h-8 w-16"></div>
                         <div className="skeleton h-8 w-16"></div>
@@ -766,16 +618,6 @@ const CourseBody = () => {
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
                         {course.name}
-                      </Typography>
-                    </td>
-                    <td className="p-4 border-b border-gray-100">
-                      <Typography className="text-c-grays">
-                        {course.code}
-                      </Typography>
-                    </td>
-                    <td className="p-4 border-b border-gray-100">
-                      <Typography className="text-c-grays">
-                        {course.Level}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">

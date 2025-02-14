@@ -32,8 +32,12 @@ const Profile = () => {
                   </div>
                 </div>
                 <div className="text-white">
-                  <h2 className="text-2xl font-bold">{student?.student?.fullName}</h2>
-                  <p className="text-blue-100">{student?.student?.registrationId}</p>
+                  <h2 className="text-2xl font-bold">
+                    {student?.student?.fullName}
+                  </h2>
+                  <p className="text-blue-100">
+                    {student?.student?.registrationId}
+                  </p>
                 </div>
               </div>
             </div>
@@ -44,11 +48,17 @@ const Profile = () => {
                 {/* Personal Information */}
                 <div className="card bg-base-100 shadow-md">
                   <div className="card-body">
-                    <h3 className="card-title text-gray-700 mb-4">Personal Information</h3>
+                    <h3 className="card-title text-gray-700 mb-4">
+                      Personal Information
+                    </h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm text-gray-500">Father's Name</label>
-                        <p className="font-medium">{student?.student?.fatherName}</p>
+                        <label className="text-sm text-gray-500">
+                          Father's Name
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.fatherName}
+                        </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Email</label>
@@ -56,7 +66,9 @@ const Profile = () => {
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Phone</label>
-                        <p className="font-medium">{student?.student?.phoneNumber}</p>
+                        <p className="font-medium">
+                          {student?.student?.phoneNumber}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -65,19 +77,29 @@ const Profile = () => {
                 {/* Academic Information */}
                 <div className="card bg-base-100 shadow-md">
                   <div className="card-body">
-                    <h3 className="card-title text-gray-700 mb-4">Academic Details</h3>
+                    <h3 className="card-title text-gray-700 mb-4">
+                      Academic Details
+                    </h3>
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm text-gray-500">Course</label>
-                        <p className="font-medium">{student?.student?.course[0]?.name}</p>
+                        <p className="font-medium">
+                          {student?.student?.course[0]?.name}
+                        </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Batch</label>
-                        <p className="font-medium">{student?.student?.batch?.batchName}</p>
+                        <p className="font-medium">
+                          {student?.student?.batch?.batchName}
+                        </p>
                       </div>
                       <div>
-                        <label className="text-sm text-gray-500">Current Semester</label>
-                        <p className="font-medium">{student?.student?.currentSemester}</p>
+                        <label className="text-sm text-gray-500">
+                          Current Semester
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.currentSemester}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -86,11 +108,15 @@ const Profile = () => {
                 {/* Contact Information */}
                 <div className="card bg-base-100 shadow-md">
                   <div className="card-body">
-                    <h3 className="card-title text-gray-700 mb-4">Contact Details</h3>
+                    <h3 className="card-title text-gray-700 mb-4">
+                      Contact Details
+                    </h3>
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm text-gray-500">Address</label>
-                        <p className="font-medium">{student?.student?.address}</p>
+                        <p className="font-medium">
+                          {student?.student?.address}
+                        </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">City</label>
@@ -98,7 +124,9 @@ const Profile = () => {
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Country</label>
-                        <p className="font-medium">{student?.student?.country}</p>
+                        <p className="font-medium">
+                          {student?.student?.country}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -109,15 +137,17 @@ const Profile = () => {
         ) : (
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             {/* Staff Profile Header */}
-            <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-6">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-6">
               <div className="flex items-center space-x-4">
-                <div className="avatar placeholder">
-                  <div className="w-24 rounded-full bg-white text-gray-700 ring ring-white">
-                    <span className="text-3xl">{profile?.member?.Name?.[0]}</span>
+                <div className="avatar">
+                  <div className="w-24 rounded-full ring ring-white">
+                    <img src={profile?.member?.profileImage} alt="Profile" />
                   </div>
                 </div>
                 <div className="text-white">
-                  <h2 className="text-2xl font-bold">{profile?.member?.Name}</h2>
+                  <h2 className="text-2xl font-bold">
+                  {profile?.member?.Name}
+                  </h2>
                   <p className="text-indigo-100">{profile?.member?.staffId}</p>
                 </div>
               </div>
@@ -128,7 +158,9 @@ const Profile = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="card bg-base-100 shadow-md">
                   <div className="card-body">
-                    <h3 className="card-title text-gray-700 mb-4">Professional Details</h3>
+                    <h3 className="card-title text-gray-700 mb-4">
+                      Professional Details
+                    </h3>
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm text-gray-500">Email</label>
@@ -136,11 +168,15 @@ const Profile = () => {
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Group</label>
-                        <p className="font-medium">{profile?.member?.group?.name}</p>
+                        <p className="font-medium">
+                          {profile?.member?.group?.name}
+                        </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Phone</label>
-                        <p className="font-medium">{profile?.member?.phoneNumber}</p>
+                        <p className="font-medium">
+                          {profile?.member?.phoneNumber}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -148,7 +184,9 @@ const Profile = () => {
 
                 <div className="card bg-base-100 shadow-md">
                   <div className="card-body">
-                    <h3 className="card-title text-gray-700 mb-4">Location Details</h3>
+                    <h3 className="card-title text-gray-700 mb-4">
+                      Location Details
+                    </h3>
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm text-gray-500">City</label>
@@ -156,7 +194,9 @@ const Profile = () => {
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Country</label>
-                        <p className="font-medium">{profile?.member?.country}</p>
+                        <p className="font-medium">
+                          {profile?.member?.country}
+                        </p>
                       </div>
                     </div>
                   </div>

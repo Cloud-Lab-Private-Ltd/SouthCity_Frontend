@@ -13,6 +13,9 @@ const EditDegreeModal = ({
 }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -24,11 +27,6 @@ const EditDegreeModal = ({
   }, [degreeData]);
 
   const handleSubmit = () => {
-    if (!name || !description) {
-      setError("Please fill all required fields");
-      return;
-    }
-
     setLoading(true);
     setError("");
 
@@ -38,6 +36,8 @@ const EditDegreeModal = ({
         {
           name,
           description,
+          startDate,
+          endDate,
         },
         {
           headers: {
@@ -47,6 +47,8 @@ const EditDegreeModal = ({
       )
       .then((res) => {
         setLoading(false);
+        setEndDate("");
+        setStartDate("");
         onSuccess();
         handleOpen();
       })
@@ -65,8 +67,6 @@ const EditDegreeModal = ({
       handler={handleOpen}
       className="bg-transparent shadow-none"
     >
-
-        
       <Card className="mx-auto w-full p-6">
         <div className="flex justify-between items-center mb-6">
           <Typography variant="h5" className="text-c-grays">
@@ -102,7 +102,7 @@ const EditDegreeModal = ({
         <div className="space-y-6">
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
-              Name *
+              Name
             </label>
             <input
               type="text"
@@ -110,12 +110,11 @@ const EditDegreeModal = ({
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
               placeholder="Enter degree type name"
-              required
             />
           </div>
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
-              Description *
+              Description
             </label>
             <input
               type="text"
@@ -123,7 +122,29 @@ const EditDegreeModal = ({
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
               placeholder="Enter description"
-              required
+            />
+          </div>
+          <div>
+            <label className="block text-c-grays text-sm font-medium mb-2">
+              Start Date
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+            />
+          </div>
+
+          <div>
+            <label className="block text-c-grays text-sm font-medium mb-2">
+              End Date
+            </label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
             />
           </div>
         </div>

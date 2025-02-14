@@ -7,26 +7,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { MembersGet } from "../../features/GroupApiSlice";
 import EditMemberModal from "./EditMemberModal";
 import MemberDetailsModal from "./MemberDetailsModal";
-import Select from "react-select";
-import { allCountries } from "../../assets/json data/allCountries";
 
 const MemberBody = () => {
   const [formData, setFormData] = useState({
     Name: "",
     email: "",
     password: "",
-    address: "",
     nic: "",
-    qulification: "",
-    country: "",
-    city: "",
     group: "",
-    phoneNumber: "",
     gender: "",
     verified: true,
   });
   const [profileImage, setProfileImage] = useState(null);
-  const [cv, setCv] = useState(null);
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
   const dispatch = useDispatch();
@@ -41,8 +33,6 @@ const MemberBody = () => {
   const handleFileChange = (e) => {
     if (e.target.name === "profileImage") {
       setProfileImage(e.target.files[0]);
-    } else if (e.target.name === "cv") {
-      setCv(e.target.files[0]);
     }
   };
 
@@ -53,8 +43,6 @@ const MemberBody = () => {
       formDataToSend.append(key, formData[key]);
     });
     if (profileImage) formDataToSend.append("profileImage", profileImage);
-    if (cv) formDataToSend.append("cv", cv);
-
     setLoading(true);
     axios
       .post(`${BASE_URL}/api/v1/sch/member`, formDataToSend, {
@@ -77,18 +65,12 @@ const MemberBody = () => {
           Name: "",
           email: "",
           password: "",
-          address: "",
           nic: "",
-          qulification: "",
-          country: "",
-          city: "",
           group: "",
-          phoneNumber: "",
           gender: "",
           verified: true,
         });
         setProfileImage(null);
-        setCv(null);
       })
       .catch((error) => {
         console.error("Error creating member:", error);
@@ -233,42 +215,6 @@ const MemberBody = () => {
       });
   };
 
-  // Add these states
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [cityOptions, setCityOptions] = useState([]);
-
-  // Create country options
-  const countryOptions = allCountries?.map((country) => ({
-    value: country.name,
-    label: country.name,
-  }));
-
-  // Handle country change
-  const handleCountryChange = (selected) => {
-    setSelectedCountry(selected);
-    setFormData({
-      ...formData,
-      country: selected.value,
-    });
-
-    const country = allCountries?.find((c) => c.name === selected.value);
-    const cities = country
-      ? country.cities.map((city) => ({
-          value: city,
-          label: city,
-        }))
-      : [];
-    setCityOptions(cities);
-  };
-
-  // Handle city change
-  const handleCityChange = (selected) => {
-    setFormData({
-      ...formData,
-      city: selected.value,
-    });
-  };
-
   const { permissions } = useSelector(
     (state) => state.profiledata?.profile?.member?.group || {}
   );
@@ -403,6 +349,21 @@ const MemberBody = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
+                  Group *
+                </label>
+                <select
+                  name="group"
+                  value={formData.group}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                >
+                  <option value="">Select group</option>
+                  {groupOptions}
+                </select>
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
                   Name *
                 </label>
                 <input
@@ -432,51 +393,6 @@ const MemberBody = () => {
               </div>
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Password *
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  placeholder="Enter password"
-                  autoComplete="new-password"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Group *
-                </label>
-                <select
-                  name="group"
-                  value={formData.group}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                >
-                  <option value="">Select group</option>
-                  {groupOptions}
-                </select>
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Address *
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  placeholder="Enter address"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
                   NIC *
                 </label>
                 <input
@@ -491,74 +407,20 @@ const MemberBody = () => {
               </div>
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Qualification *
+                  Password *
                 </label>
                 <input
-                  type="text"
-                  name="qulification"
-                  value={formData.qulification}
+                  type="password"
+                  name="password"
+                  value={formData.password}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  placeholder="Enter qualification"
+                  placeholder="Enter password"
+                  autoComplete="new-password"
                   required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Country *
-                </label>
-                <Select
-                  options={countryOptions}
-                  onChange={handleCountryChange}
-                  className="w-full"
-                  placeholder="Select country"
-                  required
-                  styles={{
-                    input: (base) => ({
-                      ...base,
-                      "input:focus": {
-                        boxShadow: "none",
-                      },
-                    }),
-                  }}
                 />
               </div>
 
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  City *
-                </label>
-                <Select
-                  options={cityOptions}
-                  onChange={handleCityChange}
-                  className="w-full"
-                  placeholder="Select city"
-                  isDisabled={!selectedCountry}
-                  required
-                  styles={{
-                    input: (base) => ({
-                      ...base,
-                      "input:focus": {
-                        boxShadow: "none",
-                      },
-                    }),
-                  }}
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Phone Number *
-                </label>
-                <input
-                  type="text"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  placeholder="Enter phone number"
-                  required
-                />
-              </div>
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Gender *
@@ -577,7 +439,7 @@ const MemberBody = () => {
               </div>
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Profile Image *{" "}
+                  Profile Image
                   <span className="text-[11px] text-c-purple">
                     (JPG, PNG only)
                   </span>
@@ -588,25 +450,9 @@ const MemberBody = () => {
                   onChange={handleFileChange}
                   accept=".jpg,.jpeg,.png"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
                 />
               </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  CV *{" "}
-                  <span className="text-[11px] text-c-purple">
-                    (PDF, DOC, DOCX only)
-                  </span>
-                </label>
-                <input
-                  type="file"
-                  name="cv"
-                  onChange={handleFileChange}
-                  accept=".pdf,.doc,.docx"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
+
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Verification Status

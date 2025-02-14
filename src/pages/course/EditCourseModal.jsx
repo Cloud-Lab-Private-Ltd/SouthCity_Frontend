@@ -21,9 +21,7 @@ const EditCourseModal = ({
 }) => {
   const [formData, setFormData] = useState({
     name: "",
-    description: "",
     degreeType: "",
-    code: "",
     duration: "",
     noOfSemesters: "",
     semesters: [{ semesterNo: "1", subjects: "" }],
@@ -31,24 +29,16 @@ const EditCourseModal = ({
     admissionFee: "",
     totalFee: "",
     Status: "",
-    Level: "",
-    category: "",
-    enrollment_Start_date: "",
-    enrollment_End_date: "",
   });
   const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState("");
 
-  console.log(courseData);
-
   useEffect(() => {
     if (courseData) {
       setFormData({
         name: courseData.name,
-        description: courseData.description,
         degreeType: courseData.degreeType._id, // Use _id from the nested object
-        code: courseData.code,
         duration: courseData.duration,
         noOfSemesters: courseData.noOfSemesters,
         semesters: courseData.Semesters,
@@ -56,10 +46,6 @@ const EditCourseModal = ({
         admissionFee: courseData.admissionFee,
         totalFee: courseData.totalFee,
         Status: courseData.Status,
-        Level: courseData.Level,
-        category: courseData.category,
-        enrollment_Start_date: courseData.enrollment_Start_date.split("T")[0],
-        enrollment_End_date: courseData.enrollment_End_date.split("T")[0],
       });
     }
   }, [courseData]);
@@ -69,17 +55,44 @@ const EditCourseModal = ({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "noOfSemesters") {
       const numSemesters = parseInt(value) || 0;
       const newSemesters = Array.from({ length: numSemesters }, (_, index) => ({
         semesterNo: (index + 1).toString(),
         subjects: formData.semesters[index]?.subjects || "",
       }));
+
+      // Recalculate total fee with new number of semesters
+      const perSemFee = parseFloat(formData.perSemesterFee) || 0;
+      const admFee = parseFloat(formData.admissionFee) || 0;
+      const totalFee = perSemFee * numSemesters + admFee;
+
       setFormData({
         ...formData,
         [name]: value,
         semesters: newSemesters,
+        totalFee: totalFee.toString(),
       });
+    } else if (name === "perSemesterFee" || name === "admissionFee") {
+      const updatedFormData = {
+        ...formData,
+        [name]: value,
+      };
+
+      const perSemFee =
+        parseFloat(
+          name === "perSemesterFee" ? value : formData.perSemesterFee
+        ) || 0;
+      const admFee =
+        parseFloat(name === "admissionFee" ? value : formData.admissionFee) ||
+        0;
+      const numSemesters = parseInt(formData.noOfSemesters) || 0;
+
+      const totalFee = perSemFee * numSemesters + admFee;
+
+      updatedFormData.totalFee = totalFee.toString();
+      setFormData(updatedFormData);
     } else {
       setFormData({
         ...formData,
@@ -97,40 +110,18 @@ const EditCourseModal = ({
     });
   };
 
-  const addSemester = () => {
-    setFormData({
-      ...formData,
-      semesters: [
-        ...formData.semesters,
-        {
-          semesterNo: String(formData.semesters.length + 1),
-          subjects: "",
-        },
-      ],
-    });
-  };
-
   const handleSubmit = () => {
     const formDataToSend = new FormData();
 
     // Regular fields
     formDataToSend.append("name", formData.name);
-    formDataToSend.append("description", formData.description);
     formDataToSend.append("degreeType", formData.degreeType);
-    formDataToSend.append("code", formData.code);
     formDataToSend.append("duration", formData.duration);
     formDataToSend.append("noOfSemesters", formData.noOfSemesters);
     formDataToSend.append("perSemesterFee", formData.perSemesterFee);
     formDataToSend.append("admissionFee", formData.admissionFee);
     formDataToSend.append("totalFee", formData.totalFee);
     formDataToSend.append("Status", formData.Status);
-    formDataToSend.append("Level", formData.Level);
-    formDataToSend.append("category", formData.category);
-    formDataToSend.append(
-      "enrollment_Start_date",
-      formData.enrollment_Start_date
-    );
-    formDataToSend.append("enrollment_End_date", formData.enrollment_End_date);
 
     // Append Semesters data in array format
     formData.semesters.forEach((semester, index) => {
@@ -140,11 +131,6 @@ const EditCourseModal = ({
       );
       formDataToSend.append(`Semesters[${index}][subjects]`, semester.subjects);
     });
-
-    // Append Syllabus file if new one is selected
-    if (formData.Syllabus) {
-      formDataToSend.append("Syllabus", formData.Syllabus);
-    }
 
     setLoading(true);
     axios
@@ -207,21 +193,6 @@ const EditCourseModal = ({
               required
             />
           </div>
-
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Description *
-            </label>
-            <input
-              type="text"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              required
-            />
-          </div>
-
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
               Degree Type *
@@ -240,20 +211,6 @@ const EditCourseModal = ({
                 </option>
               ))}
             </select>
-          </div>
-
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Course Code *
-            </label>
-            <input
-              type="text"
-              name="code"
-              value={formData.code}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              required
-            />
           </div>
 
           <div>
@@ -328,38 +285,6 @@ const EditCourseModal = ({
 
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
-              Level *
-            </label>
-            <select
-              name="Level"
-              value={formData.Level}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              required
-            >
-              <option value="">Select Level</option>
-              <option value="Bachelors">Bachelors</option>
-              <option value="Masters">Masters</option>
-              <option value="Diploma">Diploma</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Category *
-            </label>
-            <input
-              type="text"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
               Status *
             </label>
             <select
@@ -376,48 +301,6 @@ const EditCourseModal = ({
                 </option>
               ))}
             </select>
-          </div>
-
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Enrollment Start Date *
-            </label>
-            <input
-              type="date"
-              name="enrollment_Start_date"
-              value={formData.enrollment_Start_date}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Enrollment End Date *
-            </label>
-            <input
-              type="date"
-              name="enrollment_End_date"
-              value={formData.enrollment_End_date}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Syllabus (PDF/DOC)
-            </label>
-            <input
-              type="file"
-              name="Syllabus"
-              onChange={(e) =>
-                setFormData({ ...formData, Syllabus: e.target.files[0] })
-              }
-              accept=".pdf,.doc,.docx"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-            />
           </div>
         </div>
 

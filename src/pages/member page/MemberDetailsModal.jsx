@@ -61,46 +61,6 @@ const MemberDetailsModal = ({ open, handleOpen, memberData }) => {
                 <span className="font-semibold">Gender:</span>{" "}
                 {memberData?.gender}
               </p>
-              <p>
-                <span className="font-semibold">Phone:</span>{" "}
-                {memberData?.phoneNumber}
-              </p>
-              <p>
-                <span className="font-semibold">NIC:</span> {memberData?.nic}
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-2 text-c-purple">
-              Professional Information
-            </h4>
-            <div className="space-y-2">
-              <p>
-                <span className="font-semibold">Qualification:</span>{" "}
-                {memberData?.qualification}
-              </p>
-              <p>
-                <span className="font-semibold">Status:</span>{" "}
-                {memberData?.verified ? "Verified" : "Unverified"}
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-2 text-c-purple">Location</h4>
-            <div className="space-y-2">
-              <p>
-                <span className="font-semibold">Address:</span>{" "}
-                {memberData?.address}
-              </p>
-              <p>
-                <span className="font-semibold">City:</span> {memberData?.city}
-              </p>
-              <p>
-                <span className="font-semibold">Country:</span>{" "}
-                {memberData?.country}
-              </p>
             </div>
           </div>
 
@@ -115,20 +75,6 @@ const MemberDetailsModal = ({ open, handleOpen, memberData }) => {
                 <span className="font-semibold">Description:</span>{" "}
                 {memberData?.group?.description}
               </p>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="font-bold mb-2 text-c-purple">Documents</h4>
-            <div className="space-y-2">
-              <a
-                href={memberData?.cv}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-500 hover:underline"
-              >
-                View CV
-              </a>
             </div>
           </div>
         </div>

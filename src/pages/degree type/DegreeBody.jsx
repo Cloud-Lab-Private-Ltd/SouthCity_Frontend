@@ -11,7 +11,10 @@ const DegreeBody = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    startDate: "",
+    endDate: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const token = localStorage.getItem("token");
@@ -27,7 +30,7 @@ const DegreeBody = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.description) {
+    if (!formData.name || !formData.startDate || !formData.endDate) {
       Swal.fire({
         icon: "warning",
         title: "Required Fields",
@@ -217,7 +220,34 @@ const DegreeBody = () => {
               </div>
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Description *
+                  Start Date *
+                </label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  End Date *
+                </label>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Description
                 </label>
                 <input
                   type="text"
@@ -226,7 +256,6 @@ const DegreeBody = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   placeholder="Enter description"
-                  required
                 />
               </div>
             </div>
@@ -281,6 +310,11 @@ const DegreeBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
+                    Duration
+                  </Typography>
+                </th>
+                <th className="p-4 border-b border-gray-100">
+                  <Typography className="text-c-grays font-semibold">
                     Actions
                   </Typography>
                 </th>
@@ -292,6 +326,9 @@ const DegreeBody = () => {
                   <tr key={index}>
                     <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-48"></div>
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
+                      <div className="skeleton h-4 w-72"></div>
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-72"></div>
@@ -311,12 +348,17 @@ const DegreeBody = () => {
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
-                        {item.name}
+                        {item.name || "No name provided"}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
-                        {item.description}
+                        {item.description || "No description available"}
+                      </Typography>
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
+                      <Typography className="text-c-grays">
+                        {item.duration || "Duration not specified"}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">

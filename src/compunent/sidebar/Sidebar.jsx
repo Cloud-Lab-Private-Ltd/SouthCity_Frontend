@@ -53,11 +53,11 @@ export function Index({ isDrawerOpen }) {
             shadow={false}
             className=" w-full sm:p-3 p-0 rounded-none h-[100vh]"
           >
-            <div className=" flex items-center gap-4 md:pt-2 pt-3 pb-3">
+            <div className=" flex items-center justify-center gap-4">
               <img
                 src={logo}
                 alt="brand"
-                className="h-14 cursor-pointer"
+                className="h-[120px] cursor-pointer"
                 onClick={() => navigate("/")}
               />
             </div>

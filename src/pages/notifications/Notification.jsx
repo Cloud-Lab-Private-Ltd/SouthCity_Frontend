@@ -85,26 +85,26 @@ const Notification = () => {
               <div
                 key={notification._id}
                 className={`p-4 rounded-lg border transition-all duration-300 hover:shadow-md ${
-                  notification.isRead ? 'bg-white' : 'bg-blue-50'
+                  notification?.isRead ? 'bg-white' : 'bg-blue-50'
                 }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Typography className="font-semibold text-gray-900">
-                        {notification.subject}
+                        {notification?.subject}
                       </Typography>
-                      {!notification.isRead && (
+                      {!notification?.isRead && (
                         <span className="h-2 w-2 rounded-full bg-blue-500"></span>
                       )}
                     </div>
                     <Typography className="text-gray-600 text-sm mb-2">
-                      {notification.message}
+                      {notification?.message}
                     </Typography>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>From: {notification.sender.Name}</span>
+                      <span>From: {notification?.sender?.Name}</span>
                       <span>•</span>
-                      <span>{formatDate(notification.createdAt)}</span>
+                      <span>{formatDate(notification?.createdAt)}</span>
                     </div>
                   </div>
                   {!notification.isRead && (
@@ -112,7 +112,7 @@ const Notification = () => {
                       variant="text" 
                       size="sm" 
                       color="blue"
-                      onClick={() => handleMarkAsRead(notification._id)}
+                      onClick={() => handleMarkAsRead(notification?._id)}
                     >
                       Mark as read
                     </Button>

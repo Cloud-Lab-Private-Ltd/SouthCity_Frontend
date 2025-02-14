@@ -4,8 +4,6 @@ import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
-import Select from "react-select";
-import { allCountries } from "../../assets/json data/allCountries";
 
 const EditMemberModal = ({
   open,
@@ -17,13 +15,8 @@ const EditMemberModal = ({
   const [formData, setFormData] = useState({
     Name: "",
     email: "",
-    address: "",
     nic: "",
-    qualification: "",
-    country: "",
-    city: "",
     group: "",
-    phoneNumber: "",
     gender: "",
     verified: true,
   });
@@ -34,79 +27,28 @@ const EditMemberModal = ({
 
   // Add these states
   const [profileImage, setProfileImage] = useState(null);
-  const [cv, setCv] = useState(null);
 
   // Add file change handler
   const handleFileChange = (e) => {
     if (e.target.name === "profileImage") {
       setProfileImage(e.target.files[0]);
-    } else if (e.target.name === "cv") {
-      setCv(e.target.files[0]);
     }
   };
 
-  // Add these states
-  const [selectedCountry, setSelectedCountry] = useState(null);
-  const [cityOptions, setCityOptions] = useState([]);
-
-  // Create country options
-  const countryOptions = allCountries.map((country) => ({
-    value: country.name,
-    label: country.name,
-  }));
-
   useEffect(() => {
     if (memberData) {
-      // Set initial country selection
-      const countryOption = countryOptions.find(
-        (option) => option.value === memberData.country
-      );
-      setSelectedCountry(countryOption);
-
-      // Set initial city options
-      const country = allCountries.find((c) => c.name === memberData.country);
-      if (country) {
-        const cities = country.cities.map((city) => ({
-          value: city,
-          label: city,
-        }));
-        setCityOptions(cities);
-      }
-
       setFormData({
         Name: memberData.Name,
         email: memberData.email,
-        address: memberData.address,
+
         nic: memberData.nic,
-        qualification: memberData.qualification,
-        country: memberData.country,
-        city: memberData.city,
-        phoneNumber: memberData.phoneNumber,
+
         gender: memberData.gender,
         verified: memberData.verified,
         group: memberData.group.id,
       });
     }
   }, [memberData]);
-
-  // Handle country change
-  const handleCountryChange = (selected) => {
-    setSelectedCountry(selected);
-    setFormData({
-      ...formData,
-      country: selected.value,
-      city: "", // Reset city when country changes
-    });
-
-    const country = allCountries.find((c) => c.name === selected.value);
-    const cities = country
-      ? country.cities.map((city) => ({
-          value: city,
-          label: city,
-        }))
-      : [];
-    setCityOptions(cities);
-  };
 
   const groupOptions = groups?.groups
     ?.filter((group) => group.name.toLowerCase() !== "students")
@@ -117,12 +59,6 @@ const EditMemberModal = ({
     ));
 
   // Handle city change
-  const handleCityChange = (selected) => {
-    setFormData({
-      ...formData,
-      city: selected.value,
-    });
-  };
 
   const handleChange = (e) => {
     setFormData({
@@ -137,7 +73,6 @@ const EditMemberModal = ({
       formDataToSend.append(key, formData[key]);
     });
     if (profileImage) formDataToSend.append("profileImage", profileImage);
-    if (cv) formDataToSend.append("cv", cv);
 
     setLoading(true);
     axios
@@ -171,7 +106,7 @@ const EditMemberModal = ({
       handler={handleOpen}
       className="bg-transparent shadow-none"
     >
-      <Card className="mx-auto w-full h-[90vh] overflow-y-auto p-6">
+      <Card className="mx-auto w-full h-auto overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <Typography variant="h5" className="text-c-grays">
             Edit Member
@@ -227,20 +162,7 @@ const EditMemberModal = ({
               required
             />
           </div>
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Address *
-            </label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Enter address"
-              required
-            />
-          </div>
+
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
               NIC *
@@ -255,80 +177,7 @@ const EditMemberModal = ({
               required
             />
           </div>
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Qualification *
-            </label>
-            <input
-              type="text"
-              name="qualification"
-              value={formData.qualification}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Enter qualification"
-              required
-            />
-          </div>
 
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Country *
-            </label>
-            <Select
-              value={selectedCountry}
-              options={countryOptions}
-              onChange={handleCountryChange}
-              className="w-full"
-              placeholder="Select country"
-              required
-              styles={{
-                input: (base) => ({
-                  ...base,
-                  "input:focus": {
-                    boxShadow: "none",
-                  },
-                }),
-              }}
-            />
-          </div>
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              City *
-            </label>
-            <Select
-              value={cityOptions.find(
-                (option) => option.value === formData.city
-              )}
-              options={cityOptions}
-              onChange={handleCityChange}
-              className="w-full"
-              placeholder="Select city"
-              isDisabled={!selectedCountry}
-              required
-              styles={{
-                input: (base) => ({
-                  ...base,
-                  "input:focus": {
-                    boxShadow: "none",
-                  },
-                }),
-              }}
-            />
-          </div>
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Phone Number *
-            </label>
-            <input
-              type="text"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Enter phone number"
-              required
-            />
-          </div>
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
               Gender *
@@ -375,22 +224,7 @@ const EditMemberModal = ({
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
             />
           </div>
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              CV *{" "}
-              <span className="text-[11px] text-c-purple">
-                (PDF, DOC, DOCX only)
-              </span>
-            </label>
 
-            <input
-              type="file"
-              name="cv"
-              accept=".pdf,.doc,.docx"
-              onChange={handleFileChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-            />
-          </div>
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
               Verification Status
