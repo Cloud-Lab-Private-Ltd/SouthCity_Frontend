@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AreaChartHero } from "./AreaChart";
+import UserStatusDashboard from "./UserStatusDashboard";
 
 const DashCard = () => {
   const navigate = useNavigate();
@@ -24,8 +25,6 @@ const DashCard = () => {
 
   const { vouchers } = useSelector((state) => state.profiledata);
   const studentName = localStorage.getItem("groupName");
-
-  console.log(vouchers);
 
   return (
     <div>
@@ -543,6 +542,14 @@ const DashCard = () => {
             )}
           </div>
         </>
+      )}
+
+      {admin === "admins" ? (
+        <>
+          <UserStatusDashboard />
+        </>
+      ) : (
+        ""
       )}
 
       {admin === "admins" ? (

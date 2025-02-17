@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import "./App.css";
 import Routess from "./routers/Routess";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ProfileGet, StudentGet, VoucherGet } from "./features/ProfileSlice";
 import {
   ActionLogsGet,
@@ -15,16 +15,60 @@ import {
   PermissionsGet,
   StatusesGet,
   StudentsGet,
+  TrashedStudentsGet,
   VouchersGet,
 } from "./features/GroupApiSlice";
 import { DotLoader } from "react-spinners";
 
 function App() {
   const navigate = useNavigate();
-
+  const [socket, setSocket] = useState(null);
+  const socketRef = useRef(null);
   const { profile, loading } = useSelector((state) => state.profiledata);
   const userId = localStorage.getItem("userId");
+  const userType = localStorage.getItem("userType");
+  const token = localStorage.getItem("token");
+  const wsUrl = localStorage.getItem("wsUrl"); // Add this
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (token && wsUrl) {
+      // Check for wsUrl
+      const ws = new WebSocket(wsUrl);
+      socketRef.current = ws;
+
+      ws.onopen = () => {
+        console.log("WebSocket Connected");
+        const message = {
+          type: "userActivity",
+          userId: userId,
+          userType: userType,
+          status: "online",
+        };
+        ws.send(JSON.stringify(message));
+      };
+
+      ws.onmessage = (event) => {
+        // console.log("WebSocket message received:", event.data);
+      };
+
+      ws.onerror = (error) => {
+        // console.error("WebSocket error:", error);
+      };
+
+      ws.onclose = () => {
+        // console.log("WebSocket disconnected");
+      };
+
+      setSocket(ws);
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
+  }, [token, wsUrl]);
 
   if (profile.message === "Invalid token") {
     localStorage.clear();
@@ -47,6 +91,7 @@ function App() {
     dispatch(ActionLogsGet());
     dispatch(PermissionsGet());
     dispatch(NotificationsGet());
+    dispatch(TrashedStudentsGet());
   }, []);
 
   return (

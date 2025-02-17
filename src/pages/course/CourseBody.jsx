@@ -294,6 +294,11 @@ const CourseBody = () => {
   const [open, setOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
+  // Add this function inside CourseBody component
+  const handleExport = () => {
+    window.open(`${BASE_URL}/api/v1/sch/course-export`, "_blank");
+  };
+
   const handleOpen = () => setOpen(!open);
 
   const handleEdit = (course) => {
@@ -550,16 +555,21 @@ const CourseBody = () => {
           <Typography className="text-xl font-semibold text-c-grays">
             Courses List
           </Typography>
-          <div className="w-full md:w-72">
-            <input
-              type="text"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Search courses..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              autoComplete="off"
-              name="course-search"
-            />
+          <div className="flex gap-4">
+            <Button className="bg-c-purple" onClick={handleExport}>
+              Export Courses
+            </Button>
+            <div className="w-full md:w-72">
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                placeholder="Search courses..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoComplete="off"
+                name="course-search"
+              />
+            </div>
           </div>
         </div>
 

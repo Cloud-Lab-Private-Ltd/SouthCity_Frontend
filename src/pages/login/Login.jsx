@@ -21,12 +21,15 @@ import {
   PermissionsGet,
   StatusesGet,
   StudentsGet,
+  TrashedStudentsGet,
   VouchersGet,
 } from "../../features/GroupApiSlice";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  // Change state name
+  const [emailOrNic, setEmailOrNic] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -42,26 +45,27 @@ const Login = () => {
   }, []);
 
   const submit = () => {
-    if (!email || !password) return;
+    if (!emailOrNic || !password) return;
 
     setloader(true);
     axios
       .post(`${BASE_URL}/api/v1/sch/auth/login`, {
-        email,
+        emailOrNic,
         password,
       })
       .then((res) => {
         setloader(false);
         const currentTime = new Date().getTime();
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("userType", res.data.user.userType);
-        localStorage.setItem("userName", res.data.user.name);
-        localStorage.setItem("userId", res.data.user.id);
-        localStorage.setItem("groupId", res.data.user.group?.id);
-        localStorage.setItem("groupName", res.data.user.group?.name);
+        localStorage.setItem("token", res?.data?.token);
+        localStorage.setItem("userType", res?.data?.user?.userType);
+        localStorage.setItem("userName", res?.data?.user?.name);
+        localStorage.setItem("userId", res?.data?.user?.id);
+        localStorage.setItem("groupId", res?.data?.user?.group?.id);
+        localStorage.setItem("groupName", res?.data?.user?.group?.name);
         localStorage.setItem("loginTime", currentTime);
-        // window.location.reload();
-        dispatch(ProfileGet(res.data.user.id));
+        localStorage.setItem("wsUrl", res?.data?.wsUrl);
+
+        dispatch(ProfileGet(res?.data?.user.id));
         dispatch(StudentGet());
         dispatch(VoucherGet());
         dispatch(GroupGet());
@@ -75,6 +79,7 @@ const Login = () => {
         dispatch(ActionLogsGet());
         dispatch(PermissionsGet());
         dispatch(NotificationsGet());
+        dispatch(TrashedStudentsGet());
         navigate("/");
       })
       .catch((e) => {
@@ -83,7 +88,7 @@ const Login = () => {
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: e.response.data.message,
+          text: e?.response?.data?.message,
           confirmButtonColor: "#5570F1",
         });
       });
@@ -139,17 +144,17 @@ const Login = () => {
               </svg>
             </div>
             <label className="text-sm font-bold text-gray-700 tracking-wide">
-              Email
+              Email or NIC
             </label>
             <input
               className="w-full text-base py-2 border-b border-gray-300 focus:outline-none focus:border-c-yellow"
-              type="email"
-              placeholder="mail@gmail.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="Enter email or NIC"
+              value={emailOrNic}
+              onChange={(e) => setEmailOrNic(e.target.value)}
               required
               autoComplete="off"
-              name="email"
+              name="emailOrNic"
             />
           </div>
           <div className="mt-8 relative">

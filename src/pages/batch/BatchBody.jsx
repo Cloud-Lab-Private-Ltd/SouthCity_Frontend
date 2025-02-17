@@ -264,18 +264,10 @@ const BatchBody = () => {
     });
   };
 
-  // Filter courses to show only Active ones
-  const activeCoursesOptions = courses?.courses
-    ?.filter((course) => course.Status === "Active")
-    .map((course) => (
-      <option
-        key={course._id}
-        value={course._id}
-        className="p-3 hover:bg-gray-100 cursor-pointer"
-      >
-        {course.name} - {course.code}
-      </option>
-    ));
+  // Add this function inside BatchBody component
+  const handleExport = () => {
+    window.open(`${BASE_URL}/api/v1/sch/batch-export`, "_blank");
+  };
 
   // Add pagination logic
   const [currentPage, setCurrentPage] = useState(1);
@@ -630,16 +622,21 @@ const BatchBody = () => {
           <Typography className="text-xl font-semibold text-c-grays">
             Batches List
           </Typography>
-          <div className="w-full md:w-72">
-            <input
-              type="text"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Search batches..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              autoComplete="off"
-              name="batch-search"
-            />
+          <div className="flex gap-4">
+            <Button className="bg-c-purple" onClick={handleExport}>
+              Export Batches
+            </Button>
+            <div className="w-full md:w-72">
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                placeholder="Search batches..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoComplete="off"
+                name="batch-search"
+              />
+            </div>
           </div>
         </div>
 

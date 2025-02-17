@@ -166,6 +166,21 @@ export const NotificationsGet = createAsyncThunk("NotificationsGet", async () =>
   }
 });
 
+export const TrashedStudentsGet = createAsyncThunk("TrashedStudentsGet", async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/sch/student-trash`, {
+      headers: {
+        "x-access-token": token,
+      },
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+});
+
 export const GroupSlice = createSlice({
   name: "GroupData",
   initialState: {
@@ -180,6 +195,8 @@ export const GroupSlice = createSlice({
     actionLogs: [],
     permissionsList: [],
     notifications: [],
+    trashedStudents: [],
+    trashedStudentsLoading: false,
     notificationLoading: false,
     permissionsLoading: false,
     actionLogLoading: false,
@@ -318,7 +335,18 @@ export const GroupSlice = createSlice({
       .addCase(NotificationsGet.rejected, (state, action) => {
         state.notificationLoading = false;
         state.error = action.error.message;
-      });
+      })
+      .addCase(TrashedStudentsGet.pending, (state) => {
+        state.trashedStudentsLoading = true;
+      })
+      .addCase(TrashedStudentsGet.fulfilled, (state, action) => {
+        state.trashedStudentsLoading = false;
+        state.trashedStudents = action.payload;
+      })
+      .addCase(TrashedStudentsGet.rejected, (state, action) => {
+        state.trashedStudentsLoading = false;
+        state.error = action.error.message;
+      })
   },
 });
 

@@ -308,7 +308,6 @@ const VoucherBody = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       await axios.post(
         `${BASE_URL}/api/v1/sch/voucher`,
@@ -338,7 +337,6 @@ const VoucherBody = () => {
         confirmButtonColor: "#5570F1",
       });
       dispatch(VouchersGet());
-
       // Reset all states
       setSelectedStudent(null);
       setSelectedCourse(null);
@@ -659,27 +657,27 @@ const VoucherBody = () => {
 
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Security Fee *
+                  Security Fee
                 </label>
                 <input
                   type="number"
                   value={securityFee}
                   onChange={(e) => setSecurityFee(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
+              
                 />
               </div>
 
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Library Fee *
+                  Library Fee
                 </label>
                 <input
                   type="number"
                   value={libraryFee}
                   onChange={(e) => setLibraryFee(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
+               
                 />
               </div>
 

@@ -84,6 +84,20 @@ const EditStudentModal = ({
       label: `${batch.batchName} - ${batch.status}`,
     }));
 
+  // Add state
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+
+  // Add function
+  const handleAddCourse = () => {
+    if (selectedCourseId && !formData.course.includes(selectedCourseId)) {
+      setFormData({
+        ...formData,
+        course: [...formData.course, selectedCourseId],
+      });
+      setSelectedCourseId("");
+    }
+  };
+
   useEffect(() => {
     if (studentData) {
       // Set initial form data
@@ -430,62 +444,57 @@ const EditStudentModal = ({
                 Course Selection
               </Typography>
               <div className="w-full">
-                <div className="relative">
+                <div className="flex gap-4 mb-4">
                   <select
-                    multiple
-                    name="course"
-                    value={formData.course}
-                    onChange={(e) => {
-                      const selectedOptions = Array.from(
-                        e.target.selectedOptions
-                      ).map((opt) => opt.value);
-                      setFormData({
-                        ...formData,
-                        course: selectedOptions,
-                      });
-                    }}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple min-h-[150px] bg-white shadow-sm"
-                    required
+                    value={selectedCourseId}
+                    onChange={(e) => setSelectedCourseId(e.target.value)}
+                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   >
+                    <option value="">Select Course</option>
                     {courseOptions.map((course) => (
-                      <option
-                        key={course._id}
-                        value={course._id}
-                        className="p-3 hover:bg-gray-100 cursor-pointer"
-                      >
+                      <option key={course._id} value={course._id}>
                         {course.name}
                       </option>
                     ))}
                   </select>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {formData.course.map((courseId) => {
-                      const selectedCourse = courseOptions.find(
-                        (c) => c._id === courseId
-                      );
-                      return (
-                        <span
-                          key={courseId}
-                          className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
+                  <Button
+                    type="button"
+                    onClick={handleAddCourse}
+                    className="bg-c-purple"
+                    disabled={!selectedCourseId}
+                  >
+                    Add Course
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  {formData.course.map((courseId) => {
+                    const selectedCourse = courseOptions.find(
+                      (c) => c._id === courseId
+                    );
+                    return (
+                      <span
+                        key={courseId}
+                        className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
+                      >
+                        {selectedCourse?.name}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              course: formData.course.filter(
+                                (id) => id !== courseId
+                              ),
+                            });
+                          }}
+                          className="hover:text-red-300 transition-colors"
                         >
-                          {selectedCourse?.name}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData({
-                                ...formData,
-                                course: formData.course.filter(
-                                  (id) => id !== courseId
-                                ),
-                              });
-                            }}
-                            className="hover:text-red-300 transition-colors"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      );
-                    })}
-                  </div>
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>

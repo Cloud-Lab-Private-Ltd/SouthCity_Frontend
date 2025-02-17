@@ -9,6 +9,7 @@ import { StudentsGet } from "../../features/GroupApiSlice";
 import Select from "react-select";
 import EditStudentModal from "./EditStudentModal";
 import { allCountries } from "../../assets/json data/allCountries";
+import TrashStudentModal from "./TrashStudentModal";
 
 const StudentBody = () => {
   const [formData, setFormData] = useState({
@@ -37,6 +38,7 @@ const StudentBody = () => {
   const { batches } = useSelector((state) => state.groupdata);
   const { students, studentLoading } = useSelector((state) => state.groupdata);
   const dispatch = useDispatch();
+  const [trashModalOpen, setTrashModalOpen] = useState(false);
 
   // Get Pakistan cities from allCountries
   const pakistanCities =
@@ -134,52 +136,44 @@ const StudentBody = () => {
 
   const handleDelete = (id) => {
     Swal.fire({
-      title: "Enter Admin Password",
-      input: "password",
-      inputAttributes: {
-        autocapitalize: "off",
-        placeholder: "Enter admin password",
-        autocomplete: "new-password",
-        name: "student-admin-delete-password",
-      },
+      title: "Are you sure?",
+      text: "This student will be moved to trash!",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Delete",
+      confirmButtonText: "Yes, move to trash",
       confirmButtonColor: "#5570F1",
       cancelButtonColor: "#d33",
-      showLoaderOnConfirm: true,
-      preConfirm: (adminPassword) => {
-        if (!adminPassword) {
-          Swal.showValidationMessage("Please enter admin password");
-          return false;
-        }
-        return axios
-          .delete(`${BASE_URL}/api/v1/sch/students/${id}`, {
-            headers: {
-              "x-access-token": token,
-            },
-            data: {
-              adminPassword,
-            },
-          })
-          .then((response) => {
-            dispatch(StudentsGet());
-            return response;
-          })
-          .catch((error) => {
-            Swal.showValidationMessage(
-              error.response?.data?.message || "Failed to delete student"
-            );
-          });
-      },
-      allowOutsideClick: () => !Swal.isLoading(),
     }).then((result) => {
       if (result.isConfirmed) {
-        Swal.fire({
-          title: "Deleted!",
-          text: "Student has been deleted successfully",
-          icon: "success",
-          confirmButtonColor: "#5570F1",
-        });
+        axios
+          .put(
+            `${BASE_URL}/api/v1/sch/student-trash/${id}`,
+            {},
+            {
+              headers: {
+                "x-access-token": token,
+              },
+            }
+          )
+          .then(() => {
+            Swal.fire({
+              title: "Moved to Trash!",
+              text: "Student has been moved to trash successfully",
+              icon: "success",
+              confirmButtonColor: "#5570F1",
+            });
+            dispatch(StudentsGet());
+          })
+          .catch((error) => {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text:
+                error.response?.data?.message ||
+                "Failed to move student to trash",
+              confirmButtonColor: "#5570F1",
+            });
+          });
       }
     });
   };
@@ -236,6 +230,25 @@ const StudentBody = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Add this state
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+
+  // Add this function
+  const handleAddCourse = () => {
+    if (selectedCourseId && !formData.course.includes(selectedCourseId)) {
+      setFormData({
+        ...formData,
+        course: [...formData.course, selectedCourseId],
+      });
+      setSelectedCourseId("");
+    }
+  };
+
+  // Add this function inside StudentBody component
+  const handleExport = () => {
+    window.open(`${BASE_URL}/api/v1/sch/student-export`, "_blank");
   };
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -315,6 +328,11 @@ const StudentBody = () => {
         studentData={selectedStudent}
         token={token}
         onSuccess={() => dispatch(StudentsGet())}
+      />
+      <TrashStudentModal
+        open={trashModalOpen}
+        handleOpen={() => setTrashModalOpen(!trashModalOpen)}
+        token={token}
       />
       <div className="mb-8">
         <h2 className="text-[1.5rem] font-semibold text-c-grays">STUDENTS</h2>
@@ -605,62 +623,57 @@ const StudentBody = () => {
                 Course Selection
               </Typography>
               <div className="w-full">
-                <div className="relative">
+                <div className="flex gap-4 mb-4">
                   <select
-                    multiple
-                    name="course"
-                    value={formData.course}
-                    onChange={(e) => {
-                      const selectedOptions = Array.from(
-                        e.target.selectedOptions
-                      ).map((opt) => opt.value);
-                      setFormData({
-                        ...formData,
-                        course: selectedOptions,
-                      });
-                    }}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple min-h-[150px] bg-white shadow-sm"
-                    required
+                    value={selectedCourseId}
+                    onChange={(e) => setSelectedCourseId(e.target.value)}
+                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   >
+                    <option value="">Select Course</option>
                     {courseOptions.map((course) => (
-                      <option
-                        key={course._id}
-                        value={course._id}
-                        className="p-3 hover:bg-gray-100 cursor-pointer"
-                      >
-                        {course.name}
+                      <option key={course._id} value={course._id}>
+                        {course.name} - {course.code}
                       </option>
                     ))}
                   </select>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {formData.course.map((courseId) => {
-                      const selectedCourse = courseOptions.find(
-                        (c) => c._id === courseId
-                      );
-                      return (
-                        <span
-                          key={courseId}
-                          className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
+                  <Button
+                    type="button"
+                    onClick={handleAddCourse}
+                    className="bg-c-purple"
+                    disabled={!selectedCourseId}
+                  >
+                    Add Course
+                  </Button>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  {formData.course.map((courseId) => {
+                    const selectedCourse = courseOptions.find(
+                      (c) => c._id === courseId
+                    );
+                    return (
+                      <span
+                        key={courseId}
+                        className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
+                      >
+                        {selectedCourse?.name}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({
+                              ...formData,
+                              course: formData.course.filter(
+                                (id) => id !== courseId
+                              ),
+                            });
+                          }}
+                          className="hover:text-red-300 transition-colors"
                         >
-                          {selectedCourse?.name}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setFormData({
-                                ...formData,
-                                course: formData.course.filter(
-                                  (id) => id !== courseId
-                                ),
-                              });
-                            }}
-                            className="hover:text-red-300 transition-colors"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      );
-                    })}
-                  </div>
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -700,16 +713,28 @@ const StudentBody = () => {
           <Typography className="text-xl font-semibold text-c-grays">
             Students List
           </Typography>
-          <div className="w-full md:w-72">
-            <input
-              type="text"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Search students..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              autoComplete="off"
-              name="student-search"
-            />
+          <div className="flex gap-4">
+            <Button
+              className="bg-red-500"
+              onClick={() => setTrashModalOpen(true)}
+            >
+              Trash
+            </Button>
+            <Button className="bg-c-purple" onClick={handleExport}>
+              Export Students
+            </Button>
+
+            <div className="w-full md:w-72">
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                placeholder="Search students..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoComplete="off"
+                name="student-search"
+              />
+            </div>
           </div>
         </div>
 

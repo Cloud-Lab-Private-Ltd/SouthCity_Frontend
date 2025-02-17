@@ -215,6 +215,11 @@ const MemberBody = () => {
       });
   };
 
+  // Add this function inside MemberBody component
+  const handleExport = () => {
+    window.open(`${BASE_URL}/api/v1/sch/member-export`);
+  };
+
   const { permissions } = useSelector(
     (state) => state.profiledata?.profile?.member?.group || {}
   );
@@ -496,19 +501,23 @@ const MemberBody = () => {
           <Typography className="text-xl font-semibold text-c-grays">
             Members List
           </Typography>
-          <div className="w-full md:w-72">
-            <input
-              type="text"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Search members..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              autoComplete="off"
-              name="member-search-unique"
-            />
+          <div className="flex gap-4">
+            <Button className="bg-c-purple" onClick={handleExport}>
+              Export Members
+            </Button>
+            <div className="w-full md:w-72">
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                placeholder="Search members..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoComplete="off"
+                name="member-search-unique"
+              />
+            </div>
           </div>
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full min-w-max table-auto text-left">
             <thead>
@@ -638,7 +647,6 @@ const MemberBody = () => {
             )}
           </table>
         </div>
-
         <div className="p-4 flex items-center justify-between border-t border-gray-100">
           <Typography className="text-c-grays">
             Page {currentPage} of {npage}
