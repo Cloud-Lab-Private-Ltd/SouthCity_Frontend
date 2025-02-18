@@ -9,18 +9,21 @@ import Swal from "sweetalert2";
 
 const BulkMessageBody = () => {
   const dispatch = useDispatch();
-  const { groups } = useSelector((state) => state.groupdata);
+  const { groups, batches } = useSelector((state) => state.groupdata);
   const [loading, setLoading] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
+  const [showBatchOptions, setShowBatchOptions] = useState(false);
 
   const [formData, setFormData] = useState({
-    groups: [], // Initialize as empty array
+    groups: [],
     recipients: [],
     subject: "",
     message: "",
     sendEmail: true,
     sendNotification: true,
     allGroups: false,
+    allBatches: false,
+    batches: [],
   });
 
   useEffect(() => {
@@ -56,7 +59,10 @@ const BulkMessageBody = () => {
     if (
       !formData.subject ||
       !formData.message ||
-      (!formData.allGroups && !formData.groups)
+      (!formData.allGroups &&
+        !formData.allBatches &&
+        !formData.groups.length &&
+        !formData.batches.length)
     ) {
       Swal.fire({
         icon: "warning",
@@ -88,15 +94,18 @@ const BulkMessageBody = () => {
           confirmButtonColor: "#5570F1",
         });
         setFormData({
-          groups: "",
+          groups: [],
           recipients: [],
           subject: "",
           message: "",
           sendEmail: true,
           sendNotification: true,
           allGroups: false,
+          allBatches: false,
+          batches: [],
         });
         setSelectedGroup(null);
+        setShowBatchOptions(false);
       }
     } catch (error) {
       Swal.fire({
@@ -110,7 +119,6 @@ const BulkMessageBody = () => {
     }
   };
 
-  // Add at the top with other imports
   const { permissions } = useSelector(
     (state) => state.profiledata?.profile?.member?.group || {}
   );
@@ -118,7 +126,6 @@ const BulkMessageBody = () => {
     (state) => state.profiledata?.profile?.member?.group?.name
   );
 
-  // Add permission check function
   const checkPermission = (type) => {
     if (admin === "admins") return true;
     const bulkMessagePermission = permissions?.find(
@@ -137,27 +144,122 @@ const BulkMessageBody = () => {
       {(admin === "admins" || checkPermission("insert")) && (
         <Card className="p-6 bg-white">
           <div className="space-y-6">
-            <div>
-              <Typography className="text-c-grays font-medium mb-2">
-                Send to All Groups
-              </Typography>
-              <Checkbox
-                checked={formData.allGroups}
-                onChange={(e) => {
-                  setFormData({
-                    ...formData,
-                    allGroups: e.target.checked,
-                    groups: [], // Initialize as empty array instead of empty string
-                    recipients: [],
-                  });
-                  setSelectedGroup(null);
-                }}
-                label="Send to all groups"
-                className="text-c-purple"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Typography className="text-c-grays font-medium mb-2">
+                  Send to All Groups
+                </Typography>
+                <Checkbox
+                  checked={formData.allGroups}
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      allGroups: e.target.checked,
+                      groups: [],
+                      recipients: [],
+                      allBatches: false,
+                      batches: [],
+                    });
+                    setSelectedGroup(null);
+                    setShowBatchOptions(false);
+                  }}
+                  label="Send to all groups"
+                  className="text-c-purple"
+                />
+              </div>
+
+              <div>
+                <Typography className="text-c-grays font-medium mb-2">
+                  Send message to batch
+                </Typography>
+                <Checkbox
+                  checked={showBatchOptions}
+                  onChange={(e) => {
+                    setShowBatchOptions(e.target.checked);
+                    if (!e.target.checked) {
+                      setFormData({
+                        ...formData,
+                        allBatches: false,
+                        batches: [],
+                      });
+                    }
+                    if (e.target.checked) {
+                      setFormData({
+                        ...formData,
+                        allGroups: false,
+                        groups: [],
+                        recipients: [],
+                      });
+                      setSelectedGroup(null);
+                    }
+                  }}
+                  label="Send to batches"
+                  className="text-c-purple"
+                />
+              </div>
             </div>
 
-            {!formData.allGroups && (
+            {showBatchOptions && (
+              <div className="space-y-6">
+                <div>
+                  <Typography className="text-c-grays font-medium mb-2">
+                    Send to All Batches
+                  </Typography>
+                  <Checkbox
+                    checked={formData.allBatches}
+                    onChange={(e) => {
+                      setFormData({
+                        ...formData,
+                        allBatches: e.target.checked,
+                        batches: [],
+                      });
+                    }}
+                    label="Send to all batches"
+                    className="text-c-purple"
+                  />
+                </div>
+
+                {!formData.allBatches && (
+                  <div>
+                    <Typography className="text-c-grays font-medium mb-2">
+                      Select Batches
+                    </Typography>
+                    <Select
+                      isMulti
+                      options={batches?.batches?.map((batch) => ({
+                        value: batch._id,
+                        label: batch.batchName,
+                      }))}
+                      value={batches?.batches
+                        ?.filter((batch) =>
+                          formData.batches.includes(batch._id)
+                        )
+                        .map((batch) => ({
+                          value: batch._id,
+                          label: batch.batchName,
+                        }))}
+                      onChange={(selected) => {
+                        setFormData({
+                          ...formData,
+                          batches: selected.map((item) => item.value),
+                        });
+                      }}
+                      styles={{
+                        input: (base) => ({
+                          ...base,
+                          "input:focus": {
+                            boxShadow: "none",
+                          },
+                        }),
+                      }}
+                      className="text-c-grays"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!formData.allGroups && !showBatchOptions && (
               <>
                 <div>
                   <Typography className="text-c-grays font-medium mb-2">
@@ -171,7 +273,7 @@ const BulkMessageBody = () => {
                     onChange={(selected) => {
                       setFormData({
                         ...formData,
-                        groups: [selected.value], // Wrap the value in an array
+                        groups: [selected.value],
                         recipients: [],
                       });
                       setSelectedGroup(selected);

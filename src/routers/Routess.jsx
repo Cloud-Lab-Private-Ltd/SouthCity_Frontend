@@ -22,6 +22,8 @@ import BulkMessagePage from "../pages/bulk message/BulkMessage";
 import PermissionPage from "../pages/permission/Permission";
 import Notification from "../pages/notifications/Notification";
 import StudentVoucher from "../pages/student vouncher/StudentVoucher";
+import TrashStudent from "../pages/student/TrashStudent";
+import CreateStudent from "../pages/student/CreateStudent";
 
 const Routess = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
@@ -241,7 +243,23 @@ const Routess = () => {
             <Routes>
               <Route path="/login" element={<Login />}></Route>
               <Route path="*" element={<Dashboard />}></Route>
+
               <Route element={<Private />}>
+                <Route
+                  path="/create-student"
+                  element={<CreateStudent />}
+                ></Route>
+                {admin === "admins" ? (
+                  <>
+                    <Route
+                      path="/trash-students"
+                      element={<TrashStudent />}
+                    ></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
                 {studentName === "Students" ? (
                   <>
                     <Route

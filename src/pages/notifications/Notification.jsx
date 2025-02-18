@@ -40,6 +40,30 @@ const Notification = () => {
     }
   };
 
+  const handleMarkAllAsRead = async () => {
+    try {
+      const response = await axios.put(
+        `${BASE_URL}/api/v1/sch/markAllNotificationsAsRead`,
+        {},
+        {
+          headers: {
+            "x-access-token": token,
+          },
+        }
+      );
+      if (response.data) {
+        dispatch(NotificationsGet());
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.response?.data?.message || "Failed to mark all notifications as read",
+        confirmButtonColor: "#5570F1",
+      });
+    }
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
@@ -58,10 +82,18 @@ const Notification = () => {
       </div>
 
       <Card className="overflow-hidden bg-white p-6">
-        <div className="mb-6">
+        <div className="mb-6 flex justify-between items-center">
           <Typography className="text-xl font-semibold text-c-grays">
             All Notifications
           </Typography>
+          <Button
+            variant="text"
+            color="blue"
+            onClick={handleMarkAllAsRead}
+            className="normal-case"
+          >
+            Mark all as read
+          </Button>
         </div>
 
         {notificationLoading ? (
