@@ -14,7 +14,6 @@ import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
 import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
-import { allCountries } from "../../assets/json data/allCountries";
 
 const EditStudentModal = ({
   open,
@@ -28,17 +27,34 @@ const EditStudentModal = ({
     email: "",
     nic: "",
     fatherName: "",
-    address: "",
+    currentAddress: "",
+    permanentAddress: "",
+    mobileNumber: "",
     phoneNumber: "",
     gender: "",
+    course: "", // Changed from array to string
     dob: "",
-    country: "Pakistan",
+    maritalStatus: "",
+    relationShip: "",
+    organization: "",
+    higestQualification: "",
+    nationality: "Pakistani",
+    province: "",
+    domicile: "",
+    religion: "",
     city: "",
-    course: [],
-    fatherPhone_number: "",
-    fatherOccupation: "",
+    fatherProfession: "",
     verified: false,
     batch: "",
+    academicQualifications: [
+      {
+        levelOfStudy: "",
+        subjects: "",
+        years: "",
+        marksGrade: "",
+        institutionName: "",
+      },
+    ],
   });
 
   const [loading, setLoading] = useState(false);
@@ -46,80 +62,50 @@ const EditStudentModal = ({
   const { batches } = useSelector((state) => state.groupdata);
   const [profileImage, setProfileImage] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
-
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      padding: "2px",
-      borderColor: "#e5e7eb",
-      "&:hover": {
-        borderColor: "#6b21a8",
-      },
-    }),
-    option: (base, { isFocused }) => ({
-      ...base,
-      backgroundColor: isFocused ? "#f3e8ff" : "white",
-      color: "#111827",
-      "&:hover": {
-        backgroundColor: "#f3e8ff",
-      },
-    }),
-  };
-
-  // Get Pakistan cities from allCountries
-  const pakistanCities =
-    allCountries.find((country) => country.name === "Pakistan")?.cities || [];
-
-  // Create city options for Select component
-  const cityOptions = pakistanCities.map((city) => ({
-    value: city,
-    label: city,
-  }));
-
-  // Filter batches to show only Active ones
-  const batchOptions = batches?.batches
-    ?.filter((batch) => batch.status === "Active")
-    .map((batch) => ({
-      value: batch._id,
-      label: `${batch.batchName} - ${batch.status}`,
-    }));
-
-  // Add state
   const [selectedCourseId, setSelectedCourseId] = useState("");
 
-  // Add function
-  const handleAddCourse = () => {
-    if (selectedCourseId && !formData.course.includes(selectedCourseId)) {
-      setFormData({
-        ...formData,
-        course: [...formData.course, selectedCourseId],
-      });
-      setSelectedCourseId("");
-    }
-  };
+  const batchOptions = batches?.batches?.map((batch) => ({
+    value: batch._id,
+    label: batch.batchName,
+  }));
 
   useEffect(() => {
     if (studentData) {
-      // Set initial form data
       setFormData({
         fullName: studentData.fullName || "",
         email: studentData.email || "",
         nic: studentData.nic || "",
         fatherName: studentData.fatherName || "",
-        address: studentData.address || "",
+        currentAddress: studentData.currentAddress || "",
+        permanentAddress: studentData.permanentAddress || "",
+        mobileNumber: studentData.mobileNumber || "",
         phoneNumber: studentData.phoneNumber || "",
         gender: studentData.gender || "",
-        dob: studentData.dob || "",
-        country: "Pakistan",
+        course: studentData.course[0]?._id || "",
+        dob: studentData.dob?.split("T")[0] || "",
+        maritalStatus: studentData.maritalStatus || "",
+        relationShip: studentData.relationShip || "",
+        organization: studentData.organization || "",
+        higestQualification: studentData.higestQualification || "",
+        nationality: "Pakistani",
+        province: studentData.province || "",
+        domicile: studentData.domicile || "",
+        religion: studentData.religion || "",
         city: studentData.city || "",
-        course: studentData.course?.map((c) => c._id) || [],
-        fatherPhone_number: studentData.fatherPhone_number || "",
-        fatherOccupation: studentData.fatherOccupation || "",
+        fatherProfession: studentData.fatherProfession || "",
         verified: studentData.verified || false,
-        batch: studentData.batch?._id || "", // Update this line to get batch ID
+        batch: studentData.batch?._id || "",
+        academicQualifications: studentData.academicQualifications || [
+          {
+            levelOfStudy: "",
+            subjects: "",
+            years: "",
+            marksGrade: "",
+            institutionName: "",
+          },
+        ],
       });
 
-      // Set course options based on selected batch
       if (studentData.batch?._id) {
         const selectedBatch = batches.batches.find(
           (b) => b._id === studentData.batch._id
@@ -131,21 +117,70 @@ const EditStudentModal = ({
     }
   }, [studentData, batches]);
 
+  const handleBatchChange = (selected) => {
+    const selectedBatch = batches.batches.find(
+      (batch) => batch._id === selected.value
+    );
+    setFormData({
+      ...formData,
+      batch: selected.value,
+      course: [],
+    });
+    if (selectedBatch) {
+      setCourseOptions(selectedBatch.course);
+    }
+  };
+
+  const addQualification = () => {
+    setFormData({
+      ...formData,
+      academicQualifications: [
+        ...formData.academicQualifications,
+        {
+          levelOfStudy: "",
+          subjects: "",
+          years: "",
+          marksGrade: "",
+          institutionName: "",
+        },
+      ],
+    });
+  };
+
+  const removeQualification = (index) => {
+    const newQualifications = formData.academicQualifications.filter(
+      (_, i) => i !== index
+    );
+    setFormData({
+      ...formData,
+      academicQualifications: newQualifications,
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMessage("");
+
     const formDataToSend = new FormData();
+
+    // Handle all form fields
     Object.keys(formData).forEach((key) => {
-      if (key === "course") {
-        formData[key].forEach((courseId) => {
-          formDataToSend.append("course[]", courseId);
+      if (key === "academicQualifications") {
+        formData[key].forEach((qual, index) => {
+          Object.keys(qual).forEach((qualKey) => {
+            formDataToSend.append(
+              `academicQualifications[${index}][${qualKey}]`,
+              qual[qualKey]
+            );
+          });
         });
       } else {
         formDataToSend.append(key, formData[key]);
       }
     });
 
+    // Handle profile image if present
     if (profileImage) {
       formDataToSend.append("profileImage", profileImage);
     }
@@ -180,375 +215,582 @@ const EditStudentModal = ({
     }
   };
 
-  const handleBatchChange = (selected) => {
-    const selectedBatch = batches.batches.find(
-      (batch) => batch._id === selected.value
-    );
-    setFormData({
-      ...formData,
-      batch: selected.value,
-      course: [],
-    });
-    if (selectedBatch) {
-      setCourseOptions(selectedBatch.course);
-    }
-  };
-
   return (
     <Dialog
       open={open}
       handler={handleOpen}
       className="min-w-[95%] md:min-w-[90%] lg:min-w-[85%] max-h-[95vh] overflow-y-auto"
-      size="xl"
+      size="lg"
     >
       <DialogHeader className="flex justify-between items-center border-b bg-gray-50 sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <Typography variant="h5" className="text-c-grays">
-            Edit Student Details
-          </Typography>
-        </div>
-        <IconButton variant="text" color="gray" onClick={handleOpen}>
+        <Typography variant="h5" className="text-c-grays font-bold">
+          Edit Student
+        </Typography>
+        <IconButton
+          variant="text"
+          color="gray"
+          onClick={handleOpen}
+          className="text-c-grays hover:bg-gray-100"
+        >
           <XMarkIcon className="h-6 w-6" />
         </IconButton>
       </DialogHeader>
 
-      <DialogBody className="overflow-y-auto">
-        <Card className=" shadow-none p-2">
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
+      <DialogBody className="overflow-y-auto p-6">
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+            {/* Basic Information */}
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Full Name *
+              </label>
+              <input
+                type="text"
+                value={formData.fullName}
+                onChange={(e) =>
+                  setFormData({ ...formData, fullName: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Email *
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                NIC *
+              </label>
+              <input
+                type="text"
+                value={formData.nic}
+                onChange={(e) =>
+                  setFormData({ ...formData, nic: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Father Name *
+              </label>
+              <input
+                type="text"
+                value={formData.fatherName}
+                onChange={(e) =>
+                  setFormData({ ...formData, fatherName: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Current Address *
+              </label>
+              <input
+                type="text"
+                value={formData.currentAddress}
+                onChange={(e) =>
+                  setFormData({ ...formData, currentAddress: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Permanent Address *
+              </label>
+              <input
+                type="text"
+                value={formData.permanentAddress}
+                onChange={(e) =>
+                  setFormData({ ...formData, permanentAddress: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Mobile Number *
+              </label>
+              <input
+                type="text"
+                value={formData.mobileNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, mobileNumber: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Phone Number
+              </label>
+              <input
+                type="text"
+                value={formData.phoneNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, phoneNumber: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Gender *
+              </label>
+              <select
+                value={formData.gender}
+                onChange={(e) =>
+                  setFormData({ ...formData, gender: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Date of Birth *
+              </label>
+              <input
+                type="date"
+                value={formData.dob}
+                onChange={(e) =>
+                  setFormData({ ...formData, dob: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Marital Status *
+              </label>
+              <select
+                value={formData.maritalStatus}
+                onChange={(e) =>
+                  setFormData({ ...formData, maritalStatus: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              >
+                <option value="">Select Status</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Relationship *
+              </label>
+              <input
+                type="text"
+                value={formData.relationShip}
+                onChange={(e) =>
+                  setFormData({ ...formData, relationShip: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Organization *
+              </label>
+              <input
+                type="text"
+                value={formData.organization}
+                onChange={(e) =>
+                  setFormData({ ...formData, organization: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Highest Qualification *
+              </label>
+              <input
+                type="text"
+                value={formData.higestQualification}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    higestQualification: e.target.value,
+                  })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Province *
+              </label>
+              <input
+                type="text"
+                value={formData.province}
+                onChange={(e) =>
+                  setFormData({ ...formData, province: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Domicile *
+              </label>
+              <input
+                type="text"
+                value={formData.domicile}
+                onChange={(e) =>
+                  setFormData({ ...formData, domicile: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Religion *
+              </label>
+              <input
+                type="text"
+                value={formData.religion}
+                onChange={(e) =>
+                  setFormData({ ...formData, religion: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                City *
+              </label>
+              <input
+                type="text"
+                value={formData.city}
+                onChange={(e) =>
+                  setFormData({ ...formData, city: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Father Profession *
+              </label>
+              <input
+                type="text"
+                value={formData.fatherProfession}
+                onChange={(e) =>
+                  setFormData({ ...formData, fatherProfession: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Profile Image
+              </label>
+              <input
+                type="file"
+                onChange={(e) => setProfileImage(e.target.files[0])}
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                accept=".jpg,.jpeg,.png"
+              />
+            </div>
+
+            <div>
+              <label className="block text-c-grays text-sm font-medium mb-2">
+                Verification Status
+              </label>
+              <select
+                value={formData.verified}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    verified: e.target.value === "true",
+                  })
+                }
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+              >
+                <option value="false">Pending</option>
+                <option value="true">Verified</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Batch and Course Selection */}
+          <div className="mt-6">
+            <Typography className="text-lg font-semibold text-c-grays mb-4">
+              Batch & Course Selection
+            </Typography>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Select Batch *
+                  Batch *
                 </label>
                 <Select
-                  name="batch"
+                  options={batchOptions}
                   value={batchOptions?.find(
                     (option) => option.value === formData.batch
                   )}
                   onChange={handleBatchChange}
-                  options={batchOptions}
-                  styles={selectStyles}
-                  placeholder="Select Batch"
-                  isSearchable
+                  className="text-c-grays"
                   required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  name="fullName"
-                  value={formData.fullName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, fullName: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  NIC *
-                </label>
-                <input
-                  type="text"
-                  name="nic"
-                  value={formData.nic}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nic: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Father Name *
-                </label>
-                <input
-                  type="text"
-                  name="fatherName"
-                  value={formData.fatherName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, fatherName: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Address *
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Phone Number *
-                </label>
-                <input
-                  type="text"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phoneNumber: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Gender *
-                </label>
-                <select
-                  name="gender"
-                  value={formData.gender}
-                  onChange={(e) =>
-                    setFormData({ ...formData, gender: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Date of Birth *
-                </label>
-                <input
-                  type="date"
-                  name="dob"
-                  value={formData.dob}
-                  onChange={(e) =>
-                    setFormData({ ...formData, dob: e.target.value })
-                  }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
                 />
               </div>
 
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  City *
+                  Course *
                 </label>
                 <Select
-                  name="city"
-                  value={cityOptions.find(
-                    (option) => option.value === formData.city
-                  )}
-                  onChange={(selected) =>
+                  options={courseOptions?.map((course) => ({
+                    value: course._id,
+                    label: `${course.name} - ${course.duration}`,
+                  }))}
+                  value={courseOptions
+                    ?.map((course) => ({
+                      value: course._id,
+                      label: `${course.name} - ${course.duration}`,
+                    }))
+                    .find((option) => formData.course === option.value)}
+                  onChange={(selected) => {
                     setFormData({
                       ...formData,
-                      city: selected.value,
-                    })
-                  }
-                  options={cityOptions}
-                  styles={selectStyles}
-                  placeholder="Select City"
-                  isSearchable
+                      course: selected?.value || "",
+                    });
+                  }}
+                  className="text-c-grays"
+                  isClearable={false}
                   required
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
                 />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Father Phone Number *
-                </label>
-                <input
-                  type="text"
-                  name="fatherPhone_number"
-                  value={formData.fatherPhone_number}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      fatherPhone_number: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Father Occupation *
-                </label>
-                <input
-                  type="text"
-                  name="fatherOccupation"
-                  value={formData.fatherOccupation}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      fatherOccupation: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Profile Image *{" "}
-                  <span className="text-[11px] text-c-purple">
-                    (JPG, PNG only)
-                  </span>
-                </label>
-                <input
-                  type="file"
-                  onChange={(e) => setProfileImage(e.target.files[0])}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  accept=".jpg,.jpeg,.png"
-                />
-                {studentData?.profileImage && (
-                  <div className="mt-2">
-                    <img
-                      src={studentData.profileImage}
-                      alt="Current profile"
-                      className="w-20 h-20 object-cover rounded-full"
-                    />
-                  </div>
-                )}
               </div>
             </div>
-            <div className="mt-6 mb-6">
-              <Typography className="text-lg font-semibold text-c-grays mb-4">
-                Course Selection
+          </div>
+
+          {/* Academic Qualifications */}
+          <div className="mt-6">
+            <div className="flex justify-between items-center mb-4">
+              <Typography className="text-lg font-semibold text-c-grays">
+                Academic Qualifications
               </Typography>
-              <div className="w-full">
-                <div className="flex gap-4 mb-4">
-                  <select
-                    value={selectedCourseId}
-                    onChange={(e) => setSelectedCourseId(e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  >
-                    <option value="">Select Course</option>
-                    {courseOptions.map((course) => (
-                      <option key={course._id} value={course._id}>
-                        {course.name}
-                      </option>
-                    ))}
-                  </select>
-                  <Button
-                    type="button"
-                    onClick={handleAddCourse}
-                    className="bg-c-purple"
-                    disabled={!selectedCourseId}
-                  >
-                    Add Course
-                  </Button>
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  {formData.course.map((courseId) => {
-                    const selectedCourse = courseOptions.find(
-                      (c) => c._id === courseId
-                    );
-                    return (
-                      <span
-                        key={courseId}
-                        className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
-                      >
-                        {selectedCourse?.name}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormData({
-                              ...formData,
-                              course: formData.course.filter(
-                                (id) => id !== courseId
-                              ),
-                            });
-                          }}
-                          className="hover:text-red-300 transition-colors"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
+              <Button
+                type="button"
+                onClick={addQualification}
+                className="bg-c-purple"
+              >
+                Add Qualification
+              </Button>
             </div>
 
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                name="verified"
-                checked={formData.verified}
-                onChange={(e) =>
-                  setFormData({ ...formData, verified: e.target.checked })
-                }
-                className="mr-2"
-              />
-              <label className="text-c-grays text-sm font-medium">
-                Verified Student
-              </label>
-            </div>
-
-            {errorMessage && (
-              <div className="px-6 py-3 mb-4">
-                <div
-                  className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative"
-                  role="alert"
+            {formData.academicQualifications.map((qual, index) => (
+              <div
+                key={index}
+                className="relative grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mb-4 p-4 border rounded-lg"
+              >
+                <button
+                  type="button"
+                  onClick={() => removeQualification(index)}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
                 >
-                  <span className="block sm:inline">{errorMessage}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                <div>
+                  <label className="block text-c-grays text-sm font-medium mb-2">
+                    Level of Study *
+                  </label>
+                  <input
+                    type="text"
+                    value={qual.levelOfStudy}
+                    onChange={(e) => {
+                      const newQuals = [...formData.academicQualifications];
+                      newQuals[index].levelOfStudy = e.target.value;
+                      setFormData({
+                        ...formData,
+                        academicQualifications: newQuals,
+                      });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-c-grays text-sm font-medium mb-2">
+                    Subjects *
+                  </label>
+                  <input
+                    type="text"
+                    value={qual.subjects}
+                    onChange={(e) => {
+                      const newQuals = [...formData.academicQualifications];
+                      newQuals[index].subjects = e.target.value;
+                      setFormData({
+                        ...formData,
+                        academicQualifications: newQuals,
+                      });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-c-grays text-sm font-medium mb-2">
+                    Years *
+                  </label>
+                  <input
+                    type="text"
+                    value={qual.years}
+                    onChange={(e) => {
+                      const newQuals = [...formData.academicQualifications];
+                      newQuals[index].years = e.target.value;
+                      setFormData({
+                        ...formData,
+                        academicQualifications: newQuals,
+                      });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-c-grays text-sm font-medium mb-2">
+                    Marks/Grade *
+                  </label>
+                  <input
+                    type="text"
+                    value={qual.marksGrade}
+                    onChange={(e) => {
+                      const newQuals = [...formData.academicQualifications];
+                      newQuals[index].marksGrade = e.target.value;
+                      setFormData({
+                        ...formData,
+                        academicQualifications: newQuals,
+                      });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-c-grays text-sm font-medium mb-2">
+                    Institution Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={qual.institutionName}
+                    onChange={(e) => {
+                      const newQuals = [...formData.academicQualifications];
+                      newQuals[index].institutionName = e.target.value;
+                      setFormData({
+                        ...formData,
+                        academicQualifications: newQuals,
+                      });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                    required
+                  />
                 </div>
               </div>
-            )}
+            ))}
+          </div>
 
-            <div className="mt-10 flex justify-end gap-4">
-              <Button
-                variant="outlined"
-                onClick={handleOpen}
-                className="text-c-purple h-[45px] border-c-purple px-6"
-                size="lg"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="bg-c-purple px-6 h-[45px] flex items-center justify-center"
-                size="lg"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="loading loading-dots loading-lg"></span>
-                ) : (
-                  "Update Student"
-                )}
-              </Button>
-            </div>
-          </form>
-        </Card>
+          {errorMessage && (
+            <div className="mt-4 text-red-500 text-sm">{errorMessage}</div>
+          )}
+
+          <div className="mt-6 flex justify-end">
+            <Button
+              type="submit"
+              className="bg-c-purple h-[45px] flex items-center justify-center min-w-[150px]"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="loading loading-dots loading-lg"></span>
+              ) : (
+                "Update Student"
+              )}
+            </Button>
+          </div>
+        </form>
       </DialogBody>
     </Dialog>
   );

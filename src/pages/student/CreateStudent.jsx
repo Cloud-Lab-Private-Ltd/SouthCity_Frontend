@@ -53,7 +53,7 @@ const CreateStudent = () => {
     religion: "",
     city: "",
     fatherProfession: "",
-    verified: false,
+    verified: true,
     batch: "",
     profileImage: null,
   });
@@ -121,6 +121,7 @@ const CreateStudent = () => {
         });
         dispatch(StudentsGet());
         setCSVFile(null);
+        navigate("/student");
       }
     } catch (error) {
       Swal.fire({
@@ -146,9 +147,9 @@ const CreateStudent = () => {
         (batch) => batch._id === formData.batch
       );
       if (selectedBatch?.course) {
-        const courseOpts = selectedBatch.course.map((course) => ({
+        const courseOpts = selectedBatch?.course.map((course) => ({
           value: course._id,
-          label: `${course.name} - ${course.code}`,
+          label: `${course.name} - ${course.duration}`,
         }));
         setCourseOptions(courseOpts);
       }
@@ -200,6 +201,7 @@ const CreateStudent = () => {
           confirmButtonColor: "#5570F1",
         });
         dispatch(StudentsGet());
+        navigate("/student");
         // Reset form
         setFormData({
           fullName: "",
@@ -224,7 +226,7 @@ const CreateStudent = () => {
           religion: "",
           city: "",
           fatherProfession: "",
-          verified: false,
+          verified: true,
           batch: "",
           profileImage: null,
         });
@@ -252,11 +254,14 @@ const CreateStudent = () => {
 
   return (
     <div className="bg-[#F5F5F5] min-h-screen p-6">
-      <div className="mb-8 flex justify-between items-center">
-        <h2 className="text-[1.5rem] font-semibold text-c-grays">
-          Create Student
-        </h2>
-        <div className="flex gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
+        <div className="relative w-full md:w-auto">
+          <h2 className="text-[1.5rem] font-semibold text-c-grays">
+            Create Student
+          </h2>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3">
           <input
             type="file"
             accept=".csv"
@@ -265,33 +270,82 @@ const CreateStudent = () => {
             className="hidden"
           />
           <Button
-            className="bg-c-purple"
+            className="bg-c-purple flex items-center gap-2 min-w-[140px] shadow-md"
             onClick={() => fileInputRef.current.click()}
           >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+              />
+            </svg>
             Select CSV
           </Button>
+
           <Button
-            className="bg-c-purple h-[45px] flex items-center justify-center overflow-hidden"
+            className="bg-c-purple h-[45px] flex items-center gap-2 min-w-[140px] shadow-md"
             onClick={handleBulkUpload}
             disabled={loading || !csvFile}
           >
             {loading ? (
               <span className="loading loading-dots loading-lg"></span>
             ) : (
-              "Import CSV"
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15m0-3l-3-3m0 0l-3 3m3-3V15"
+                  />
+                </svg>
+                Import CSV
+              </>
             )}
           </Button>
-          <Button className="bg-c-purple" onClick={() => navigate("/student")}>
-            Back to Students
+
+          <Button
+            className="bg-red-500 flex items-center gap-2 min-w-[140px] shadow-md"
+            onClick={() => navigate("/student")}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+              />
+            </svg>
+            Back
           </Button>
         </div>
       </div>
 
       <Card className="p-6 bg-white">
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-12 gap-6">
             {/* Basic Information */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Full Name *
               </label>
@@ -306,7 +360,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Email */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Email *
               </label>
@@ -321,7 +375,7 @@ const CreateStudent = () => {
             </div>
 
             {/* NIC */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 NIC *
               </label>
@@ -337,7 +391,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Password */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Password *
               </label>
@@ -352,7 +406,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Father Name */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Father Name *
               </label>
@@ -367,7 +421,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Current Address */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Current Address *
               </label>
@@ -382,7 +436,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Permanent Address */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Permanent Address *
               </label>
@@ -397,7 +451,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Mobile Number */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Mobile Number *
               </label>
@@ -413,7 +467,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Phone Number */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Phone Number
               </label>
@@ -428,7 +482,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Gender */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Gender *
               </label>
@@ -446,7 +500,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Date of Birth */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Date of Birth *
               </label>
@@ -461,7 +515,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Marital Status */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Marital Status *
               </label>
@@ -479,7 +533,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Relationship */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Relationship *
               </label>
@@ -494,7 +548,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Organization */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Organization *
               </label>
@@ -509,7 +563,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Highest Qualification */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Highest Qualification *
               </label>
@@ -524,7 +578,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Province */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Province *
               </label>
@@ -539,7 +593,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Domicile */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Domicile *
               </label>
@@ -554,7 +608,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Religion */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Religion *
               </label>
@@ -569,7 +623,7 @@ const CreateStudent = () => {
             </div>
 
             {/* City */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 City *
               </label>
@@ -584,7 +638,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Father Profession */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Father Profession *
               </label>
@@ -599,7 +653,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Profile Image */}
-            <div>
+            <div className="col-span-12 md:col-span-6 xl:col-span-4">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Profile Image *{" "}
                 <span className="text-[11px] text-c-purple">
@@ -619,7 +673,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Batch Selection */}
-            <div>
+            <div className="col-span-12">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Batch *
               </label>
@@ -636,6 +690,14 @@ const CreateStudent = () => {
                   });
                   // This will trigger the useEffect to load new courses
                 }}
+                styles={{
+                  input: (base) => ({
+                    ...base,
+                    "input:focus": {
+                      boxShadow: "none",
+                    },
+                  }),
+                }}
                 className="text-c-grays"
                 placeholder="Select Batch"
                 isSearchable
@@ -644,7 +706,7 @@ const CreateStudent = () => {
             </div>
 
             {/* Academic Qualifications Section */}
-            <div className="col-span-3">
+            <div className="col-span-12">
               <Typography className="text-lg font-semibold text-c-grays mb-4">
                 Academic Qualifications
               </Typography>
@@ -765,23 +827,28 @@ const CreateStudent = () => {
             </div>
 
             {/* Course Selection */}
-            <div>
+            <div className="col-span-12">
               <label className="block text-c-grays text-sm font-medium mb-2">
                 Course *
               </label>
               <Select
-                options={courseOptions.map((course) => ({
-                  value: course._id,
-                  label: course.name,
-                }))}
+                options={courseOptions}
                 value={courseOptions.find(
-                  (course) => course._id === formData.course
+                  (course) => course?._id === formData?.course
                 )}
                 onChange={(selected) => {
                   setFormData({
                     ...formData,
-                    course: selected.value,
+                    course: selected?.value,
                   });
+                }}
+                styles={{
+                  input: (base) => ({
+                    ...base,
+                    "input:focus": {
+                      boxShadow: "none",
+                    },
+                  }),
                 }}
                 className="text-c-grays"
                 required

@@ -30,7 +30,6 @@ const Login = () => {
   const dispatch = useDispatch();
   // Change state name
   const [emailOrNic, setEmailOrNic] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loader, setloader] = useState(false);

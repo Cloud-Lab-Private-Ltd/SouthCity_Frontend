@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { StudentsGet, TrashedStudentsGet } from "../../features/GroupApiSlice";
 import { useNavigate } from "react-router-dom";
+import StudentDetailsModal from "./StudentDetailsModal";
 
 const TrashStudentBody = () => {
   const dispatch = useDispatch();
@@ -25,6 +26,16 @@ const TrashStudentBody = () => {
       student.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Add these state variables
+  const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
+  const [selectedStudentDetails, setSelectedStudentDetails] = useState(null);
+
+  // Add this handler function
+  const handleViewDetails = (student) => {
+    setSelectedStudentDetails(student);
+    setViewDetailsOpen(true);
+  };
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -134,17 +145,32 @@ const TrashStudentBody = () => {
   return (
     <div className="bg-[#F5F5F5]">
       <div className="mb-8 flex flex-col md:flex-row md:items-center gap-4 md:justify-between">
-        <h2 className="text-[1.5rem] font-semibold text-c-grays">
-          TRASHED STUDENTS
-        </h2>
+        <div className="relative w-full md:w-auto">
+          <h2 className="text-[1.5rem] font-semibold text-c-grays">
+            TRASHED STUDENTS
+          </h2>
+        </div>
         <Button
-          className="bg-c-purple w-full md:w-auto"
+          className="bg-red-500 flex items-center gap-2 min-w-[140px] shadow-md"
           onClick={() => navigate("/student")}
         >
-          Back to Students
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-5 h-5"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"
+            />
+          </svg>
+          Back
         </Button>
       </div>
-
       <Card className="overflow-hidden bg-white">
         <div className="p-6">
           <div className="mb-4">
@@ -234,6 +260,32 @@ const TrashStudentBody = () => {
                         <div className="flex gap-2">
                           <Button
                             size="sm"
+                            className="bg-blue-500 flex items-center gap-1"
+                            onClick={() => handleViewDetails(student)}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.5}
+                              stroke="currentColor"
+                              className="w-4 h-4"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                            </svg>
+                            View
+                          </Button>
+                          <Button
+                            size="sm"
                             className="bg-green-500"
                             onClick={() => handleRestore(student._id)}
                           >
@@ -282,6 +334,12 @@ const TrashStudentBody = () => {
           )}
         </div>
       </Card>
+      {/* // Add the modal component at the bottom of the return statement */}
+      <StudentDetailsModal
+        open={viewDetailsOpen}
+        handleOpen={() => setViewDetailsOpen(!viewDetailsOpen)}
+        studentData={selectedStudentDetails}
+      />
     </div>
   );
 };

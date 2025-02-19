@@ -16,28 +16,38 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
     <Dialog
       open={open}
       handler={handleOpen}
-      className="min-w-[80%] max-h-[90vh] overflow-y-auto"
+      size="lg"
+      className="min-w-[90%] max-h-[95vh] overflow-y-auto"
     >
-      <DialogHeader className="flex justify-between items-center border-b bg-gray-50">
+      <DialogHeader className="flex justify-between items-center border-b bg-gray-50 sticky top-0 z-10">
         <div className="flex items-center gap-4">
           {studentData.profileImage ? (
             <img
               src={studentData.profileImage}
               alt={studentData.fullName}
-              className="h-20 w-20 rounded-full object-cover border-4 border-white shadow-lg"
+              className="h-24 w-24 rounded-full object-cover border-4 border-white shadow-lg"
             />
           ) : (
-            <div className="h-20 w-20 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 text-2xl font-bold border-4 border-white shadow-lg">
+            <div className="h-24 w-24 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 text-3xl font-bold border-4 border-white shadow-lg">
               {studentData.fullName.charAt(0)}
             </div>
           )}
           <div>
-            <Typography variant="h5" className="text-c-grays font-bold">
+            <Typography variant="h4" className="text-c-grays font-bold">
               {studentData.fullName}
             </Typography>
-            <Typography className="text-sm text-gray-600">
+            <Typography className="text-base text-gray-600">
               {studentData.registrationId}
             </Typography>
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                studentData.verified
+                  ? "bg-green-100 text-green-800"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
+            >
+              {studentData.verified ? "Verified" : "Pending Verification"}
+            </span>
           </div>
         </div>
         <IconButton
@@ -50,7 +60,7 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
         </IconButton>
       </DialogHeader>
 
-      <DialogBody divider className="h-[calc(100vh-30vh)] overflow-y-auto p-6">
+      <DialogBody className="p-6 overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card className="p-6 shadow-sm">
             <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
@@ -62,20 +72,9 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
               <InfoItem label="NIC" value={studentData.nic} />
               <InfoItem label="Gender" value={studentData.gender} />
               <InfoItem label="Date of Birth" value={studentData.dob} />
-              <InfoItem
-                label="Verification Status"
-                value={
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                      studentData.verified
-                        ? "bg-green-100 text-green-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
-                  >
-                    {studentData.verified ? "Verified" : "Pending"}
-                  </span>
-                }
-              />
+              <InfoItem label="Marital Status" value={studentData.maritalStatus} />
+              <InfoItem label="Religion" value={studentData.religion} />
+              <InfoItem label="Nationality" value={studentData.nationality} />
             </div>
           </Card>
 
@@ -85,9 +84,12 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
             </Typography>
             <div className="space-y-4">
               <InfoItem label="Phone Number" value={studentData.phoneNumber} />
-              <InfoItem label="Address" value={studentData.address} />
+              <InfoItem label="Mobile Number" value={studentData.mobileNumber} />
+              <InfoItem label="Current Address" value={studentData.currentAddress} />
+              <InfoItem label="Permanent Address" value={studentData.permanentAddress} />
               <InfoItem label="City" value={studentData.city} />
-              <InfoItem label="Country" value={studentData.country} />
+              <InfoItem label="Province" value={studentData.province} />
+              <InfoItem label="Domicile" value={studentData.domicile} />
             </div>
           </Card>
 
@@ -97,50 +99,71 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
             </Typography>
             <div className="space-y-4">
               <InfoItem label="Father's Name" value={studentData.fatherName} />
-              <InfoItem
-                label="Father's Phone"
-                value={studentData.fatherPhone_number}
-              />
-              <InfoItem
-                label="Father's Occupation"
-                value={studentData.fatherOccupation}
-              />
+              <InfoItem label="Father's Profession" value={studentData.fatherProfession} />
+              <InfoItem label="Relationship" value={studentData.relationShip} />
             </div>
           </Card>
 
           <Card className="p-6 shadow-sm">
             <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
-              Academic Information
+              Academic Status
             </Typography>
             <div className="space-y-4">
-              <InfoItem
-                label="Batch"
-                value={studentData.batchName || "Not Assigned"}
-              />
-              <InfoItem
-                label="Current Semester"
-                value={studentData.currentSemester || "Not Started"}
+              <InfoItem label="Academic Status" value={studentData.academicStatus} />
+              <InfoItem label="Current Semester" value={studentData.currentSemester} />
+              <InfoItem label="Batch Name" value={studentData.batchName} />
+              <InfoItem label="Highest Qualification" value={studentData.higestQualification} />
+              <InfoItem 
+                label="Status" 
+                value={
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    studentData.status === 'active' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {studentData.status}
+                  </span>
+                } 
               />
             </div>
           </Card>
 
-          {studentData.course && studentData.course.length > 0 && (
+          {studentData.academicQualifications?.length > 0 && (
+            <Card className="p-6 shadow-sm col-span-2">
+              <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
+                Academic Qualifications
+              </Typography>
+              <div className="grid gap-4">
+                {studentData.academicQualifications.map((qual, index) => (
+                  <div key={index} className="p-4 bg-purple-50 rounded-lg">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <InfoItem label="Institution" value={qual.institutionName} />
+                      <InfoItem label="Level of Study" value={qual.levelOfStudy} />
+                      <InfoItem label="Subjects" value={qual.subjects} />
+                      <InfoItem label="Marks/Grade" value={qual.marksGrade} />
+                      <InfoItem label="Years" value={qual.years} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          {studentData.course?.length > 0 && (
             <Card className="p-6 shadow-sm col-span-2">
               <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
                 Enrolled Courses
               </Typography>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid gap-4">
                 {studentData.course.map((course, index) => (
-                  <div
-                    key={index}
-                    className="p-4 bg-purple-50 rounded-lg border border-purple-100 hover:shadow-md transition-all"
-                  >
-                    <p className="font-semibold text-purple-700">
-                      {course.name}
-                    </p>
-                    <div className="mt-2 space-y-1 text-sm text-gray-600">
-                      <p>Level: {course.Level}</p>
-                      <p>Status: {course.Status}</p>
+                  <div key={index} className="p-4 bg-purple-50 rounded-lg">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <InfoItem label="Course Name" value={course.name} />
+                      <InfoItem label="Level" value={course.Level} />
+                      <InfoItem label="Status" value={course.Status} />
+                      <InfoItem label="Duration" value={course.duration} />
+                      <InfoItem label="Category" value={course.category} />
+                      <InfoItem label="Total Fee" value={course.totalFee} />
                     </div>
                   </div>
                 ))}
@@ -153,11 +176,10 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
   );
 };
 
-// Helper component for consistent info display
 const InfoItem = ({ label, value }) => (
   <div className="flex flex-col">
     <span className="text-sm text-gray-600">{label}</span>
-    <span className="font-medium">{value}</span>
+    <span className="font-medium">{value || "Not Provided"}</span>
   </div>
 );
 

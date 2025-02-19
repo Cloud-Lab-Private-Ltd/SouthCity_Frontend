@@ -77,21 +77,23 @@ function App() {
   }
 
   useEffect(() => {
-    dispatch(ProfileGet(userId));
-    dispatch(StudentGet());
-    dispatch(VoucherGet());
-    dispatch(GroupGet());
-    dispatch(MembersGet());
-    dispatch(DegreeTypesGet());
-    dispatch(StatusesGet());
-    dispatch(CoursesGet());
-    dispatch(BatchesGet());
-    dispatch(StudentsGet());
-    dispatch(VouchersGet());
-    dispatch(ActionLogsGet());
-    dispatch(PermissionsGet());
-    dispatch(NotificationsGet());
-    dispatch(TrashedStudentsGet());
+    if (token) {
+      dispatch(ProfileGet(userId));
+      dispatch(StudentGet());
+      dispatch(VoucherGet());
+      dispatch(GroupGet());
+      dispatch(MembersGet());
+      dispatch(DegreeTypesGet());
+      dispatch(StatusesGet());
+      dispatch(CoursesGet());
+      dispatch(BatchesGet());
+      dispatch(StudentsGet());
+      dispatch(VouchersGet());
+      dispatch(ActionLogsGet());
+      dispatch(PermissionsGet());
+      dispatch(NotificationsGet());
+      dispatch(TrashedStudentsGet());
+    }
   }, []);
 
   return (

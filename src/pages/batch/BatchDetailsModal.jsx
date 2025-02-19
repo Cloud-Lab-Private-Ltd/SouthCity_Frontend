@@ -5,6 +5,7 @@ import {
   DialogBody,
   Typography,
   IconButton,
+  Card,
 } from "@material-tailwind/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
@@ -15,12 +16,22 @@ const BatchDetailsModal = ({ open, handleOpen, batchData }) => {
     <Dialog
       open={open}
       handler={handleOpen}
-      className="min-w-[80%] max-h-[90vh] overflow-y-auto"
+      className="min-w-[90%] max-h-[95vh] overflow-y-auto"
+      size="lg"
     >
-      <DialogHeader className="flex justify-between items-center border-b">
-        <Typography variant="h5" className="text-c-grays font-bold">
-          Batch Details
-        </Typography>
+      <DialogHeader className="flex justify-between items-center border-b bg-gray-50 sticky top-0 z-10">
+        <div>
+          <Typography variant="h4" className="text-c-grays font-bold">
+            {batchData.batchName}
+          </Typography>
+          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+            batchData.status === 'Active' 
+              ? 'bg-green-100 text-green-800' 
+              : 'bg-yellow-100 text-yellow-800'
+          }`}>
+            {batchData.status}
+          </span>
+        </div>
         <IconButton
           variant="text"
           color="gray"
@@ -31,125 +42,120 @@ const BatchDetailsModal = ({ open, handleOpen, batchData }) => {
         </IconButton>
       </DialogHeader>
 
-      <DialogBody divider className="h-[calc(100vh-30vh)] overflow-y-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <Typography className="font-bold mb-4 text-lg text-c-grays">
+      <DialogBody className="p-6 overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="p-6 shadow-sm">
+            <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
               Basic Information
             </Typography>
-            <div className="space-y-3">
-              <p>
-                <span className="font-semibold">Batch Name:</span>{" "}
-                {batchData.batchName}
-              </p>
-              <p>
-                <span className="font-semibold">Status:</span>{" "}
-                {batchData.status}
-              </p>
-              <p>
-                <span className="font-semibold">Session Type:</span>{" "}
-                {batchData.sessionType}
-              </p>
-              <p>
-                <span className="font-semibold">Current Semester:</span>{" "}
-                {batchData.currentSemester}
-              </p>
+            <div className="space-y-4">
+              <InfoItem label="Batch Name" value={batchData.batchName} />
+              <InfoItem label="Session Type" value={batchData.sessionType} />
+              <InfoItem label="Current Semester" value={batchData.currentSemester} />
+              <InfoItem label="Number of Students" value={batchData.numberOfStudents} />
+              <InfoItem 
+                label="Status" 
+                value={
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    batchData.status === 'Active' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {batchData.status}
+                  </span>
+                } 
+              />
             </div>
-          </div>
+          </Card>
 
-          <div>
-            <Typography className="font-bold mb-4 text-lg text-c-grays">
-              Course Information
+          <Card className="p-6 shadow-sm">
+            <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
+              Duration Information
             </Typography>
             <div className="space-y-4">
-              {batchData.course.map((course, index) => (
-                <div
-                  key={index}
-                  className="p-4 bg-gray-50 rounded-lg border border-gray-100"
-                >
+              <InfoItem 
+                label="Start Date" 
+                value={new Date(batchData.startDate).toLocaleDateString()} 
+              />
+              <InfoItem 
+                label="End Date" 
+                value={new Date(batchData.endDate).toLocaleDateString()} 
+              />
+              <InfoItem 
+                label="Created At" 
+                value={new Date(batchData.createdAt).toLocaleString()} 
+              />
+              <InfoItem 
+                label="Last Updated" 
+                value={new Date(batchData.updatedAt).toLocaleString()} 
+              />
+            </div>
+          </Card>
+
+          <Card className="p-6 shadow-sm col-span-2">
+            <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
+              Schedule
+            </Typography>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {batchData.schedule.map((item, index) => (
+                <div key={index} className="p-4 bg-purple-50 rounded-lg">
                   <div className="space-y-2">
-                    <p className="font-semibold text-purple-700">
-                      {course.name}
-                    </p>
-                    <p className="text-sm">
-                      <span className="font-medium">Per Semester Fee:</span> Rs.{" "}
-                      {course.perSemesterFee}
-                    </p>
+                    <p className="font-semibold text-purple-700">{item.day}</p>
+                    <p className="text-gray-700">{item.time}</p>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
-          <div>
-            <Typography className="font-bold mb-4 text-lg text-c-grays">
-              Seats Information
+          <Card className="p-6 shadow-sm col-span-2">
+            <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
+              Course Information
             </Typography>
-            <div className="space-y-3">
-              <p>
-                <span className="font-semibold">Total Seats:</span>{" "}
-                {batchData.totalSeats}
-              </p>
-              <p>
-                <span className="font-semibold">Available Seats:</span>{" "}
-                {batchData.availableSeats}
-              </p>
-              <p>
-                <span className="font-semibold">Occupied Seats:</span>{" "}
-                {batchData.totalSeats - batchData.availableSeats}
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <Typography className="font-bold mb-4 text-lg text-c-grays">
-              Duration
-            </Typography>
-            <div className="space-y-3">
-              <p>
-                <span className="font-semibold">Start Date:</span>{" "}
-                {new Date(batchData.startDate).toLocaleDateString()}
-              </p>
-              <p>
-                <span className="font-semibold">End Date:</span>{" "}
-                {new Date(batchData.endDate).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-
-          <div className="col-span-2">
-            <Typography className="font-bold mb-4 text-lg text-c-grays">
-              Schedule
-            </Typography>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {batchData.schedule.map((item, index) => (
-                <div key={index} className="p-4 border rounded-lg bg-gray-50">
-                  <p className="font-semibold text-c-purple">{item.day}</p>
-                  <p>{item.time}</p>
+            {batchData.course.map((course, index) => (
+              <div key={index} className="p-4 bg-purple-50 rounded-lg mb-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <InfoItem label="Course Name" value={course.name} />
+                  <InfoItem label="Level" value={course.Level} />
+                  <InfoItem label="Category" value={course.category} />
+                  <InfoItem label="Duration" value={course.duration} />
+                  <InfoItem label="Total Fee" value={`Rs. ${course.totalFee}`} />
+                  <InfoItem label="No. of Semesters" value={course.noOfSemesters} />
+                  <InfoItem 
+                    label="Admission Fee" 
+                    value={`Rs. ${course.admissionFee.amount}`} 
+                  />
+                  <InfoItem 
+                    label="Per Semester Fee" 
+                    value={`Rs. ${course.perSemesterFee.amount}`} 
+                  />
+                  <InfoItem 
+                    label="Status" 
+                    value={
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        course.Status === 'Active' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {course.Status}
+                      </span>
+                    } 
+                  />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="col-span-2">
-            <Typography className="font-bold mb-4 text-lg text-c-grays">
-              Additional Information
-            </Typography>
-            <div className="space-y-3">
-              <p>
-                <span className="font-semibold">Created:</span>{" "}
-                {new Date(batchData.createdAt).toLocaleString()}
-              </p>
-              <p>
-                <span className="font-semibold">Last Updated:</span>{" "}
-                {new Date(batchData.updatedAt).toLocaleString()}
-              </p>
-            </div>
-          </div>
+              </div>
+            ))}
+          </Card>
         </div>
       </DialogBody>
     </Dialog>
   );
 };
+
+const InfoItem = ({ label, value }) => (
+  <div className="flex flex-col">
+    <span className="text-sm text-gray-600">{label}</span>
+    <span className="font-medium">{value || "Not Provided"}</span>
+  </div>
+);
 
 export default BatchDetailsModal;

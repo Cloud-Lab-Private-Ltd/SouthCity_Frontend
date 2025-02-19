@@ -89,6 +89,14 @@ const Routess = () => {
     (state) => state.profiledata?.profile?.member?.group?.name || []
   );
 
+  const checkPermission = (type) => {
+    if (admin === "admins") return true;
+    const studentPermission = permissions?.find(
+      (p) => p.pageName === "Student"
+    );
+    return studentPermission?.[type] || false;
+  };
+
   const coursepermissions = permissions[0]?.read;
   const batchpermissions = permissions[1]?.read;
   const studentpermissions = permissions[2]?.read;
@@ -245,10 +253,13 @@ const Routess = () => {
               <Route path="*" element={<Dashboard />}></Route>
 
               <Route element={<Private />}>
-                <Route
-                  path="/create-student"
-                  element={<CreateStudent />}
-                ></Route>
+                {(admin === "admins" || checkPermission("insert")) && (
+                  <Route
+                    path="/create-student"
+                    element={<CreateStudent />}
+                  ></Route>
+                )}
+
                 {admin === "admins" ? (
                   <>
                     <Route
