@@ -24,6 +24,7 @@ import Notification from "../pages/notifications/Notification";
 import StudentVoucher from "../pages/student vouncher/StudentVoucher";
 import TrashStudent from "../pages/student/TrashStudent";
 import CreateStudent from "../pages/student/CreateStudent";
+import Feespage from "../pages/fees page/Feespage";
 
 const Routess = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
@@ -105,6 +106,7 @@ const Routess = () => {
   const bulkpermissions = permissions[5]?.read;
   const degreepermissions = permissions[6]?.read;
   const statuspermissions = permissions[7]?.read;
+  const feespermissions = permissions[8]?.read;
 
   return (
     <div>
@@ -310,6 +312,18 @@ const Routess = () => {
                 ) : degreepermissions ? (
                   <>
                     <Route path="/degree-type" element={<Degree />}></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route path="/fees-fields" element={<Feespage />}></Route>
+                  </>
+                ) : feespermissions ? (
+                  <>
+                    <Route path="/fees-fields" element={<Feespage />}></Route>
                   </>
                 ) : (
                   ""

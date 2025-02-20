@@ -181,6 +181,21 @@ export const TrashedStudentsGet = createAsyncThunk("TrashedStudentsGet", async (
   }
 });
 
+export const FeesGet = createAsyncThunk("FeesGet", async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/sch/fees/list`, {
+      headers: {
+        "x-access-token": token,
+      },
+    });
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
+  }
+});
+
 export const GroupSlice = createSlice({
   name: "GroupData",
   initialState: {
@@ -196,6 +211,8 @@ export const GroupSlice = createSlice({
     permissionsList: [],
     notifications: [],
     trashedStudents: [],
+    fees: [],
+    feesLoading: false,
     trashedStudentsLoading: false,
     notificationLoading: false,
     permissionsLoading: false,
@@ -345,6 +362,17 @@ export const GroupSlice = createSlice({
       })
       .addCase(TrashedStudentsGet.rejected, (state, action) => {
         state.trashedStudentsLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(FeesGet.pending, (state) => {
+        state.feesLoading = true;
+      })
+      .addCase(FeesGet.fulfilled, (state, action) => {
+        state.feesLoading = false;
+        state.fees = action.payload;
+      })
+      .addCase(FeesGet.rejected, (state, action) => {
+        state.feesLoading = false;
         state.error = action.error.message;
       })
   },

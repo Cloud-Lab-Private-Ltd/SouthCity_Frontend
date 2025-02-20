@@ -78,6 +78,11 @@ const PermissionBody = () => {
       delete: false,
       read: false,
     },
+    {
+      pageName: "Fees",
+      update: false,
+      read: false,
+    },
   ]);
 
   const groupOptions = groups?.groups
@@ -197,6 +202,13 @@ const PermissionBody = () => {
             insert: false,
             update: false,
             delete: false,
+            read: false,
+          },
+          {
+            pageName: "Fees",
+            // insert: false,
+            update: false,
+            // delete: false,
             read: false,
           },
         ]);

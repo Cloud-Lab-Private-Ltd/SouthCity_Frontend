@@ -34,6 +34,11 @@ const EditCourseModal = ({
 
   const [error, setError] = useState("");
 
+  const { fees } = useSelector((state) => state.groupdata);
+  const semesterFee =
+    fees?.find((fee) => fee.feeType === "semester")?.amount || 0;
+  const otherFee = fees?.find((fee) => fee.feeType === "other")?.amount || 0;
+
   useEffect(() => {
     if (courseData) {
       setFormData({
@@ -118,8 +123,14 @@ const EditCourseModal = ({
     formDataToSend.append("degreeType", formData.degreeType);
     formDataToSend.append("duration", formData.duration);
     formDataToSend.append("noOfSemesters", formData.noOfSemesters);
-    formDataToSend.append("perSemesterFee", formData.perSemesterFee);
-    formDataToSend.append("admissionFee", formData.admissionFee);
+    formDataToSend.append(
+      "perSemesterFee",
+      fees?.find((fee) => fee.feeType === "semester")?._id
+    );
+    formDataToSend.append(
+      "admissionFee",
+      fees?.find((fee) => fee.feeType === "other")?._id
+    );
     formDataToSend.append("totalFee", formData.totalFee);
     formDataToSend.append("Status", formData.Status);
 
@@ -247,11 +258,9 @@ const EditCourseModal = ({
             </label>
             <input
               type="number"
-              name="perSemesterFee"
-              value={formData.perSemesterFee}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              required
+              value={semesterFee}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
+              readOnly
             />
           </div>
 
@@ -261,11 +270,9 @@ const EditCourseModal = ({
             </label>
             <input
               type="number"
-              name="admissionFee"
-              value={formData.admissionFee}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              required
+              value={otherFee}
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
+              readOnly
             />
           </div>
 

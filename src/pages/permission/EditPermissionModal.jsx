@@ -79,6 +79,13 @@ const EditPermissionModal = ({
       delete: false,
       read: false,
     },
+    {
+      pageName: "Fees",
+   
+      update: false,
+    
+      read: false,
+    },
   ]);
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");

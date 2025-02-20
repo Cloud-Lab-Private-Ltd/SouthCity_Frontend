@@ -58,13 +58,13 @@ const CourseDetailsModal = ({ open, handleOpen, courseData }) => {
               <div className="flex flex-col">
                 <span className="text-sm text-gray-600">Admission Fee</span>
                 <span className="font-medium">
-                  Rs. {courseData.admissionFee}
+                  Rs. {courseData.admissionFee?.amount}
                 </span>
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-gray-600">Per Semester Fee</span>
                 <span className="font-medium">
-                  Rs. {courseData.perSemesterFee}
+                  Rs. {courseData.perSemesterFee?.amount}
                 </span>
               </div>
               <div className="flex flex-col">

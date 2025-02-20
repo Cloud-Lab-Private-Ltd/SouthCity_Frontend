@@ -9,6 +9,7 @@ import {
   BatchesGet,
   CoursesGet,
   DegreeTypesGet,
+  FeesGet,
   GroupGet,
   MembersGet,
   NotificationsGet,
@@ -93,6 +94,7 @@ function App() {
       dispatch(PermissionsGet());
       dispatch(NotificationsGet());
       dispatch(TrashedStudentsGet());
+      dispatch(FeesGet());
     }
   }, []);
 

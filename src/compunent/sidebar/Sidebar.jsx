@@ -22,7 +22,7 @@ export function Index({ isDrawerOpen }) {
 
   const studentName = localStorage.getItem("groupName");
   const location = useLocation();
- 
+
   const coursepermissions = permissions[0]?.read;
   const batchpermissions = permissions[1]?.read;
   const studentpermissions = permissions[2]?.read;
@@ -31,6 +31,7 @@ export function Index({ isDrawerOpen }) {
   const bulkpermissions = permissions[5]?.read;
   const degreepermissions = permissions[6]?.read;
   const statuspermissions = permissions[7]?.read;
+  const feespermissions = permissions[8]?.read;
 
   const navigate = useNavigate();
 
@@ -224,7 +225,7 @@ export function Index({ isDrawerOpen }) {
                     </svg>
                   </ListItem>
                 </>
-              ) : degreepermissions || statuspermissions ? (
+              ) : degreepermissions || statuspermissions || feespermissions ? (
                 <>
                   <ListItem
                     className="text-c-grays group-hover:text-gray-800"
@@ -274,7 +275,7 @@ export function Index({ isDrawerOpen }) {
                     </svg>
                   </ListItem>
                 </>
-              ) : degreepermissions === false && statuspermissions === false ? (
+              ) : degreepermissions === false && statuspermissions === false && feespermissions === false ? (
                 <></>
               ) : (
                 ""
@@ -283,7 +284,8 @@ export function Index({ isDrawerOpen }) {
                 <>
                   {" "}
                   {degreepermissions === false &&
-                  statuspermissions === false ? (
+                  statuspermissions === false &&
+                  feespermissions === false ? (
                     <></>
                   ) : (
                     <>
@@ -342,6 +344,36 @@ export function Index({ isDrawerOpen }) {
                               onClick={() => navigate("/status")}
                             >
                               Status
+                            </ListItem>
+                          </>
+                        ) : (
+                          ""
+                        )}
+
+                        {admin === "admins" ? (
+                          <>
+                            <ListItem
+                              className={`text-c-grays hover:bg-[#F5F5F5] ${
+                                location.pathname === "/fees-fields"
+                                  ? "bg-[#F5F5F5]"
+                                  : ""
+                              }`}
+                              onClick={() => navigate("/fees-fields")}
+                            >
+                              Fees
+                            </ListItem>
+                          </>
+                        ) : feespermissions ? (
+                          <>
+                            <ListItem
+                              className={`text-c-grays hover:bg-[#F5F5F5] ${
+                                location.pathname === "/fees-fields"
+                                  ? "bg-[#F5F5F5]"
+                                  : ""
+                              }`}
+                              onClick={() => navigate("/fees-fields")}
+                            >
+                              Fees
                             </ListItem>
                           </>
                         ) : (
