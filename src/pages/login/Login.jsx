@@ -15,6 +15,7 @@ import {
   BatchesGet,
   CoursesGet,
   DegreeTypesGet,
+  FeesGet,
   GroupGet,
   MembersGet,
   NotificationsGet,
@@ -79,6 +80,8 @@ const Login = () => {
         dispatch(PermissionsGet());
         dispatch(NotificationsGet());
         dispatch(TrashedStudentsGet());
+        dispatch(FeesGet());
+
         navigate("/");
       })
       .catch((e) => {

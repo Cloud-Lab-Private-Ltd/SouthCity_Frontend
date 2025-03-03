@@ -13,6 +13,8 @@ const StatusBody = () => {
   const token = localStorage.getItem("token");
   const dispatch = useDispatch();
 
+  const defaultStatuses = ["Active", "Inactive", "Paid", "Pending"];
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -277,23 +279,29 @@ const StatusBody = () => {
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <div className="flex gap-2">
-                        {(admin === "admins" || checkPermission("update")) && (
-                          <Button
-                            size="sm"
-                            className="bg-c-purple"
-                            onClick={() => handleEdit(item)}
-                          >
-                            Edit
-                          </Button>
-                        )}
-                        {(admin === "admins" || checkPermission("delete")) && (
-                          <Button
-                            size="sm"
-                            className="bg-red-500"
-                            onClick={() => handleDelete(item._id)}
-                          >
-                            Delete
-                          </Button>
+                        {!defaultStatuses.includes(item.name) && (
+                          <>
+                            {(admin === "admins" ||
+                              checkPermission("update")) && (
+                              <Button
+                                size="sm"
+                                className="bg-c-purple"
+                                onClick={() => handleEdit(item)}
+                              >
+                                Edit
+                              </Button>
+                            )}
+                            {(admin === "admins" ||
+                              checkPermission("delete")) && (
+                              <Button
+                                size="sm"
+                                className="bg-red-500"
+                                onClick={() => handleDelete(item._id)}
+                              >
+                                Delete
+                              </Button>
+                            )}
+                          </>
                         )}
                       </div>
                     </td>

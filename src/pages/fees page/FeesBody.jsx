@@ -209,7 +209,7 @@ const FeesBody = () => {
                 </tbody>
               ) : (
                 <tbody>
-                  {fees?.map((fee) => (
+                  { Array.isArray(fees) && fees?.map((fee) => (
                     <tr key={fee._id} className="hover:bg-gray-50">
                       <td className="p-4 border-b border-gray-100">
                         <Typography className="text-c-grays capitalize">

@@ -13,7 +13,7 @@ import EditVoucherModal from "./EditVoucherModal";
 const VoucherBody = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
-  const [courseOptions, setCourseOptions] = useState([]);
+  const { fees } = useSelector((state) => state.groupdata);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
@@ -26,57 +26,85 @@ const VoucherBody = () => {
   const [inWordAmount, setInWordAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [monthOf, setMonthOf] = useState("");
+  const [isFullPayment, setIsFullPayment] = useState(false);
+  const [paymentPercentage, setPaymentPercentage] = useState();
+
+  // Add state to track full amount
+  const [fullAmount, setFullAmount] = useState(0);
+
+  useEffect(() => {
+    if (fees && Array.isArray(fees)) {
+      const admissionFee =
+        fees.find((fee) => fee.feeType === "other")?.amount || 0;
+      const semesterFee =
+        fees.find((fee) => fee.feeType === "semester")?.amount || 0;
+      const securityFee =
+        fees.find((fee) => fee.feeType === "security")?.amount || 0;
+      const libraryFee =
+        fees.find((fee) => fee.feeType === "library")?.amount || 0;
+
+      // Calculate full amount first
+      const fullTotal = admissionFee + semesterFee + securityFee + libraryFee;
+      setFullAmount(fullTotal);
+      setPaidAmount(fullTotal);
+
+      // Calculate percentage if not full payment
+      if (!isFullPayment) {
+        const percentMultiplier = paymentPercentage / 100;
+        setAdmissionFee((admissionFee * percentMultiplier).toString());
+        setSemesterFee((semesterFee * percentMultiplier).toString());
+        setSecurityFee((securityFee * percentMultiplier).toString());
+        setLibraryFee((libraryFee * percentMultiplier).toString());
+      } else {
+        setAdmissionFee(admissionFee.toString());
+        setSemesterFee(semesterFee.toString());
+        setSecurityFee(securityFee.toString());
+        setLibraryFee(libraryFee.toString());
+      }
+    }
+  }, [fees, isFullPayment, paymentPercentage]);
 
   const token = localStorage.getItem("token");
-  const { students } = useSelector((state) => state.groupdata);
+  const { students } = useSelector((state) => state.groupdata?.students);
   const { vouchers, voucherLoading } = useSelector((state) => state.groupdata);
+  const { batches } = useSelector((state) => state.groupdata);
+  const [studentFilterOPtion, setstudentFilterOPtion] = useState([]);
 
-  console.log(students);
+  const studentFilter = Array.isArray(students)
+    ? students?.filter((item) => item?.status === "active")
+    : [];
 
-  const selectStyles = {
-    control: (base) => ({
-      ...base,
-      padding: "2px",
-      borderColor: "#e5e7eb",
-      "&:hover": {
-        borderColor: "#6b21a8",
-      },
-    }),
-    option: (base, { isFocused }) => ({
-      ...base,
-      backgroundColor: isFocused ? "#f3e8ff" : "white",
-      color: "#111827",
-      "&:hover": {
-        backgroundColor: "#f3e8ff",
-      },
-    }),
-  };
+  const batchOptions = batches?.batches?.map((batch) => ({
+    value: batch._id,
+    label: batch.batchName,
+    courses: batch.course, // Store courses for later use
+  }));
 
-  const studentOptions = students?.students?.map((student) => ({
-    value: student._id,
-    label: `${student.fullName} - ${student.registrationId}`,
-    studentData: student,
+  const [selectedBatch, setSelectedBatch] = useState(null);
+
+  const courseOptions = selectedBatch?.courses?.map((course) => ({
+    value: course._id,
+    label: course.name,
   }));
 
   // Update the handleStudentSelect function
   const handleStudentSelect = (selected) => {
     setSelectedStudent(selected);
-    const courseOptions = selected.studentData.course.map((course) => ({
-      value: course._id,
-      label: `${course.name} - ${course.code}`,
-      courseData: course, // Store full course data
-    }));
-    setCourseOptions(courseOptions);
   };
 
-  // Add a new function to handle course selection
-  const handleCourseSelect = (selected) => {
-    setSelectedCourse(selected);
-    if (selected?.courseData) {
-      setAdmissionFee(selected.courseData.admissionFee);
-      setSemesterFee(selected.courseData.perSemesterFee);
-    }
-  };
+  useEffect(() => {
+    const filter = studentFilter?.filter(
+      (student) => student?.course?.[0]?._id === selectedCourse?.value
+    );
+    const studentOptions =
+      Array.isArray(filter) &&
+      filter?.map((student) => ({
+        value: student?._id,
+        label: `${student?.fullName} - ${student?.registrationId}`,
+        studentData: student,
+      }));
+    setstudentFilterOPtion(studentOptions);
+  }, [selectedCourse]);
 
   // Calculate total whenever fees change
   useEffect(() => {
@@ -308,12 +336,14 @@ const VoucherBody = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       await axios.post(
         `${BASE_URL}/api/v1/sch/voucher`,
         {
           student: selectedStudent.value,
           course: selectedCourse.value,
+          paidAmount: fullAmount,
           admissionFee,
           semesterFee,
           securityFee,
@@ -322,6 +352,8 @@ const VoucherBody = () => {
           inWordAmount,
           dueDate,
           monthOf,
+          isFullPayment,
+          paymentPercentage: isFullPayment ? null : paymentPercentage,
         },
         {
           headers: {
@@ -340,6 +372,7 @@ const VoucherBody = () => {
       // Reset all states
       setSelectedStudent(null);
       setSelectedCourse(null);
+      setSelectedBatch(null);
       setAdmissionFee("");
       setSemesterFee("");
       setSecurityFee("");
@@ -348,6 +381,8 @@ const VoucherBody = () => {
       setInWordAmount("");
       setDueDate("");
       setMonthOf("");
+      setPaymentPercentage("");
+      setIsFullPayment(false);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -484,6 +519,19 @@ const VoucherBody = () => {
     return result + " Rupees Only";
   };
 
+  // Add this state at the top
+  const [openMenu, setOpenMenu] = useState(null);
+
+  // Add this useEffect for handling menu close
+  useEffect(() => {
+    const closeMenu = () => setOpenMenu(null);
+    document.addEventListener("click", closeMenu);
+    return () => document.removeEventListener("click", closeMenu);
+  }, []);
+
+  // Add paidAmount state
+  const [paidAmount, setPaidAmount] = useState(0);
+
   // Update the useEffect to handle both total and words
   useEffect(() => {
     const total =
@@ -493,6 +541,17 @@ const VoucherBody = () => {
       Number(libraryFee);
     setTotalFee(total.toString());
     setInWordAmount(numberToWords(total));
+  }, [admissionFee, semesterFee, securityFee, libraryFee]);
+
+  // Update total fee calculation effect
+  useEffect(() => {
+    const total =
+      Number(admissionFee) +
+      Number(semesterFee) +
+      Number(securityFee) +
+      Number(libraryFee);
+    setTotalFee(total.toString());
+    setPaidAmount(total);
   }, [admissionFee, semesterFee, securityFee, libraryFee]);
 
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
@@ -584,12 +643,60 @@ const VoucherBody = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
+                  Select Batch *
+                </label>
+                <Select
+                  value={selectedBatch}
+                  onChange={(selected) => {
+                    setSelectedBatch(selected);
+                    setSelectedCourse(null);
+                    setSelectedStudent(null);
+                  }}
+                  options={batchOptions}
+                  placeholder="Select Batch"
+                  isSearchable
+                  className="text-c-grays"
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Select Course *
+                </label>
+                <Select
+                  value={selectedCourse}
+                  onChange={setSelectedCourse}
+                  options={courseOptions}
+                  placeholder="Select Course"
+                  isSearchable
+                  isDisabled={!selectedBatch}
+                  className="text-c-grays"
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
+                />
+              </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
                   Select Student *
                 </label>
                 <Select
                   value={selectedStudent}
                   onChange={handleStudentSelect}
-                  options={studentOptions}
+                  options={studentFilterOPtion}
+                  isDisabled={!selectedBatch || !selectedCourse}
                   placeholder="Select Student"
                   isSearchable
                   isClearable
@@ -607,38 +714,14 @@ const VoucherBody = () => {
 
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Select Course *
-                </label>
-                <Select
-                  value={selectedCourse}
-                  onChange={handleCourseSelect}
-                  options={courseOptions}
-                  styles={{
-                    input: (base) => ({
-                      ...base,
-                      "input:focus": {
-                        boxShadow: "none",
-                      },
-                    }),
-                  }}
-                  placeholder="Select Course"
-                  isSearchable
-                  isClearable
-                  required
-                  isDisabled={!selectedStudent}
-                />
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
                   Admission Fee *
                 </label>
                 <input
                   type="number"
                   value={admissionFee}
                   onChange={(e) => setAdmissionFee(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
+                  readOnly
                 />
               </div>
 
@@ -650,8 +733,8 @@ const VoucherBody = () => {
                   type="number"
                   value={semesterFee}
                   onChange={(e) => setSemesterFee(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
+                  readOnly
                 />
               </div>
 
@@ -663,8 +746,8 @@ const VoucherBody = () => {
                   type="number"
                   value={securityFee}
                   onChange={(e) => setSecurityFee(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
+                  readOnly
                 />
               </div>
 
@@ -676,8 +759,8 @@ const VoucherBody = () => {
                   type="number"
                   value={libraryFee}
                   onChange={(e) => setLibraryFee(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-               
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
+                  readOnly
                 />
               </div>
 
@@ -688,6 +771,18 @@ const VoucherBody = () => {
                 <input
                   type="number"
                   value={totalFee}
+                  readOnly
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
+                />
+              </div>
+
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Paid Amount
+                </label>
+                <input
+                  type="number"
+                  value={fullAmount}
                   readOnly
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
                 />
@@ -731,6 +826,42 @@ const VoucherBody = () => {
                   required
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-5">
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="isFullPayment"
+                  checked={isFullPayment}
+                  onChange={(e) => setIsFullPayment(e.target.checked)}
+                  className="w-7 h-7 text-c-purple cursor-pointer border-gray-300 rounded focus:ring-c-purple"
+                />
+                <label
+                  htmlFor="isFullPayment"
+                  className="text-c-grays text-md font-medium"
+                >
+                  Full Payment
+                </label>
+              </div>
+
+              {!isFullPayment && (
+                <div>
+                  <label className="block text-c-grays text-sm font-medium mb-2">
+                    Payment Percentage
+                  </label>
+                  <input
+                    type="number"
+                    value={paymentPercentage}
+                    onChange={(e) =>
+                      setPaymentPercentage(Number(e.target.value))
+                    }
+                    className="w-32 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                    min="1"
+                    max="99"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="mt-6 flex justify-end">
@@ -796,11 +927,7 @@ const VoucherBody = () => {
                     Status
                   </Typography>
                 </th>
-                <th className="p-4 border-b border-gray-100">
-                  <Typography className="text-c-grays font-semibold">
-                    Slip
-                  </Typography>
-                </th>
+    
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
                     Payment Slip
@@ -820,9 +947,7 @@ const VoucherBody = () => {
                     <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-32"></div>
                     </td>
-                    <td className="p-4 border-b border-gray-100">
-                      <div className="skeleton h-4 w-48"></div>
-                    </td>
+          
                     <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-32"></div>
                     </td>
@@ -878,16 +1003,6 @@ const VoucherBody = () => {
                         {item.status}
                       </span>
                     </td>
-
-                    <td className="p-4 border-b border-gray-100">
-                      <Button
-                        size="sm"
-                        className="bg-blue-500"
-                        onClick={() => generateVoucherPDF(item)}
-                      >
-                        View Slip
-                      </Button>
-                    </td>
                     <td className="p-4 border-b border-gray-100">
                       {item?.paymentSlip ? (
                         <>
@@ -907,31 +1022,167 @@ const VoucherBody = () => {
                       )}
                     </td>
                     <td className="p-4 border-b border-gray-100">
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          className="bg-blue-500"
-                          onClick={() => handleViewDetails(item)}
+                      <div className="relative">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenu(item._id);
+                          }}
+                          className="p-2 hover:bg-blue-100 rounded-full transition-all duration-200 border border-gray-300 hover:border-blue-500 shadow-sm hover:shadow-md transform hover:scale-105"
                         >
-                          View Details
-                        </Button>
-                        {(admin === "admins" || checkPermission("delete")) && (
-                          <Button
-                            size="sm"
-                            className="bg-red-500"
-                            onClick={() => handleDelete(item._id)}
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-5 h-5 text-gray-600 hover:text-blue-600"
                           >
-                            Delete
-                          </Button>
-                        )}
-                        {(admin === "admins" || checkPermission("update")) && (
-                          <Button
-                            size="sm"
-                            className="bg-c-purple"
-                            onClick={() => handleEdit(item)}
-                          >
-                            Edit
-                          </Button>
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
+                            />
+                          </svg>
+                        </button>
+
+                        {openMenu === item._id && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 z-[9999]">
+                            <div className="py-2">
+                              <button
+                                onClick={() => {
+                                  generateVoucherPDF(item);
+                                  setOpenMenu(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-blue-600"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                                  />
+                                </svg>
+                                View Slip
+                              </button>
+
+                              {item?.paymentSlip && (
+                                <button
+                                  onClick={() => {
+                                    window.open(item?.paymentSlip, "_blank");
+                                    setOpenMenu(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-green-600"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-4 h-4"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15M9 12l3 3m0 0l3-3m-3 3V2.25"
+                                    />
+                                  </svg>
+                                  Payment Slip
+                                </button>
+                              )}
+
+                              <button
+                                onClick={() => {
+                                  handleViewDetails(item);
+                                  setOpenMenu(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                </svg>
+                                View Details
+                              </button>
+
+                              {(admin === "admins" ||
+                                checkPermission("update")) && (
+                                <button
+                                  onClick={() => {
+                                    handleEdit(item);
+                                    setOpenMenu(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-blue-600"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-4 h-4"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                                    />
+                                  </svg>
+                                  Edit Voucher
+                                </button>
+                              )}
+
+                              {(admin === "admins" ||
+                                checkPermission("delete")) && (
+                                <button
+                                  onClick={() => {
+                                    handleDelete(item._id);
+                                    setOpenMenu(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-4 h-4"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                                    />
+                                  </svg>
+                                  Delete Voucher
+                                </button>
+                              )}
+                            </div>
+                          </div>
                         )}
                       </div>
                     </td>

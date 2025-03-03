@@ -22,7 +22,7 @@ const CourseBody = () => {
   });
   const [loading, setLoading] = useState(false);
   const [degreeTypes, setDegreeTypes] = useState([]);
-  const { fees, feesLoading } = useSelector((state) => state.groupdata);
+  const { fees } = useSelector((state) => state.groupdata);
 
   const fileInputRef = useRef(null);
   const token = localStorage.getItem("token");
