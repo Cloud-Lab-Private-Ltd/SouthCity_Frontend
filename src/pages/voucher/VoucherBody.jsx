@@ -9,6 +9,8 @@ import VoucherDetailsModal from "./VoucherDetailsModal";
 import { VouchersGet } from "../../features/GroupApiSlice";
 import jsPDF from "jspdf";
 import EditVoucherModal from "./EditVoucherModal";
+import SplitVoucherModal from "./SplitVoucherModal";
+import ViewSplitVouchersModal from "./ViewSplitVouchersModal";
 
 const VoucherBody = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -26,7 +28,7 @@ const VoucherBody = () => {
   const [inWordAmount, setInWordAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [monthOf, setMonthOf] = useState("");
-  const [isFullPayment, setIsFullPayment] = useState(false);
+  const [isFullPayment, setIsFullPayment] = useState(true);
   const [paymentPercentage, setPaymentPercentage] = useState();
 
   // Add state to track full amount
@@ -46,7 +48,6 @@ const VoucherBody = () => {
       // Calculate full amount first
       const fullTotal = admissionFee + semesterFee + securityFee + libraryFee;
       setFullAmount(fullTotal);
-      setPaidAmount(fullTotal);
 
       // Calculate percentage if not full payment
       if (!isFullPayment) {
@@ -382,7 +383,7 @@ const VoucherBody = () => {
       setDueDate("");
       setMonthOf("");
       setPaymentPercentage("");
-      setIsFullPayment(false);
+      setIsFullPayment(true);
     } catch (error) {
       Swal.fire({
         icon: "error",
@@ -529,9 +530,6 @@ const VoucherBody = () => {
     return () => document.removeEventListener("click", closeMenu);
   }, []);
 
-  // Add paidAmount state
-  const [paidAmount, setPaidAmount] = useState(0);
-
   // Update the useEffect to handle both total and words
   useEffect(() => {
     const total =
@@ -543,6 +541,16 @@ const VoucherBody = () => {
     setInWordAmount(numberToWords(total));
   }, [admissionFee, semesterFee, securityFee, libraryFee]);
 
+  // Add state for view split modal
+  const [viewSplitModalOpen, setViewSplitModalOpen] = useState(false);
+  const [selectedParentVoucher, setSelectedParentVoucher] = useState(null);
+
+  // Add handler
+  const handleViewSplitVouchers = (voucher) => {
+    setSelectedParentVoucher(voucher._id);
+    setViewSplitModalOpen(true);
+  };
+
   // Update total fee calculation effect
   useEffect(() => {
     const total =
@@ -551,7 +559,6 @@ const VoucherBody = () => {
       Number(securityFee) +
       Number(libraryFee);
     setTotalFee(total.toString());
-    setPaidAmount(total);
   }, [admissionFee, semesterFee, securityFee, libraryFee]);
 
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
@@ -568,6 +575,15 @@ const VoucherBody = () => {
   const handleEdit = (voucher) => {
     setSelectedVoucher(voucher);
     setEditModalOpen(true);
+  };
+
+  const [splitModalOpen, setSplitModalOpen] = useState(false);
+  const [selectedSplitVoucher, setSelectedSplitVoucher] = useState(null);
+
+  // Add this handler function
+  const handleSplitVoucher = (voucher) => {
+    setSelectedSplitVoucher(voucher);
+    setSplitModalOpen(true);
   };
 
   // Add these states at the top with other states
@@ -829,13 +845,14 @@ const VoucherBody = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-5">
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
                   id="isFullPayment"
                   checked={isFullPayment}
                   onChange={(e) => setIsFullPayment(e.target.checked)}
                   className="w-7 h-7 text-c-purple cursor-pointer border-gray-300 rounded focus:ring-c-purple"
+                  readOnly
                 />
                 <label
                   htmlFor="isFullPayment"
@@ -843,7 +860,7 @@ const VoucherBody = () => {
                 >
                   Full Payment
                 </label>
-              </div>
+              </div> */}
 
               {!isFullPayment && (
                 <div>
@@ -898,7 +915,7 @@ const VoucherBody = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="h-[60vh] overflow-x-auto">
           <table className="w-full min-w-max table-auto text-left">
             <thead>
               <tr className="bg-gray-50">
@@ -927,7 +944,7 @@ const VoucherBody = () => {
                     Status
                   </Typography>
                 </th>
-    
+
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
                     Payment Slip
@@ -947,7 +964,7 @@ const VoucherBody = () => {
                     <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-32"></div>
                     </td>
-          
+
                     <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-32"></div>
                     </td>
@@ -1072,7 +1089,6 @@ const VoucherBody = () => {
                                 </svg>
                                 View Slip
                               </button>
-
                               {item?.paymentSlip && (
                                 <button
                                   onClick={() => {
@@ -1098,7 +1114,6 @@ const VoucherBody = () => {
                                   Payment Slip
                                 </button>
                               )}
-
                               <button
                                 onClick={() => {
                                   handleViewDetails(item);
@@ -1128,6 +1143,57 @@ const VoucherBody = () => {
                                 View Details
                               </button>
 
+                              <button
+                                onClick={() => {
+                                  handleViewSplitVouchers(item);
+                                  setOpenMenu(null);
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-purple-600"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  strokeWidth={1.5}
+                                  stroke="currentColor"
+                                  className="w-4 h-4"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                                  />
+                                </svg>
+                                View Split Vouchers
+                              </button>
+
+                              {(admin === "admins" ||
+                                checkPermission("update")) && (
+                                <button
+                                  onClick={() => {
+                                    handleSplitVoucher(item);
+                                    setOpenMenu(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-orange-600"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-4 h-4"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
+                                    />
+                                  </svg>
+                                  Split Voucher
+                                </button>
+                              )}
+
                               {(admin === "admins" ||
                                 checkPermission("update")) && (
                                 <button
@@ -1154,7 +1220,6 @@ const VoucherBody = () => {
                                   Edit Voucher
                                 </button>
                               )}
-
                               {(admin === "admins" ||
                                 checkPermission("delete")) && (
                                 <button
@@ -1219,6 +1284,20 @@ const VoucherBody = () => {
           </div>
         </div>
       </Card>
+
+      <SplitVoucherModal
+        open={splitModalOpen}
+        handleOpen={() => setSplitModalOpen(!splitModalOpen)}
+        voucherData={selectedSplitVoucher}
+        token={token}
+        onSuccess={() => dispatch(VouchersGet())}
+      />
+      <ViewSplitVouchersModal
+        open={viewSplitModalOpen}
+        handleOpen={() => setViewSplitModalOpen(!viewSplitModalOpen)}
+        parentVoucherId={selectedParentVoucher}
+        token={token}
+      />
     </div>
   );
 };

@@ -23,7 +23,6 @@ import { DotLoader } from "react-spinners";
 
 function App() {
   const navigate = useNavigate();
-  const [socket, setSocket] = useState(null);
   const socketRef = useRef(null);
   const { profile, loading } = useSelector((state) => state.profiledata);
   const userId = localStorage.getItem("userId");
@@ -61,7 +60,7 @@ function App() {
         // console.log("WebSocket disconnected");
       };
 
-      setSocket(ws);
+      
     }
 
     return () => {
