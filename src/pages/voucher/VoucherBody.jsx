@@ -926,6 +926,11 @@ const VoucherBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
+                    Student
+                  </Typography>
+                </th>
+                <th className="p-4 border-b border-gray-100">
+                  <Typography className="text-c-grays font-semibold">
                     Course Name
                   </Typography>
                 </th>
@@ -972,6 +977,9 @@ const VoucherBody = () => {
                       <div className="skeleton h-4 w-32"></div>
                     </td>
                     <td className="p-4 border-b border-gray-100">
+                      <div className="skeleton h-4 w-32"></div>
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-24"></div>
                     </td>
                     <td className="p-4 border-b border-gray-100">
@@ -990,6 +998,11 @@ const VoucherBody = () => {
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
                         {item.voucherNumber}
+                      </Typography>
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
+                      <Typography className="text-c-grays">
+                        {item.student?.fullName}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">

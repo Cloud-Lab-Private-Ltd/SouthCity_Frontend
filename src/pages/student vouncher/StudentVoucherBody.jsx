@@ -170,11 +170,11 @@ const StudentVoucherBody = () => {
         doc.text("Amount", xOffset + voucherWidth - 25, 65 + yOffset);
 
         const feeDetails = [
-          { label: "Admission Fee", value: voucherData.admissionFee },
-          { label: "Semester Fee", value: voucherData.semesterFee },
-          { label: "Security Fee", value: voucherData.securityFee },
-          { label: "Library Fee", value: voucherData.libraryFee },
-          { label: "Total", value: voucherData.totalFee },
+          { label: "Admission Fee", value: voucherData?.admissionFee },
+          { label: "Semester Fee", value: voucherData?.semesterFee },
+          { label: "Security Fee", value: voucherData?.securityFee },
+          { label: "Library Fee", value: voucherData?.libraryFee },
+          { label: "Total", value: voucherData?.paidAmount },
         ];
 
         let yPos = 71;
@@ -281,6 +281,8 @@ const StudentVoucherBody = () => {
     input.click();
   };
 
+  console.log(vouchers);
+
   return (
     <div>
       <div className="mb-8">
@@ -299,18 +301,19 @@ const StudentVoucherBody = () => {
           ))}
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
           {vouchers?.map((voucher) => (
             <Card
               key={voucher._id}
-              className="p-6 hover:shadow-lg transition-shadow"
+              className="p-6 hover:shadow-lg transition-shadow border border-gray-200"
             >
+              {/* Header Section */}
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <Typography className="text-lg font-semibold">
+                  <Typography className="text-xl font-bold text-blue-800">
                     {voucher.voucherNumber}
                   </Typography>
-                  <Typography className="text-sm text-gray-600">
+                  <Typography className="text-sm text-gray-600 mt-1">
                     Due Date: {new Date(voucher.dueDate).toLocaleDateString()}
                   </Typography>
                   <Typography className="text-sm text-gray-600">
@@ -322,7 +325,7 @@ const StudentVoucherBody = () => {
                   </Typography>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm ${
+                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
                     voucher.status === "Paid"
                       ? "bg-green-100 text-green-800"
                       : "bg-yellow-100 text-yellow-800"
@@ -332,32 +335,104 @@ const StudentVoucherBody = () => {
                 </span>
               </div>
 
-              <div className="space-y-2 mb-4">
-                <div className="flex justify-between text-sm">
-                  <span>Admission Fee:</span>
-                  <span>Rs. {voucher.admissionFee}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Semester Fee:</span>
-                  <span>Rs. {voucher.semesterFee}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Security Fee:</span>
-                  <span>Rs. {voucher.securityFee}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>Library Fee:</span>
-                  <span>Rs. {voucher.libraryFee}</span>
-                </div>
-                <div className="flex justify-between font-bold pt-2 border-t">
-                  <span>Total:</span>
-                  <span>Rs. {voucher.totalFee}</span>
+              {/* Course Details Section */}
+              <div className="bg-gray-50 p-3 rounded-lg mb-4">
+                <Typography className="text-md font-bold text-gray-700 mb-2">
+                  Course Details
+                </Typography>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="font-semibold">Course Name:</span>
+                    <p className="text-gray-600">
+                      {voucher.course?.name || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-semibold">Duration:</span>
+                    <p className="text-gray-600">
+                      {voucher.course?.duration || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-semibold">Degree Type:</span>
+                    <p className="text-gray-600">
+                      {voucher.course?.degreeType || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="font-semibold">Semesters:</span>
+                    <p className="text-gray-600">
+                      {voucher.course?.noOfSemesters || "N/A"}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="flex gap-2">
+
+              {/* Fee Details Section */}
+              <div className="bg-white p-3 rounded-lg border border-gray-100 mb-4">
+                <Typography className="text-md font-bold text-gray-700 mb-2">
+                  Fee Breakdown
+                </Typography>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm py-1 border-b">
+                    <span className="text-gray-600">Admission Fee:</span>
+                    <span className="font-semibold">
+                      Rs. {voucher?.admissionFee}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm py-1 border-b">
+                    <span className="text-gray-600">Semester Fee:</span>
+                    <span className="font-semibold">
+                      Rs. {voucher?.semesterFee}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm py-1 border-b">
+                    <span className="text-gray-600">Security Fee:</span>
+                    <span className="font-semibold">
+                      Rs. {voucher?.securityFee}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm py-1 border-b">
+                    <span className="text-gray-600">Library Fee:</span>
+                    <span className="font-semibold">
+                      Rs. {voucher?.libraryFee}
+                    </span>
+                  </div>
+                  {voucher?.paymentPercentage ? (
+                    <>
+                      <div className="flex justify-between text-sm py-1 border-b">
+                        <span className="text-gray-600">
+                          Payment Percentage:
+                        </span>
+                        <span className="font-semibold">
+                          {voucher?.paymentPercentage}%
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    ""
+                  )}
+
+                  <div className="flex justify-between font-bold pt-2 text-blue-800">
+                    <span>Total Amount:</span>
+                    <span>Rs. {voucher?.paidAmount}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Amount in Words */}
+              <div className="bg-blue-50 p-3 rounded-lg mb-4">
+                <Typography className="text-sm text-gray-700">
+                  <span className="font-semibold">Amount in Words: </span>
+                  {voucher.inWordAmount}
+                </Typography>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
-                  className="flex items-center gap-2 bg-blue-500"
+                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
                   onClick={() => generateVoucherPDF(voucher)}
                 >
                   <DocumentTextIcon className="w-4 h-4" />
@@ -366,7 +441,7 @@ const StudentVoucherBody = () => {
 
                 <Button
                   size="sm"
-                  className="flex items-center gap-2 bg-green-500"
+                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600"
                   onClick={() => handleUploadSlip(voucher._id)}
                   disabled={voucher.status === "Paid" || uploadLoading}
                 >
@@ -392,13 +467,11 @@ const StudentVoucherBody = () => {
                     </>
                   )}
                 </Button>
-              </div>
 
-              <div className="flex mt-3">
                 {voucher.paymentSlip && (
                   <Button
                     size="sm"
-                    className="flex items-center gap-2 bg-purple-500"
+                    className="flex items-center gap-2 bg-purple-500 hover:bg-purple-600"
                     onClick={() => window.open(voucher.paymentSlip, "_blank")}
                   >
                     <svg

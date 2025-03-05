@@ -281,6 +281,8 @@ const ViewSplitVouchersModal = ({
     setEditModalOpen(true);
   };
 
+  console.log("splitVouchers:", splitVouchers);
+
   return (
     <Dialog open={open} handler={handleOpen} size="lg">
       <DialogHeader className="flex justify-between items-center">
@@ -358,6 +360,11 @@ const ViewSplitVouchersModal = ({
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
+                    Payment Slip
+                  </Typography>
+                </th>
+                <th className="p-4 border-b border-gray-100">
+                  <Typography className="text-c-grays font-semibold">
                     Status
                   </Typography>
                 </th>
@@ -401,6 +408,21 @@ const ViewSplitVouchersModal = ({
                       <Typography className="text-c-grays">
                         {new Date(voucher.dueDate).toLocaleDateString()}
                       </Typography>
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
+                      {voucher?.paymentSlip ? (
+                        <Button
+                          size="sm"
+                          className="bg-blue-500"
+                          onClick={() =>
+                            window.open(voucher?.paymentSlip, "_blank")
+                          }
+                        >
+                          View Payment
+                        </Button>
+                      ) : (
+                        <span className="text-gray-500">Payment Pending</span>
+                      )}
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <span

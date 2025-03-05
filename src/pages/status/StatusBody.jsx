@@ -13,7 +13,7 @@ const StatusBody = () => {
   const token = localStorage.getItem("token");
   const dispatch = useDispatch();
 
-  const defaultStatuses = ["Active", "Inactive", "Paid", "Pending"];
+  const defaultStatuses = ["Active", "Inactive", "Paid", "Pending","Processing"];
 
   const handleSubmit = (e) => {
     e.preventDefault();
