@@ -31,25 +31,36 @@ const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
     setIsLoading(true);
     setError("");
     try {
-      const response = await axios.post(
-        `${BASE_URL}/api/v1/sch/student/FreezeStudent`,
-        {
-          studentId: studentData._id,
-          failedBatchId: studentData?.batch?._id,
+      const endpoint =
+        studentData.status === "freezed"
+          ? `${BASE_URL}/api/v1/sch/student/UnFreezeStudent`
+          : `${BASE_URL}/api/v1/sch/student/FreezeStudent`;
+
+      const body =
+        studentData.status === "freezed"
+          ? {
+              studentId: studentData._id,
+              newBatchId: studentData?.batch?._id,
+            }
+          : {
+              studentId: studentData._id,
+              failedBatchId: studentData?.batch?._id,
+            };
+
+      const response = await axios.post(endpoint, body, {
+        headers: {
+          "x-access-token": token,
         },
-        {
-          headers: {
-            "x-access-token": token,
-          },
-        }
-      );
+      });
 
       if (response.data) {
         handleOpen();
         onSuccess && onSuccess();
       }
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to freeze student");
+      setError(
+        error.response?.data?.message || "Failed to update student status"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -174,10 +185,10 @@ const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
             <div className="grid grid-cols-1 gap-4">
               <button
                 onClick={handleFreezeStudent}
-                disabled={isLoading || studentData?.status === "freezed"}
+                disabled={isLoading}
                 className={`p-6 border-2 rounded-xl transition-all group relative ${
                   studentData?.status === "freezed"
-                    ? "border-gray-100 bg-gray-50 cursor-not-allowed"
+                    ? "border-green-100 bg-green-50 hover:bg-green-100"
                     : "border-orange-100 bg-orange-50 hover:bg-orange-100"
                 }`}
               >
@@ -194,7 +205,7 @@ const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
                         stroke="currentColor"
                         className={`w-8 h-8 mb-2 group-hover:scale-110 transition-transform ${
                           studentData?.status === "freezed"
-                            ? "text-gray-400"
+                            ? "text-green-500"
                             : "text-orange-500"
                         }`}
                       >
@@ -212,23 +223,23 @@ const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
                       <h3
                         className={`text-lg font-semibold mb-1 ${
                           studentData?.status === "freezed"
-                            ? "text-gray-400"
+                            ? "text-green-600"
                             : "text-orange-600"
                         }`}
                       >
                         {studentData?.status === "freezed"
-                          ? "Already Freezed"
+                          ? "Unfreeze Student"
                           : "Freeze Student"}
                       </h3>
                       <p
                         className={`text-sm text-center ${
                           studentData?.status === "freezed"
-                            ? "text-gray-400"
+                            ? "text-green-600/70"
                             : "text-orange-600/70"
                         }`}
                       >
                         {studentData?.status === "freezed"
-                          ? "This student is currently freezed"
+                          ? "Restore student's academic status"
                           : "Temporarily freeze student's academic progress"}
                       </p>
                     </>

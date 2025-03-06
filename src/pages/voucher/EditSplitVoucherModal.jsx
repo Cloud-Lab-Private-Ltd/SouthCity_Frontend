@@ -10,7 +10,8 @@ import {
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { VouchersGet } from "../../features/GroupApiSlice";
 
 const EditSplitVoucherModal = ({
   open,
@@ -22,6 +23,7 @@ const EditSplitVoucherModal = ({
   const [loading, setLoading] = useState(false);
   const { fees } = useSelector((state) => state.groupdata);
   const { statuses } = useSelector((state) => state.groupdata);
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     student: "",
@@ -209,6 +211,7 @@ const EditSplitVoucherModal = ({
       // Remove success message after 2 seconds
       setTimeout(() => {
         successDiv.remove();
+        dispatch(VouchersGet());
         handleOpen();
         onSuccess();
       }, 2000);

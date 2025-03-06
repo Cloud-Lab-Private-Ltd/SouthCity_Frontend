@@ -15,6 +15,10 @@ const StudentVoucherBody = () => {
   const [uploadLoading, setUploadLoading] = useState(false);
   const dispatch = useDispatch();
 
+  const filteredVouchers = vouchers?.filter(
+    (voucher) => !voucher.splitVouchers?.length
+  );
+
   const generateVoucherPDF = (voucherData) => {
     const doc = new jsPDF("p", "mm", "a4");
     const pageWidth = doc.internal.pageSize.width;
@@ -302,7 +306,7 @@ const StudentVoucherBody = () => {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {vouchers?.map((voucher) => (
+          {Array.isArray(filteredVouchers) && filteredVouchers?.map((voucher) => (
             <Card
               key={voucher._id}
               className="p-6 hover:shadow-lg transition-shadow border border-gray-200"

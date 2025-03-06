@@ -340,6 +340,11 @@ const ViewSplitVouchersModal = ({
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
+                    Total Fee
+                  </Typography>
+                </th>
+                <th className="p-4 border-b border-gray-100">
+                  <Typography className="text-c-grays font-semibold">
                     Paid Amount
                   </Typography>
                 </th>
@@ -391,22 +396,27 @@ const ViewSplitVouchersModal = ({
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
-                        Rs. {voucher.paidAmount}
+                        Rs. {splitVouchers.totalFee}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
-                        Rs. {voucher.remainingAmount}
+                        Rs. {voucher?.paidAmount}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
-                        {voucher.monthOf}
+                        Rs. {voucher?.remainingAmount}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
-                        {new Date(voucher.dueDate).toLocaleDateString()}
+                        {voucher?.monthOf}
+                      </Typography>
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
+                      <Typography className="text-c-grays">
+                        {new Date(voucher?.dueDate).toLocaleDateString()}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">

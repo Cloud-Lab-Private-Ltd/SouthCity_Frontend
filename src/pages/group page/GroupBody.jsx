@@ -310,22 +310,24 @@ const GroupBody = () => {
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          className="bg-c-purple"
-                          onClick={() => handleEdit(item)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="bg-red-500"
-                          onClick={() => handleDelete(item._id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
+                      {item.name !== "finance" && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="bg-c-purple"
+                            onClick={() => handleEdit(item)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="bg-red-500"
+                            onClick={() => handleDelete(item._id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}

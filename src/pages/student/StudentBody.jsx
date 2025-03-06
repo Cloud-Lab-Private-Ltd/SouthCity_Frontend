@@ -9,6 +9,7 @@ import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
 import EditStudentModal from "./EditStudentModal";
 import FailStudentModal from "./FailStudentModal";
+import Select from "react-select";
 
 const StudentBody = () => {
   const navigate = useNavigate();
@@ -57,18 +58,41 @@ const StudentBody = () => {
     dispatch(StudentsGet());
   };
 
+  // Add state for batch filter
+  const [selectedBatch, setSelectedBatch] = useState(null);
+
+  // Get batches from Redux
+  const { batches } = useSelector((state) => state.groupdata);
+
+  // Create batch options
+  const batchOptions = batches?.batches
+    ?.filter((batch) => batch.status === "Active")
+    ?.map((batch) => ({
+      value: batch._id,
+      label: batch.batchName,
+    }));
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 5;
   const lastIndex = currentPage * recordsPerPage;
   const firstIndex = lastIndex - recordsPerPage;
 
-  const filteredStudents = students?.students?.filter(
-    (item) =>
-      item.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.registrationId.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Update filtering logic
+  const filteredStudents = students?.students?.filter((item) => {
+    const searchValue = searchTerm.toLowerCase();
+    const matchesSearch =
+      item.registrationId?.toLowerCase().includes(searchValue) ||
+      item.fullName?.toLowerCase().includes(searchValue) ||
+      item.email?.toLowerCase().includes(searchValue) ||
+      item.phoneNumber?.toLowerCase().includes(searchValue);
+
+    const matchesBatch = selectedBatch
+      ? item.batch?._id === selectedBatch.value
+      : true;
+
+    return matchesSearch && matchesBatch;
+  });
 
   const records = filteredStudents?.slice(firstIndex, lastIndex);
   const npage = Math.ceil(filteredStudents?.length / recordsPerPage);
@@ -101,12 +125,6 @@ const StudentBody = () => {
   const handleFailStudent = (student) => {
     setSelectedStudent(student);
     setFailModalOpen(true);
-  };
-
-  // Add handleFailOption function
-  const handleFailOption = (option) => {
-    // console.log(`Selected option: ${option} for student:`, selectedStudent);
-    setFailModalOpen(false);
   };
 
   const handleDelete = (id) => {
@@ -234,30 +252,59 @@ const StudentBody = () => {
               ""
             )}
           </div>
-          <div className="flex flex-col md:flex-row justify-end items-center gap-4 mb-6">
-            <div className="relative w-full md:w-96">
-              <input
-                type="text"
-                className="w-full px-4 py-3 pl-12 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Search students..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                autoComplete="off"
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+          <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Batch Filter
+                </label>
+                <Select
+                  value={selectedBatch}
+                  onChange={setSelectedBatch}
+                  options={batchOptions}
+                  placeholder="Select Batch"
+                  isClearable
+                  className="text-sm"
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
                 />
-              </svg>
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Search Students
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search by name, email, registration ID or phone..."
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <span className="absolute right-3 top-2.5 text-gray-400">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 

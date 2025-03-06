@@ -34,6 +34,34 @@ const VoucherBody = () => {
   // Add state to track full amount
   const [fullAmount, setFullAmount] = useState(0);
 
+  // Add new state for color filter
+  const [selectedColor, setSelectedColor] = useState("all");
+
+  // Add color options
+  const colorOptions = [
+    { value: "all", label: "All Vouchers" },
+    {
+      value: "green",
+      label: "Paid Vouchers",
+      description: "Vouchers that are fully paid",
+    },
+    {
+      value: "purple",
+      label: "Split Vouchers",
+      description: "Vouchers split into multiple parts",
+    },
+    {
+      value: "blue",
+      label: "Payment Uploaded",
+      description: "Vouchers with payment slip uploaded",
+    },
+    {
+      value: "yellow",
+      label: "Pending Vouchers",
+      description: "Vouchers with pending status",
+    },
+  ];
+
   useEffect(() => {
     if (fees && Array.isArray(fees)) {
       const admissionFee =
@@ -75,18 +103,21 @@ const VoucherBody = () => {
     ? students?.filter((item) => item?.status === "active")
     : [];
 
-  const batchOptions = batches?.batches?.map((batch) => ({
-    value: batch._id,
-    label: batch.batchName,
-    courses: batch.course, // Store courses for later use
-  }));
-
+  const batchOptions = batches?.batches
+    ?.filter((batch) => batch.status === "Active")
+    ?.map((batch) => ({
+      value: batch._id,
+      label: batch.batchName,
+      courses: batch.course,
+    }));
   const [selectedBatch, setSelectedBatch] = useState(null);
 
-  const courseOptions = selectedBatch?.courses?.map((course) => ({
-    value: course._id,
-    label: course.name,
-  }));
+  const courseOptions = selectedBatch?.courses
+    ?.filter((course) => course.Status === "Active")
+    ?.map((course) => ({
+      value: course._id,
+      label: course.name,
+    }));
 
   // Update the handleStudentSelect function
   const handleStudentSelect = (selected) => {
@@ -95,7 +126,9 @@ const VoucherBody = () => {
 
   useEffect(() => {
     const filter = studentFilter?.filter(
-      (student) => student?.course?.[0]?._id === selectedCourse?.value
+      (student) =>
+        student?.course?.[0]?._id === selectedCourse?.value &&
+        student.status === "active"
     );
     const studentOptions =
       Array.isArray(filter) &&
@@ -593,12 +626,30 @@ const VoucherBody = () => {
   const lastIndex = currentPage * recordsPerPage;
   const firstIndex = lastIndex - recordsPerPage;
 
-  // Add this filtering logic
-  const filteredVouchers = vouchers?.filter(
-    (item) =>
+  // Update the filtering logic
+  const filteredVouchers = vouchers?.filter((item) => {
+    const matchesSearch =
       item.voucherNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.course?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      item.course?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.student?.fullName?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    if (selectedColor === "all") return matchesSearch;
+    if (selectedColor === "green")
+      return item.status === "Paid" && matchesSearch;
+    if (selectedColor === "purple")
+      return item.splitVouchers?.length > 0 && matchesSearch;
+    if (selectedColor === "blue")
+      return (
+        item.paymentSlip &&
+        !item.splitVouchers?.length &&
+        item.status !== "Paid" &&
+        matchesSearch
+      );
+    if (selectedColor === "yellow")
+      return item.status === "Pending" && matchesSearch;
+
+    return matchesSearch;
+  });
 
   const records = filteredVouchers?.slice(firstIndex, lastIndex);
   const npage = Math.ceil(filteredVouchers?.length / recordsPerPage);
@@ -631,6 +682,8 @@ const VoucherBody = () => {
     );
     return voucherPermission?.[type] || false;
   };
+
+  // console.log("record", records);
 
   return (
     <div className="bg-[#F5F5F5]">
@@ -902,16 +955,65 @@ const VoucherBody = () => {
           <Typography className="text-xl font-semibold text-c-grays">
             Vouchers List
           </Typography>
-          <div className="w-full md:w-72">
+          <div className="flex gap-4 w-full md:w-auto">
+            <select
+              className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+              value={selectedColor}
+              onChange={(e) => setSelectedColor(e.target.value)}
+            >
+              {colorOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
             <input
               type="text"
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              placeholder="Search vouchers..."
+              className="w-full md:w-72 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+              placeholder={`Search ${
+                selectedColor === "all"
+                  ? "all vouchers"
+                  : colorOptions
+                      .find((o) => o.value === selectedColor)
+                      ?.label.toLowerCase()
+              }...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               autoComplete="off"
               name="voucher-search"
             />
+          </div>
+        </div>
+        <div className="px-6 pb-4 flex flex-wrap gap-4 text-sm">
+          {selectedColor !== "all" && (
+            <div className="text-gray-600">
+              {colorOptions.find((o) => o.value === selectedColor)?.description}
+            </div>
+          )}
+        </div>
+        <div className="px-6 mb-4">
+          <div className="bg-white p-3 rounded-lg shadow-sm">
+            <div className="text-gray-700 font-medium mb-2 md:mb-0">
+              Voucher Types:
+            </div>
+            <div className="grid grid-cols-2 md:flex md:flex-wrap gap-3 md:gap-4 mt-2">
+              <div className="flex items-center gap-2 text-xs md:text-sm">
+                <div className="min-w-[12px] h-3 bg-green-500 rounded-full"></div>
+                <span>Paid Vouchers</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs md:text-sm">
+                <div className="min-w-[12px] h-3 bg-purple-500 rounded-full"></div>
+                <span>Split Vouchers</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs md:text-sm">
+                <div className="min-w-[12px] h-3 bg-blue-500 rounded-full"></div>
+                <span>Payment Uploaded</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs md:text-sm">
+                <div className="min-w-[12px] h-3 bg-yellow-500 rounded-full"></div>
+                <span>Pending Vouchers</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -994,7 +1096,18 @@ const VoucherBody = () => {
             ) : (
               <tbody>
                 {records?.map((item) => (
-                  <tr key={item._id} className="hover:bg-gray-50">
+                  <tr
+                    key={item._id}
+                    className={`${
+                      item.status === "Paid"
+                        ? "bg-green-50 border-l-4 border-l-green-500 hover:bg-green-100"
+                        : item.splitVouchers?.length > 0
+                        ? "bg-purple-50 border-l-4 border-l-purple-500 hover:bg-purple-100"
+                        : item.paymentSlip
+                        ? "bg-blue-50 border-l-4 border-l-blue-500 hover:bg-blue-100"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
                         {item.voucherNumber}
@@ -1034,23 +1147,39 @@ const VoucherBody = () => {
                       </span>
                     </td>
                     <td className="p-4 border-b border-gray-100">
-                      {item?.paymentSlip ? (
-                        <>
-                          {" "}
-                          <Button
-                            size="sm"
-                            className="bg-blue-500"
-                            onClick={() =>
-                              window.open(item?.paymentSlip, "_blank")
-                            }
+                      {item.splitVouchers?.length > 0 ? (
+                        <span className="text-purple-600 font-medium flex items-center gap-1">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
                           >
-                            View Payment
-                          </Button>
-                        </>
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75z"
+                            />
+                          </svg>
+                          Split into Multiple Vouchers
+                        </span>
+                      ) : item?.paymentSlip ? (
+                        <Button
+                          size="sm"
+                          className="bg-blue-500"
+                          onClick={() =>
+                            window.open(item?.paymentSlip, "_blank")
+                          }
+                        >
+                          View Payment
+                        </Button>
                       ) : (
                         <>Payment Pending</>
                       )}
                     </td>
+
                     <td className="p-4 border-b border-gray-100">
                       <div className="relative">
                         <button
@@ -1102,31 +1231,7 @@ const VoucherBody = () => {
                                 </svg>
                                 View Slip
                               </button>
-                              {item?.paymentSlip && (
-                                <button
-                                  onClick={() => {
-                                    window.open(item?.paymentSlip, "_blank");
-                                    setOpenMenu(null);
-                                  }}
-                                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-green-600"
-                                >
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                    className="w-4 h-4"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15M9 12l3 3m0 0l3-3m-3 3V2.25"
-                                    />
-                                  </svg>
-                                  Payment Slip
-                                </button>
-                              )}
+
                               <button
                                 onClick={() => {
                                   handleViewDetails(item);
@@ -1270,7 +1375,6 @@ const VoucherBody = () => {
             )}
           </table>
         </div>
-
         <div className="p-4 flex items-center justify-between border-t border-gray-100">
           <Typography className="text-c-grays">
             Page {currentPage} of {npage}
