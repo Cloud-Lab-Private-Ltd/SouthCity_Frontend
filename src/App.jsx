@@ -31,50 +31,44 @@ function App() {
   const wsUrl = localStorage.getItem("wsUrl"); // Add this
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (token && wsUrl) {
-      // Convert ws:// to wss:// if needed
-      const secureWsUrl = wsUrl.replace("ws://", "wss://");
+  // useEffect(() => {
+  //   if (token && wsUrl) {
+  //     // Check for wsUrl
+  //     const ws = new WebSocket(wsUrl);
+  //     socketRef.current = ws;
 
-      try {
-        const ws = new WebSocket(secureWsUrl);
-        socketRef.current = ws;
+  //     ws.onopen = () => {
+  //       console.log("WebSocket Connected");
+  //       const message = {
+  //         type: "userActivity",
+  //         userId: userId,
+  //         userType: userType,
+  //         status: "online",
+  //       };
+  //       ws.send(JSON.stringify(message));
+  //     };
 
-        ws.onopen = () => {
-          console.log("WebSocket Connected");
-          const message = {
-            type: "userActivity",
-            userId: userId,
-            userType: userType,
-            status: "online",
-          };
-          ws.send(JSON.stringify(message));
-        };
+  //     ws.onmessage = (event) => {
+  //       // console.log("WebSocket message received:", event.data);
+  //     };
 
-        ws.onmessage = (event) => {
-          // Handle incoming messages
-        };
+  //     ws.onerror = (error) => {
+  //       // console.error("WebSocket error:", error);
+  //     };
 
-        ws.onerror = (error) => {
-          console.log("WebSocket connection failed, falling back to polling");
-          // Implement fallback mechanism if needed
-        };
+  //     ws.onclose = () => {
+  //       // console.log("WebSocket disconnected");
+  //     };
 
-        ws.onclose = () => {
-          console.log("WebSocket disconnected");
-          // Implement reconnection logic if needed
-        };
-      } catch (error) {
-        console.log("WebSocket initialization failed");
-      }
+      
+  //   }
 
-      return () => {
-        if (socketRef.current) {
-          socketRef.current.close();
-        }
-      };
-    }
-  }, [token, wsUrl, userId, userType]);
+  //   return () => {
+  //     if (socketRef.current) {
+  //       socketRef.current.close();
+  //     }
+  //   };
+  // }, [token, wsUrl]);
 
   if (profile.message === "Invalid token") {
     localStorage.clear();
