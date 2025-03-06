@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AreaChartHero } from "./AreaChart";
-import UserStatusDashboard from "./UserStatusDashboard";
+// import UserStatusDashboard from "./UserStatusDashboard";
 
 const DashCard = () => {
   const navigate = useNavigate();
@@ -546,7 +546,7 @@ const DashCard = () => {
 
       {admin === "admins" ? (
         <>
-          <UserStatusDashboard />
+          {/* <UserStatusDashboard /> */}
         </>
       ) : (
         ""
