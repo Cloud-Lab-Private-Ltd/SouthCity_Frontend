@@ -11,7 +11,7 @@ const UserStatusDashboard = () => {
         // Only set members data, exclude students
         setUsers({
           members: data.members,
-          students: [] // Empty array for students to hide them
+          students: [], // Empty array for students to hide them
         });
       });
 
@@ -62,9 +62,11 @@ const UserStatusDashboard = () => {
         <div className="stat bg-green-50 rounded-lg p-4">
           <div className="stat-title text-green-600">Online Users</div>
           <div className="stat-value text-green-600">
-            {users.members.filter(
-              (user) => user?.Name !== "admin" && user.isOnline
-            ).length}
+            {
+              users.members.filter(
+                (user) => user?.Name !== "admin" && user.isOnline
+              ).length
+            }
           </div>
         </div>
       </div>
@@ -88,9 +90,10 @@ const UserStatusDashboard = () => {
                   </div>
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium
-                      ${user.isOnline
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
+                      ${
+                        user.isOnline
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
                       }`}
                   >
                     {user.isOnline ? "Online" : "Offline"}

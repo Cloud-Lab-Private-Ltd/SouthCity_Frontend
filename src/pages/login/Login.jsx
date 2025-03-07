@@ -64,6 +64,8 @@ const Login = () => {
         localStorage.setItem("groupName", res?.data?.user?.group?.name);
         localStorage.setItem("loginTime", currentTime);
         localStorage.setItem("wsUrl", res?.data?.wsUrl);
+        const loginTime = new Date().getTime();
+        localStorage.setItem("loginTime", loginTime.toString());
 
         dispatch(ProfileGet(res?.data?.user.id));
         dispatch(StudentGet());

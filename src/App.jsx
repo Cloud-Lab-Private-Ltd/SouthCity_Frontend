@@ -20,6 +20,7 @@ import {
   VouchersGet,
 } from "./features/GroupApiSlice";
 import { DotLoader } from "react-spinners";
+import ActivityDetector from "./routers/ActivityDetector";
 
 function App() {
   const navigate = useNavigate();
@@ -31,44 +32,44 @@ function App() {
   const wsUrl = localStorage.getItem("wsUrl"); // Add this
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   if (token && wsUrl) {
-  //     // Check for wsUrl
-  //     const ws = new WebSocket(wsUrl);
-  //     socketRef.current = ws;
+  console.log("WebSocket URL:", wsUrl);
 
-  //     ws.onopen = () => {
-  //       console.log("WebSocket Connected");
-  //       const message = {
-  //         type: "userActivity",
-  //         userId: userId,
-  //         userType: userType,
-  //         status: "online",
-  //       };
-  //       ws.send(JSON.stringify(message));
-  //     };
+  useEffect(() => {
+    if (token && wsUrl) {
+      // Check for wsUrl
+      const ws = new WebSocket(wsUrl);
+      socketRef.current = ws;
 
-  //     ws.onmessage = (event) => {
-  //       // console.log("WebSocket message received:", event.data);
-  //     };
+      ws.onopen = () => {
+        console.log("WebSocket Connected");
+        const message = {
+          type: "userActivity",
+          userId: userId,
+          userType: userType,
+          status: "online",
+        };
+        ws.send(JSON.stringify(message));
+      };
 
-  //     ws.onerror = (error) => {
-  //       // console.error("WebSocket error:", error);
-  //     };
+      ws.onmessage = (event) => {
+        console.log("WebSocket message received:", event.data);
+      };
 
-  //     ws.onclose = () => {
-  //       // console.log("WebSocket disconnected");
-  //     };
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
 
-      
-  //   }
+      ws.onclose = () => {
+        console.log("WebSocket disconnected");
+      };
+    }
 
-  //   return () => {
-  //     if (socketRef.current) {
-  //       socketRef.current.close();
-  //     }
-  //   };
-  // }, [token, wsUrl]);
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.close();
+      }
+    };
+  }, [token, wsUrl]);
 
   if (profile.message === "Invalid token") {
     localStorage.clear();
@@ -109,6 +110,7 @@ function App() {
         ""
       )}
       <Routess />
+      <ActivityDetector />
     </div>
   );
 }
