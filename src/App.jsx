@@ -29,39 +29,47 @@ function App() {
   const userId = localStorage.getItem("userId");
   const userType = localStorage.getItem("userType");
   const token = localStorage.getItem("token");
-  const wsUrl = localStorage.getItem("wsUrl"); // Add this
+  let wsUrl = localStorage.getItem("wsUrl");
   const dispatch = useDispatch();
 
   console.log("WebSocket URL:", wsUrl);
 
   useEffect(() => {
     if (token && wsUrl) {
-      // Check for wsUrl
-      const ws = new WebSocket(wsUrl);
-      socketRef.current = ws;
+      // Ensure WebSocket uses WSS for HTTPS
+      if (window.location.protocol === "https:") {
+        wsUrl = wsUrl.replace("ws://", "wss://");
+      }
 
-      ws.onopen = () => {
-        console.log("WebSocket Connected");
-        const message = {
-          type: "userActivity",
-          userId: userId,
-          userType: userType,
-          status: "online",
+      try {
+        const ws = new WebSocket(wsUrl);
+        socketRef.current = ws;
+
+        ws.onopen = () => {
+          console.log("WebSocket Connected");
+          const message = {
+            type: "userActivity",
+            userId: userId,
+            userType: userType,
+            status: "online",
+          };
+          ws.send(JSON.stringify(message));
         };
-        ws.send(JSON.stringify(message));
-      };
 
-      ws.onmessage = (event) => {
-        console.log("WebSocket message received:", event.data);
-      };
+        ws.onmessage = (event) => {
+          console.log("WebSocket message received:", event.data);
+        };
 
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-      };
+        ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
+        };
 
-      ws.onclose = () => {
-        console.log("WebSocket disconnected");
-      };
+        ws.onclose = () => {
+          console.log("WebSocket disconnected");
+        };
+      } catch (error) {
+        console.error("Failed to connect WebSocket:", error);
+      }
     }
 
     return () => {
@@ -71,7 +79,7 @@ function App() {
     };
   }, [token, wsUrl]);
 
-  if (profile.message === "Invalid token") {
+  if (profile?.message === "Invalid token") {
     localStorage.clear();
     window.location.reload();
     navigate("/login");
@@ -79,35 +87,35 @@ function App() {
 
   useEffect(() => {
     if (token) {
-      dispatch(ProfileGet(userId));
-      dispatch(StudentGet());
-      dispatch(VoucherGet());
-      dispatch(GroupGet());
-      dispatch(MembersGet());
-      dispatch(DegreeTypesGet());
-      dispatch(StatusesGet());
-      dispatch(CoursesGet());
-      dispatch(BatchesGet());
-      dispatch(StudentsGet());
-      dispatch(VouchersGet());
-      dispatch(ActionLogsGet());
-      dispatch(PermissionsGet());
-      dispatch(NotificationsGet());
-      dispatch(TrashedStudentsGet());
-      dispatch(FeesGet());
+      try {
+        dispatch(ProfileGet(userId));
+        dispatch(StudentGet());
+        dispatch(VoucherGet());
+        dispatch(GroupGet());
+        dispatch(MembersGet());
+        dispatch(DegreeTypesGet());
+        dispatch(StatusesGet());
+        dispatch(CoursesGet());
+        dispatch(BatchesGet());
+        dispatch(StudentsGet());
+        dispatch(VouchersGet());
+        dispatch(ActionLogsGet());
+        dispatch(PermissionsGet());
+        dispatch(NotificationsGet());
+        dispatch(TrashedStudentsGet());
+        dispatch(FeesGet());
+      } catch (error) {
+        console.error("Error dispatching API calls:", error);
+      }
     }
   }, []);
 
   return (
     <div className="app">
-      {loading ? (
-        <>
-          <div className="w-full h-[100vh] z-[1000] fixed bg-white flex items-center justify-center">
-            <DotLoader color="#5570F1" />
-          </div>
-        </>
-      ) : (
-        ""
+      {loading && (
+        <div className="w-full h-[100vh] z-[1000] fixed bg-white flex items-center justify-center">
+          <DotLoader color="#5570F1" />
+        </div>
       )}
       <Routess />
       <ActivityDetector />

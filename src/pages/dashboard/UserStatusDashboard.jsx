@@ -8,30 +8,53 @@ const UserStatusDashboard = () => {
     fetch(`${BASE_URL}/api/v1/sch/getAllUsers`)
       .then((res) => res.json())
       .then((data) => {
-        // Only set members data, exclude students
         setUsers({
           members: data.members,
-          students: [], // Empty array for students to hide them
+          students: [],
         });
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
       });
 
-    const wsUrl = localStorage.getItem("wsUrl");
-    const ws = new WebSocket(`${wsUrl}/admin`);
+    let wsUrl = localStorage.getItem("wsUrl");
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "statusUpdate") {
-        updateUserStatus(data.user);
-      }
-    };
+    if (!wsUrl) {
+      console.warn("WebSocket URL not found in localStorage.");
+      return;
+    }
 
-    return () => ws.close();
+    if (window.location.protocol === "https:") {
+      wsUrl = wsUrl.replace("ws://", "wss://");
+    }
+
+    try {
+      const ws = new WebSocket(`${wsUrl}/admin`);
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === "statusUpdate") {
+            updateUserStatus(data.user);
+          }
+        } catch (error) {
+          console.error("Error parsing WebSocket message:", error);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error("WebSocket error:", error);
+      };
+
+      return () => ws.close();
+    } catch (error) {
+      console.error("Failed to connect WebSocket:", error);
+    }
   }, []);
 
   const updateUserStatus = (updatedUser) => {
     setUsers((prevUsers) => {
       const newUsers = { ...prevUsers };
-      // Only update members status
       const index = newUsers.members.findIndex((u) => u._id === updatedUser.id);
       if (index !== -1) {
         newUsers.members[index] = {
@@ -50,7 +73,6 @@ const UserStatusDashboard = () => {
         Live Users Status
       </h2>
 
-      {/* Stats Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="stat bg-blue-50 rounded-lg p-4">
           <div className="stat-title text-blue-600">Total Users</div>
@@ -62,81 +84,11 @@ const UserStatusDashboard = () => {
         <div className="stat bg-green-50 rounded-lg p-4">
           <div className="stat-title text-green-600">Online Users</div>
           <div className="stat-value text-green-600">
-            {
-              users.members.filter(
-                (user) => user?.Name !== "admin" && user.isOnline
-              ).length
-            }
+            {users.members.filter(
+              (user) => user?.Name !== "admin" && user.isOnline
+            ).length}
           </div>
         </div>
-      </div>
-
-      {/* Users Grid - Only showing members */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {users.members
-          .filter((user) => user?.Name !== "admin")
-          .map((user) => (
-            <div
-              key={user._id}
-              className="bg-white border rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300"
-            >
-              <div className="p-5">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      {user.Name}
-                    </h3>
-                    <p className="text-sm text-gray-600">{user.email}</p>
-                  </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium
-                      ${
-                        user.isOnline
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                  >
-                    {user.isOnline ? "Online" : "Offline"}
-                  </span>
-                </div>
-
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center text-sm text-gray-500">
-                    <svg
-                      className="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    Last Active: {new Date(user.lastActive).toLocaleString()}
-                  </div>
-                  <div className="flex items-center text-sm text-gray-500">
-                    <svg
-                      className="w-4 h-4 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                    Type: Member
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
       </div>
     </div>
   );
