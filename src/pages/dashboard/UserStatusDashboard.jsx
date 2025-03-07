@@ -24,9 +24,9 @@ const UserStatusDashboard = () => {
       return;
     }
 
-    if (window.location.protocol === "https:") {
-      wsUrl = wsUrl.replace("ws://", "wss://");
-    }
+    // if (window.location.protocol === "https:") {
+    //   wsUrl = wsUrl.replace("ws://", "wss://");
+    // }
 
     try {
       const ws = new WebSocket(`${wsUrl}/admin`);

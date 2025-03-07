@@ -32,14 +32,12 @@ function App() {
   let wsUrl = localStorage.getItem("wsUrl");
   const dispatch = useDispatch();
 
-  console.log("WebSocket URL:", wsUrl);
-
   useEffect(() => {
     if (token && wsUrl) {
       // Ensure WebSocket uses WSS for HTTPS
-      if (window.location.protocol === "https:") {
-        wsUrl = wsUrl.replace("ws://", "wss://");
-      }
+      // if (window.location.protocol === "https:") {
+      //   wsUrl = wsUrl.replace("ws://", "wss://");
+      // }
 
       try {
         const ws = new WebSocket(wsUrl);
