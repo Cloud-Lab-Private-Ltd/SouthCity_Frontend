@@ -469,7 +469,7 @@ const VoucherBody = () => {
       },
       allowOutsideClick: () => !Swal.isLoading(),
     }).then((result) => {
-      if (result) {
+      if (result.isConfirmed) {
         Swal.fire({
           title: "Deleted!",
           text: "Voucher has been deleted successfully",
@@ -1100,11 +1100,11 @@ const VoucherBody = () => {
                     key={item._id}
                     className={`${
                       item.status === "Paid"
-                        ? "bg-green-50 border-l-4 border-l-green-500 hover:bg-green-100"
+                        ? "bg-green-50 border-l-4 border-l-green-500"
                         : item.splitVouchers?.length > 0
-                        ? "bg-purple-50 border-l-4 border-l-purple-500 hover:bg-purple-100"
+                        ? "bg-purple-50 border-l-4 border-l-purple-500"
                         : item.paymentSlip
-                        ? "bg-blue-50 border-l-4 border-l-blue-500 hover:bg-blue-100"
+                        ? "bg-blue-50 border-l-4 border-l-blue-500"
                         : "hover:bg-gray-50"
                     }`}
                   >
