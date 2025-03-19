@@ -206,6 +206,9 @@ const BatchBody = () => {
   };
 
   const { batches, batchLoading } = useSelector((state) => state.groupdata);
+  const { member } = useSelector((state) => state?.profiledata?.profile);
+  const isAdmin = member?.group?.name === "admins";
+  const currentUserId = member?._id;
 
   // Add states for search and modal
   const [searchTerm, setSearchTerm] = useState("");
@@ -217,13 +220,6 @@ const BatchBody = () => {
     setSelectedBatchDetails(batch);
     setViewDetailsOpen(true);
   };
-
-  // Add filtered batches logic
-  const filteredBatches = batches?.batches?.filter(
-    (item) =>
-      item.batchName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.status.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
@@ -269,6 +265,22 @@ const BatchBody = () => {
     window.open(`${BASE_URL}/api/v1/sch/batch-export`, "_blank");
   };
 
+  // Then modify the filteredBatches logic
+  const filteredBatches = batches?.batches?.filter((item) => {
+    // First apply the search filter
+    const matchesSearch =
+      item.batchName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.status.toLowerCase().includes(searchTerm.toLowerCase());
+
+    // If user is admin, show all batches that match search
+    if (isAdmin) {
+      return matchesSearch;
+    }
+
+    // If user is coordinator, only show batches where they are the coordinator
+    return matchesSearch && item.batchCoordinator === currentUserId;
+  });
+
   // Add pagination logic
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 5;
@@ -276,6 +288,8 @@ const BatchBody = () => {
   const firstIndex = lastIndex - recordsPerPage;
   const records = filteredBatches?.slice(firstIndex, lastIndex);
   const npage = Math.ceil(filteredBatches?.length / recordsPerPage);
+
+  console.log(records)
 
   const prePage = () => {
     if (currentPage !== 1) {
@@ -666,6 +680,11 @@ const BatchBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
+                   Number Of students
+                  </Typography>
+                </th>
+                <th className="p-4 border-b border-gray-100">
+                  <Typography className="text-c-grays font-semibold">
                     Actions
                   </Typography>
                 </th>
@@ -680,6 +699,9 @@ const BatchBody = () => {
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-48"></div>
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
+                      <div className="skeleton h-4 w-32"></div>
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-32"></div>
@@ -726,6 +748,11 @@ const BatchBody = () => {
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
                         {batch.sessionType}
+                      </Typography>
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
+                      <Typography className="text-c-grays">
+                        {batch.numberOfStudents}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">
