@@ -683,7 +683,7 @@ const VoucherBody = () => {
     return voucherPermission?.[type] || false;
   };
 
-  // console.log("record", records);
+  console.log("record", records);
 
   return (
     <div className="bg-[#F5F5F5]">
@@ -1043,6 +1043,12 @@ const VoucherBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
+                    Created Date
+                  </Typography>
+                </th>
+
+                <th className="p-4 border-b border-gray-100">
+                  <Typography className="text-c-grays font-semibold">
                     Due Date
                   </Typography>
                 </th>
@@ -1130,6 +1136,17 @@ const VoucherBody = () => {
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
+                        {new Date(item.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Typography>
+                    </td>
+                    <td className="p-4 border-b border-gray-100">
+                      <Typography className="text-c-grays">
                         {new Date(item.dueDate).toLocaleDateString()}
                       </Typography>
                     </td>
@@ -1179,7 +1196,6 @@ const VoucherBody = () => {
                         <>Payment Pending</>
                       )}
                     </td>
-
                     <td className="p-4 border-b border-gray-100">
                       <div className="relative">
                         <button
