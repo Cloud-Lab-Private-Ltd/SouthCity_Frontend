@@ -12,6 +12,7 @@ const StudentVoucherBody = () => {
   const { vouchers, voucherLoading } = useSelector(
     (state) => state.profiledata
   );
+
   const [uploadLoading, setUploadLoading] = useState(false);
   const dispatch = useDispatch();
 
@@ -19,6 +20,49 @@ const StudentVoucherBody = () => {
     (voucher) => !voucher.splitVouchers?.length
   );
 
+  console.warn(vouchers);
+
+  // Helper function to correctly calculate fees for split vouchers
+  const calculateSplitFees = (voucher) => {
+    // If it's not a split voucher or doesn't have a payment percentage, return original values
+    if (!voucher.parentVoucherNumber || !voucher.paymentPercentage) {
+      return {
+        admissionFee: parseInt(voucher.admissionFee) || 0,
+        semesterFee: parseInt(voucher.semesterFee) || 0,
+        securityFee: parseInt(voucher.securityFee) || 0,
+        libraryFee: parseInt(voucher.libraryFee) || 0,
+      };
+    }
+
+    const percentage = voucher.paymentPercentage / 100;
+
+    // For split vouchers, admission fee is already correctly split, but other fees need to be adjusted
+    return {
+      admissionFee: parseInt(voucher.admissionFee) || 0, // Keep admission fee as is
+      semesterFee: Math.round(parseInt(voucher.semesterFee) * percentage) || 0,
+      securityFee: Math.round(parseInt(voucher.securityFee) * percentage) || 0,
+      libraryFee: Math.round(parseInt(voucher.libraryFee) * percentage) || 0,
+    };
+  };
+
+  // Helper function to calculate total fee from components
+  const calculateTotalFee = (voucher) => {
+    const fees = calculateSplitFees(voucher);
+    return (
+      fees.admissionFee + fees.semesterFee + fees.securityFee + fees.libraryFee
+    );
+  };
+
+  // Format date function for PDF
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
   const generateVoucherPDF = (voucherData) => {
     const doc = new jsPDF("p", "mm", "a4");
     const pageWidth = doc.internal.pageSize.width;
@@ -33,200 +77,286 @@ const StudentVoucherBody = () => {
       "Applicant Copy",
     ];
 
+    // Improved spacing constants
+    const margin = 5;
+    const lineHeight = 5;
+    const fieldLabelWidth = 35; // Increased width for labels
+    const headerFontSize = 7;
+    const normalFontSize = 6;
+    const smallFontSize = 5;
+
     for (let row = 0; row < 2; row++) {
       for (let col = 0; col < 2; col++) {
         const xOffset = col * voucherWidth;
         const yOffset = row * voucherHeight;
         const copyIndex = row * 2 + col;
 
+        // Border around voucher (draw first so it's behind everything)
+        doc.setDrawColor(0);
+        doc.setLineWidth(0.3);
+        doc.rect(
+          xOffset + margin,
+          yOffset + margin,
+          voucherWidth - 2 * margin,
+          voucherHeight - 2 * margin
+        );
+
         // Header Section
-        doc.setFontSize(6);
+        let currentY = yOffset + 8;
+
+        doc.setFontSize(headerFontSize);
         doc.setFont("helvetica", "bold");
+
+        // Voucher number and copy type
         doc.text(
-          voucherData.voucherNumber,
-          xOffset + voucherWidth / 2,
-          8 + yOffset,
-          {
-            align: "center",
-          }
+          `VNO: ${voucherData.voucherNumber}`,
+          xOffset + margin + 5,
+          currentY
         );
         doc.text(
           copyTypes[copyIndex],
-          xOffset + voucherWidth - 10,
-          8 + yOffset,
-          {
-            align: "right",
-          }
+          xOffset + voucherWidth - margin - 5,
+          currentY,
+          { align: "right" }
         );
+
+        currentY += lineHeight;
+
+        // Institute name
         doc.text(
           "South City Healthcare Education Hub",
           xOffset + voucherWidth / 2,
-          12 + yOffset,
-          {
-            align: "center",
-          }
+          currentY,
+          { align: "center" }
         );
-        doc.setFontSize(5);
+
+        currentY += lineHeight - 1;
+
+        doc.setFontSize(smallFontSize);
         doc.setFont("helvetica", "normal");
         doc.text(
           "Pvt. Ltd. Clifton, Karachi.",
           xOffset + voucherWidth / 2,
-          16 + yOffset,
-          {
-            align: "center",
-          }
+          currentY,
+          { align: "center" }
         );
+
+        currentY += lineHeight - 1;
+
         doc.setFont("helvetica", "bold");
-        doc.text("SCPTR", xOffset + voucherWidth / 2, 20 + yOffset, {
+        doc.text("SCPTR", xOffset + voucherWidth / 2, currentY, {
           align: "center",
         });
+
+        currentY += lineHeight - 1;
+
         doc.setFont("helvetica", "normal");
-        doc.text("United Bank Ltd", xOffset + voucherWidth / 2, 24 + yOffset, {
+        doc.text("United Bank Ltd", xOffset + voucherWidth / 2, currentY, {
           align: "center",
         });
+
+        currentY += lineHeight - 1;
+
         doc.text(
           "Branch Name: Boat Basin",
           xOffset + voucherWidth / 2,
-          28 + yOffset,
-          {
-            align: "center",
-          }
+          currentY,
+          { align: "center" }
         );
-        doc.text(
-          "Branch Code: 1212",
-          xOffset + voucherWidth / 2,
-          32 + yOffset,
-          {
-            align: "center",
-          }
-        );
+
+        currentY += lineHeight - 1;
+
+        doc.text("Branch Code: 1212", xOffset + voucherWidth / 2, currentY, {
+          align: "center",
+        });
+
+        currentY += lineHeight - 1;
+
         doc.text(
           "Account #: 2509114461",
           xOffset + voucherWidth / 2,
-          36 + yOffset,
-          {
-            align: "center",
-          }
+          currentY,
+          { align: "center" }
         );
 
-        // Student Information
-        doc.setFont("helvetica", "bold");
-        doc.text("Full Name", xOffset + 5, 42 + yOffset);
-        doc.line(
-          xOffset + 20,
-          42 + yOffset,
-          xOffset + voucherWidth - 5,
-          42 + yOffset
-        );
-        doc.setFont("helvetica", "normal");
-        doc.text(
-          voucherData.student?.fullName || "",
-          xOffset + 22,
-          41 + yOffset
-        );
+        currentY += lineHeight + 1;
 
-        doc.setFont("helvetica", "bold");
-        doc.text("Father Name", xOffset + 5, 47 + yOffset);
-        doc.line(
-          xOffset + 20,
-          47 + yOffset,
-          xOffset + voucherWidth - 5,
-          47 + yOffset
-        );
-        doc.setFont("helvetica", "normal");
-        doc.text(
-          voucherData.student?.fatherName || "",
-          xOffset + 22,
-          46 + yOffset
-        );
+        // Student Information Section
+        doc.setFontSize(normalFontSize);
 
-        doc.setFont("helvetica", "bold");
-        doc.text("CNIC", xOffset + 5, 52 + yOffset);
-        doc.line(
-          xOffset + 20,
-          52 + yOffset,
-          xOffset + voucherWidth - 5,
-          52 + yOffset
-        );
-        doc.setFont("helvetica", "normal");
-        doc.text(voucherData.student?.nic || "", xOffset + 22, 51 + yOffset);
+        // Function to add a field with label and value
+        const addField = (label, value) => {
+          doc.setFont("helvetica", "bold");
+          doc.text(label, xOffset + margin + 2, currentY);
 
-        doc.setFont("helvetica", "bold");
-        doc.text("Application No", xOffset + 5, 57 + yOffset);
-        doc.line(
-          xOffset + 20,
-          57 + yOffset,
-          xOffset + voucherWidth - 5,
-          57 + yOffset
-        );
-        doc.setFont("helvetica", "normal");
-        doc.text(
-          voucherData.student?.registrationId || "",
-          xOffset + 22,
-          56 + yOffset
-        );
-
-        // Fee Details Section
-        doc.setFillColor(200, 200, 200);
-        doc.rect(xOffset + 5, 62 + yOffset, voucherWidth - 10, 4, "F");
-        doc.setFont("helvetica", "bold");
-        doc.text("Detail of Fee", xOffset + 7, 65 + yOffset);
-        doc.text("Amount", xOffset + voucherWidth - 25, 65 + yOffset);
-
-        const feeDetails = [
-          { label: "Admission Fee", value: voucherData?.admissionFee },
-          { label: "Semester Fee", value: voucherData?.semesterFee },
-          { label: "Security Fee", value: voucherData?.securityFee },
-          { label: "Library Fee", value: voucherData?.libraryFee },
-          { label: "Total", value: voucherData?.paidAmount },
-        ];
-
-        let yPos = 71;
-        feeDetails.forEach((fee) => {
-          doc.setFont("helvetica", "normal");
-          doc.text(fee.label, xOffset + 7, yPos + yOffset);
-          doc.text(
-            `Rs. ${fee.value}`,
-            xOffset + voucherWidth - 25,
-            yPos + yOffset
+          // Draw line for the value
+          doc.setLineWidth(0.1);
+          doc.line(
+            xOffset + margin + fieldLabelWidth,
+            currentY,
+            xOffset + voucherWidth - margin - 2,
+            currentY
           );
-          yPos += 4;
+
+          // Add value text 1mm above the line
+          doc.setFont("helvetica", "normal");
+          doc.text(
+            value || "",
+            xOffset + margin + fieldLabelWidth + 2,
+            currentY - 1
+          );
+
+          currentY += lineHeight;
+        };
+
+        // Add all student fields
+        addField("Full Name", voucherData.student?.fullName || "");
+        addField("Father/Guardian Name", voucherData.student?.fatherName || "");
+        addField("CNIC", voucherData.student?.nic || "");
+        addField("Application No", voucherData.student?.registrationId || "");
+        addField(
+          "Enrollment Number",
+          voucherData.student?.enrollementNumber || ""
+        );
+        addField("Semester", voucherData.monthOf || "");
+
+        // Add payment percentage if it exists and is not 100%
+        if (
+          voucherData.paymentPercentage &&
+          voucherData.paymentPercentage !== 100
+        ) {
+          addField("Payment Percentage", `${voucherData.paymentPercentage}%`);
+
+          // Add parent voucher number if available
+          if (voucherData.parentVoucherNumber) {
+            addField("Parent Voucher", voucherData.parentVoucherNumber);
+          }
+        }
+
+        addField("Created Date", formatDate(voucherData.createdAt) || "");
+        addField("Due Date", formatDate(voucherData.dueDate) || "");
+
+        // Fee Breakdown Section with full width background
+        currentY += 1;
+        doc.setFillColor(220, 220, 220);
+        doc.rect(
+          xOffset + margin + 2,
+          currentY - 3,
+          voucherWidth - 2 * margin - 4,
+          5,
+          "F"
+        );
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Detail of Fee", xOffset + margin + 5, currentY);
+        doc.text("Amount", xOffset + voucherWidth - margin - 20, currentY);
+
+        currentY += lineHeight + 1;
+
+        // Calculate the correct fees based on split percentage
+        const fees = calculateSplitFees(voucherData);
+
+        // Create arrays to hold fee details and amounts
+        const feeDetails = [];
+        const feeAmounts = [];
+
+        // Only add fees that are greater than 0 in the original voucher
+        // For semester fee, we'll always show it for semester 2+ vouchers
+        if (fees.admissionFee > 0) {
+          feeDetails.push("Admission Fee");
+          feeAmounts.push(fees.admissionFee);
+        }
+
+        // For semester fee, check if the original amount is > 0, not the calculated amount
+        // This ensures semester fee is shown even when it's split
+        if (parseInt(voucherData.semesterFee) > 0) {
+          feeDetails.push("Semester Fee");
+          feeAmounts.push(fees.semesterFee);
+        }
+
+        if (fees.securityFee > 0) {
+          feeDetails.push("Security Deposit");
+          feeAmounts.push(fees.securityFee);
+        }
+
+        if (fees.libraryFee > 0) {
+          feeDetails.push("Library Charges");
+          feeAmounts.push(fees.libraryFee);
+        }
+
+        // Calculate total
+        const calculatedTotal =
+          fees.admissionFee +
+          fees.semesterFee +
+          fees.securityFee +
+          fees.libraryFee;
+
+        // Add total
+        feeDetails.push("Total");
+        feeAmounts.push(calculatedTotal);
+
+        // Add fee details
+        feeDetails.forEach((item, index) => {
+          doc.setFont(
+            "helvetica",
+            index === feeDetails.length - 1 ? "bold" : "normal"
+          );
+          doc.text(item, xOffset + margin + 5, currentY);
+
+          // Align amounts to the right
+          doc.text(
+            `Rs. ${feeAmounts[index]}`,
+            xOffset + voucherWidth - margin - 20,
+            currentY
+          );
+
+          currentY += lineHeight;
         });
 
         // Amount in Words
+        currentY += 2;
         doc.setFont("helvetica", "bold");
-        doc.text("In word:", xOffset + 5, 95 + yOffset);
+        doc.text("In word:", xOffset + margin + 2, currentY);
+
+        // Draw line for the value
         doc.line(
-          xOffset + 20,
-          95 + yOffset,
-          xOffset + voucherWidth - 5,
-          95 + yOffset
+          xOffset + margin + fieldLabelWidth,
+          currentY,
+          xOffset + voucherWidth - margin - 2,
+          currentY
         );
+
         doc.setFont("helvetica", "normal");
-        doc.text(voucherData.inWordAmount, xOffset + 22, 94 + yOffset);
+        doc.text(
+          voucherData.inWordAmount || "",
+          xOffset + margin + fieldLabelWidth + 2,
+          currentY - 1
+        );
+
+        currentY += lineHeight + 2;
 
         // Footer Section
-        doc.text("Applicant Signature", xOffset + 5, 100 + yOffset);
+        doc.text("Applicant Signature", xOffset + margin + 2, currentY);
         doc.line(
-          xOffset + 30,
-          100 + yOffset,
-          xOffset + voucherWidth - 5,
-          100 + yOffset
-        );
-        doc.text(
-          "Receiving Branch Stamp and Signature",
-          xOffset + 5,
-          105 + yOffset
-        );
-        doc.line(
-          xOffset + 50,
-          105 + yOffset,
-          xOffset + voucherWidth - 5,
-          105 + yOffset
+          xOffset + margin + 30,
+          currentY,
+          xOffset + voucherWidth - margin - 2,
+          currentY
         );
 
-        // Border
-        doc.rect(xOffset + 2, yOffset + 2, voucherWidth - 4, voucherHeight - 4);
+        currentY += lineHeight + 2;
+
+        doc.text(
+          "Receiving Branch Stamp and Signature",
+          xOffset + margin + 2,
+          currentY
+        );
+        doc.line(
+          xOffset + margin + 55,
+          currentY,
+          xOffset + voucherWidth - margin - 2,
+          currentY
+        );
       }
     }
 
@@ -285,7 +415,41 @@ const StudentVoucherBody = () => {
     input.click();
   };
 
-  console.log(vouchers);
+  // Helper function to extract semester number from monthOf string
+  const getSemesterNumber = (monthOf) => {
+    if (!monthOf) return 0;
+    const match = monthOf.match(/Semester (\d+)/);
+    return match ? parseInt(match[1]) : 0;
+  };
+
+  // Sort vouchers by semester number (ascending)
+  const sortedVouchers = filteredVouchers
+    ? [...filteredVouchers].sort((a, b) => {
+        return getSemesterNumber(a.monthOf) - getSemesterNumber(b.monthOf);
+      })
+    : [];
+
+  // Function to check if previous semester vouchers are paid
+  const isPreviousSemestersPaid = (currentVoucher) => {
+    if (!sortedVouchers || sortedVouchers.length === 0) return true;
+
+    const currentSemesterNum = getSemesterNumber(currentVoucher.monthOf);
+
+    // If it's the first semester, always allow payment
+    if (currentSemesterNum === 1) return true;
+
+    // Check if all previous semester vouchers are paid
+    for (const voucher of sortedVouchers) {
+      const semesterNum = getSemesterNumber(voucher.monthOf);
+
+      // If this is a previous semester and it's not paid, return false
+      if (semesterNum < currentSemesterNum && voucher.status !== "Paid") {
+        return false;
+      }
+    }
+
+    return true;
+  };
 
   return (
     <div>
@@ -306,217 +470,277 @@ const StudentVoucherBody = () => {
         </div>
       ) : (
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {Array.isArray(filteredVouchers) && filteredVouchers?.map((voucher) => (
-            <Card
-              key={voucher._id}
-              className="p-6 hover:shadow-lg transition-shadow border border-gray-200"
-            >
-              {/* Header Section */}
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <Typography className="text-xl font-bold text-blue-800">
-                    {voucher.voucherNumber}
-                  </Typography>
-                  <Typography className="text-sm text-gray-600 mt-1">
-                    Due Date: {new Date(voucher.dueDate).toLocaleDateString()}
-                  </Typography>
-                  <Typography className="text-sm text-gray-600">
-                    Month:{" "}
-                    {new Date(voucher.monthOf).toLocaleDateString("en-US", {
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </Typography>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    voucher.status === "Paid"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
+          {Array.isArray(sortedVouchers) &&
+            sortedVouchers.map((voucher) => {
+              // Calculate the correct fees based on split percentage
+              const fees = calculateSplitFees(voucher);
+              const calculatedTotalFee =
+                fees.admissionFee +
+                fees.semesterFee +
+                fees.securityFee +
+                fees.libraryFee;
+
+              return (
+                <Card
+                  key={voucher._id}
+                  className="p-6 hover:shadow-lg transition-shadow border border-gray-200"
                 >
-                  {voucher.status}
-                </span>
-              </div>
-
-              {/* Course Details Section */}
-              <div className="bg-gray-50 p-3 rounded-lg mb-4">
-                <Typography className="text-md font-bold text-gray-700 mb-2">
-                  Course Details
-                </Typography>
-                <div className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <span className="font-semibold">Course Name:</span>
-                    <p className="text-gray-600">
-                      {voucher.course?.name || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="font-semibold">Duration:</span>
-                    <p className="text-gray-600">
-                      {voucher.course?.duration || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="font-semibold">Degree Type:</span>
-                    <p className="text-gray-600">
-                      {voucher.course?.degreeType || "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="font-semibold">Semesters:</span>
-                    <p className="text-gray-600">
-                      {voucher.course?.noOfSemesters || "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Fee Details Section */}
-              <div className="bg-white p-3 rounded-lg border border-gray-100 mb-4">
-                <Typography className="text-md font-bold text-gray-700 mb-2">
-                  Fee Breakdown
-                </Typography>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm py-1 border-b">
-                    <span className="text-gray-600">Admission Fee:</span>
-                    <span className="font-semibold">
-                      Rs. {voucher?.admissionFee}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm py-1 border-b">
-                    <span className="text-gray-600">Semester Fee:</span>
-                    <span className="font-semibold">
-                      Rs. {voucher?.semesterFee}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm py-1 border-b">
-                    <span className="text-gray-600">Security Fee:</span>
-                    <span className="font-semibold">
-                      Rs. {voucher?.securityFee}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm py-1 border-b">
-                    <span className="text-gray-600">Library Fee:</span>
-                    <span className="font-semibold">
-                      Rs. {voucher?.libraryFee}
-                    </span>
-                  </div>
-                  {voucher?.paymentPercentage ? (
-                    <>
-                      <div className="flex justify-between text-sm py-1 border-b">
-                        <span className="text-gray-600">
-                          Payment Percentage:
-                        </span>
-                        <span className="font-semibold">
-                          {voucher?.paymentPercentage}%
-                        </span>
+                  {/* Header Section */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <Typography className="text-xl font-bold text-blue-800">
+                        {voucher.voucherNumber}
+                      </Typography>
+                      <div className="mt-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs inline-block">
+                        {voucher.monthOf}
                       </div>
-                    </>
-                  ) : (
-                    ""
-                  )}
 
-                  <div className="flex justify-between font-bold pt-2 text-blue-800">
-                    <span>Total Amount:</span>
-                    <span>Rs. {voucher?.paidAmount}</span>
-                  </div>
-                </div>
-              </div>
+                      {/* Show payment percentage if it exists and is not 100% */}
+                      {voucher.paymentPercentage &&
+                        voucher.paymentPercentage !== 100 && (
+                          <div className="mt-1 bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs inline-block">
+                            {voucher.paymentPercentage}% Payment
+                          </div>
+                        )}
 
-              {/* Amount in Words */}
-              <div className="bg-blue-50 p-3 rounded-lg mb-4">
-                <Typography className="text-sm text-gray-700">
-                  <span className="font-semibold">Amount in Words: </span>
-                  {voucher.inWordAmount}
-                </Typography>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600"
-                  onClick={() => generateVoucherPDF(voucher)}
-                >
-                  <DocumentTextIcon className="w-4 h-4" />
-                  View Slip
-                </Button>
-
-                <Button
-                  size="sm"
-                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600"
-                  onClick={() => handleUploadSlip(voucher._id)}
-                  disabled={voucher.status === "Paid" || uploadLoading}
-                >
-                  {uploadLoading ? (
-                    <span className="loading loading-dots loading-sm"></span>
-                  ) : (
-                    <>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-4 w-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                      {/* Show parent voucher number if it exists */}
+                      {voucher.parentVoucherNumber && (
+                        <div className="mt-1 bg-gray-50 text-gray-700 px-3 py-1 rounded-full text-xs inline-block">
+                          Split from: {voucher.parentVoucherNumber}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          voucher.status === "Paid"
+                            ? "bg-green-100 text-green-800"
+                            : voucher.status === "Pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                        />
-                      </svg>
-                      Upload Slip
-                    </>
+                        {voucher.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Fee Details */}
+                  <div className="mb-4">
+                    {/* Show detailed fee breakdown */}
+                    {fees.admissionFee > 0 && (
+                      <div className="flex justify-between mb-2">
+                        <Typography className="text-gray-600">
+                          Admission Fee:
+                        </Typography>
+                        <Typography className="font-medium">
+                          Rs. {fees.admissionFee.toLocaleString()}
+                        </Typography>
+                      </div>
+                    )}
+
+                    {fees.semesterFee > 0 && (
+                      <div className="flex justify-between mb-2">
+                        <Typography className="text-gray-600">
+                          Semester Fee:
+                        </Typography>
+                        <Typography className="font-medium">
+                          Rs. {fees.semesterFee.toLocaleString()}
+                        </Typography>
+                      </div>
+                    )}
+
+                    {fees.securityFee > 0 && (
+                      <div className="flex justify-between mb-2">
+                        <Typography className="text-gray-600">
+                          Security Fee:
+                        </Typography>
+                        <Typography className="font-medium">
+                          Rs. {fees.securityFee.toLocaleString()}
+                        </Typography>
+                      </div>
+                    )}
+
+                    {fees.libraryFee > 0 && (
+                      <div className="flex justify-between mb-2">
+                        <Typography className="text-gray-600">
+                          Library Fee:
+                        </Typography>
+                        <Typography className="font-medium">
+                          Rs. {fees.libraryFee.toLocaleString()}
+                        </Typography>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between mb-2 border-t pt-2 mt-2">
+                      <Typography className="text-gray-600 font-medium">
+                        Total Fee:
+                      </Typography>
+                      <Typography className="font-medium">
+                        Rs. {calculatedTotalFee.toLocaleString()}
+                      </Typography>
+                    </div>
+
+                    <div className="flex justify-between mb-2">
+                      <Typography className="text-gray-600">
+                        Paid Amount:
+                      </Typography>
+                      <Typography className="font-medium">
+                        Rs. {voucher.paidAmount.toLocaleString()}
+                      </Typography>
+                    </div>
+
+                    <div className="flex justify-between mb-2">
+                      <Typography className="text-gray-600">
+                        Remaining:
+                      </Typography>
+                      <Typography className="font-medium">
+                        Rs.{" "}
+                        {(
+                          calculatedTotalFee - voucher.paidAmount
+                        ).toLocaleString()}
+                      </Typography>
+                    </div>
+                  </div>
+
+                  {/* Due Date */}
+                  <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <Typography className="text-gray-600 text-sm">
+                        Due Date:
+                      </Typography>
+                      <Typography
+                        className={`font-medium text-sm ${
+                          new Date(voucher.dueDate) < new Date() &&
+                          voucher.status !== "Paid"
+                            ? "text-red-600"
+                            : "text-gray-800"
+                        }`}
+                      >
+                        {new Date(voucher.dueDate).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </Typography>
+                    </div>
+                  </div>
+
+                  {/* Payment Slip Section - Add this new section */}
+                  {voucher.paymentSlip && (
+                    <div className="mb-4 p-3 bg-green-50 rounded-lg">
+                      <div className="flex justify-between items-center">
+                        <Typography className="text-green-600 text-sm font-medium">
+                          Payment Slip Uploaded
+                        </Typography>
+                        <Button
+                          size="sm"
+                          className="bg-green-500 hover:bg-green-600 py-1 px-3 flex items-center gap-1"
+                          onClick={() =>
+                            window.open(voucher.paymentSlip, "_blank")
+                          }
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            strokeWidth={1.5}
+                            stroke="currentColor"
+                            className="w-4 h-4"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          View Slip
+                        </Button>
+                      </div>
+                    </div>
                   )}
-                </Button>
 
-                {voucher.paymentSlip && (
-                  <Button
-                    size="sm"
-                    className="flex items-center gap-2 bg-purple-500 hover:bg-purple-600"
-                    onClick={() => window.open(voucher.paymentSlip, "_blank")}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                  {/* Actions */}
+                  <div className="flex gap-2 mt-4">
+                    <Button
+                      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                      onClick={() => generateVoucherPDF(voucher)}
+                      fullWidth
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                    View Payment
-                  </Button>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+                      <DocumentTextIcon className="h-4 w-4" />
+                      Download
+                    </Button>
 
-      {!voucherLoading && (!vouchers || vouchers?.length === 0) && (
-        <Card className="p-8 text-center">
-          <DocumentTextIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <Typography className="text-xl font-medium text-gray-700">
-            No Vouchers Available
-          </Typography>
-          <Typography className="text-gray-500">
-            There are currently no fee vouchers issued for you.
-          </Typography>
-        </Card>
+                    {voucher.status !== "Paid" && (
+                      <Button
+                        className={`flex items-center gap-2 ${
+                          isPreviousSemestersPaid(voucher)
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-gray-400 cursor-not-allowed"
+                        }`}
+                        onClick={() => {
+                          if (isPreviousSemestersPaid(voucher)) {
+                            handleUploadSlip(voucher._id);
+                          } else {
+                            Swal.fire({
+                              icon: "warning",
+                              title: "Payment Order Required",
+                              text: "You must pay previous semester fees before paying this voucher.",
+                              confirmButtonColor: "#5570F1",
+                            });
+                          }
+                        }}
+                        fullWidth
+                        disabled={
+                          !isPreviousSemestersPaid(voucher) || uploadLoading
+                        }
+                      >
+                        {uploadLoading ? (
+                          <span className="loading loading-spinner loading-xs"></span>
+                        ) : (
+                          <>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={1.5}
+                              stroke="currentColor"
+                              className="w-4 h-4"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                              />
+                            </svg>
+                            Upload Slip
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+              );
+            })}
+          {Array.isArray(sortedVouchers) && sortedVouchers.length === 0 && (
+            <div className="col-span-3 text-center py-12">
+              <div className="mx-auto w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                <DocumentTextIcon className="h-12 w-12 text-blue-500" />
+              </div>
+              <Typography className="text-xl font-medium text-gray-800 mb-2">
+                No Vouchers Found
+              </Typography>
+              <Typography className="text-gray-600">
+                You don't have any fee vouchers at the moment.
+              </Typography>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

@@ -124,11 +124,11 @@ const VoucherDetailsModal = ({ open, handleOpen, voucherData }) => {
           {voucherData.course && (
             <Card className="p-6 shadow-sm">
               <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
-                Course Information
+              Programs Information
               </Typography>
               <div className="space-y-4">
-                <InfoItem label="Course Name" value={voucherData.course.name} />
-                <InfoItem label="Course Code" value={voucherData.course.code} />
+                <InfoItem label="Programs Name" value={voucherData.course.name} />
+                <InfoItem label="Programs Code" value={voucherData.course.code} />
                 <InfoItem label="Level" value={voucherData.course.Level} />
                 <InfoItem label="Status" value={voucherData.course.Status} />
               </div>

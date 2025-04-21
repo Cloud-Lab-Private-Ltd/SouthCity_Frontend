@@ -15,15 +15,8 @@ const PermissionBody = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
 
   const [permissions, setPermissions] = useState([
-    // {
-    //   pageName: "Member",
-    //   insert: false,
-    //   update: false,
-    //   delete: false,
-    //   read: false,
-    // },
     {
-      pageName: "Course",
+      pageName: "Programs",
       insert: false,
       update: false,
       delete: false,
@@ -44,19 +37,26 @@ const PermissionBody = () => {
       read: false,
     },
     {
-      pageName: "Voucher",
+      pageName: "Ledger",
       insert: false,
       update: false,
       delete: false,
       read: false,
     },
-    {
-      pageName: "Action Log",
-      insert: false,
-      update: false,
-      delete: false,
-      read: false,
-    },
+    // {
+    //   pageName: "Voucher",
+    //   insert: false,
+    //   update: false,
+    //   delete: false,
+    //   read: false,
+    // },
+    // {
+    //   pageName: "Action Log",
+    //   insert: false,
+    //   update: false,
+    //   delete: false,
+    //   read: false,
+    // },
     {
       pageName: "Bulk Message",
       insert: false,
@@ -78,11 +78,11 @@ const PermissionBody = () => {
       delete: false,
       read: false,
     },
-    {
-      pageName: "Fees",
-      update: false,
-      read: false,
-    },
+    // {
+    //   pageName: "Fees",
+    //   update: false,
+    //   read: false,
+    // },
   ]);
 
   const groupOptions = groups?.groups
@@ -141,15 +141,8 @@ const PermissionBody = () => {
         dispatch(PermissionsGet());
 
         setPermissions([
-          // {
-          //   pageName: "Member",
-          //   insert: false,
-          //   update: false,
-          //   delete: false,
-          //   read: false,
-          // },
           {
-            pageName: "Course",
+            pageName: "Programs",
             insert: false,
             update: false,
             delete: false,
@@ -170,19 +163,26 @@ const PermissionBody = () => {
             read: false,
           },
           {
-            pageName: "Voucher",
+            pageName: "Ledger",
             insert: false,
             update: false,
             delete: false,
             read: false,
           },
-          {
-            pageName: "Action Log",
-            insert: false,
-            update: false,
-            delete: false,
-            read: false,
-          },
+          // {
+          //   pageName: "Voucher",
+          //   insert: false,
+          //   update: false,
+          //   delete: false,
+          //   read: false,
+          // },
+          // {
+          //   pageName: "Action Log",
+          //   insert: false,
+          //   update: false,
+          //   delete: false,
+          //   read: false,
+          // },
           {
             pageName: "Bulk Message",
             insert: false,
@@ -202,13 +202,6 @@ const PermissionBody = () => {
             insert: false,
             update: false,
             delete: false,
-            read: false,
-          },
-          {
-            pageName: "Fees",
-            // insert: false,
-            update: false,
-            // delete: false,
             read: false,
           },
         ]);
@@ -310,7 +303,7 @@ const PermissionBody = () => {
       />
 
       <div className="mb-8">
-        <h2 className="text-[1.5rem] font-semibold text-c-grays">
+        <h2 className="text-[1.5rem] font-semibold text-c-grays uppercase">
           Permissions
         </h2>
       </div>

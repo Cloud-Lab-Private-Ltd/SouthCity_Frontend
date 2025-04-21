@@ -31,27 +31,19 @@ const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
     setIsLoading(true);
     setError("");
     try {
-      const endpoint =
-        studentData.status === "freezed"
-          ? `${BASE_URL}/api/v1/sch/student/UnFreezeStudent`
-          : `${BASE_URL}/api/v1/sch/student/FreezeStudent`;
-
-      const body =
-        studentData.status === "freezed"
-          ? {
-              studentId: studentData._id,
-              newBatchId: studentData?.batch?._id,
-            }
-          : {
-              studentId: studentData._id,
-              failedBatchId: studentData?.batch?._id,
-            };
-
-      const response = await axios.post(endpoint, body, {
-        headers: {
-          "x-access-token": token,
+      // Only allow freezing a student (not unfreezing)
+      const response = await axios.post(
+        `${BASE_URL}/api/v1/sch/student/FreezeStudent`,
+        {
+          studentId: studentData._id,
+          failedBatchId: studentData?.batch?._id,
         },
-      });
+        {
+          headers: {
+            "x-access-token": token,
+          },
+        }
+      );
 
       if (response.data) {
         handleOpen();
@@ -66,7 +58,7 @@ const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
     }
   };
 
-  const handleMoveToBatch = async () => {
+  const handlePassOutStudent = async () => {
     setIsLoading(true);
     setError("");
     try {
@@ -75,8 +67,6 @@ const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
         {
           studentId: studentData._id,
           failedBatchId: studentData?.batch?._id,
-          newBatchId: selectedBatch.value,
-          reason: reason,
         },
         {
           headers: {
@@ -87,17 +77,19 @@ const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
 
       if (response.data) {
         handleOpen();
-        setShowMoveForm(false);
-        setReason("");
-        setSelectedBatch(null);
         onSuccess && onSuccess();
       }
     } catch (error) {
-      setError(error.response?.data?.message || "Failed to move student");
+      setError(error.response?.data?.message || "Failed to pass out student");
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Check if student is already in year back status
+  const isYearBack = studentData?.academicStatus === "Year back";
+  // Check if student is already passed out
+  const isPassedOut = studentData?.academicStatus === "Pass out";
 
   return (
     <Dialog open={open} handler={handleOpen} size="sm">
@@ -123,161 +115,114 @@ const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
             </div>
           )}
 
-          {showMoveForm ? (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Select New Batch *
-                </label>
-                <Select
-                  options={batchOptions}
-                  value={selectedBatch}
-                  onChange={setSelectedBatch}
-                  className="text-c-grays"
-                  placeholder="Select Batch"
-                  isSearchable
-                  styles={{
-                    input: (base) => ({
-                      ...base,
-                      "input:focus": {
-                        boxShadow: "none",
-                      },
-                    }),
-                  }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Reason for Moving *
-                </label>
-                <textarea
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  rows={3}
-                  placeholder="Enter reason for moving student"
-                  required
-                />
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setShowMoveForm(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleMoveToBatch}
-                  disabled={isLoading || !selectedBatch || !reason}
-                  className="px-4 py-2 bg-c-purple text-white rounded-lg hover:bg-c-purple disabled:bg-gray-200 disabled:text-gray-600"
-                >
-                  {isLoading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  ) : (
-                    "Move Student"
-                  )}
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              <button
-                onClick={handleFreezeStudent}
-                disabled={isLoading}
-                className={`p-6 border-2 rounded-xl transition-all group relative ${
-                  studentData?.status === "freezed"
-                    ? "border-green-100 bg-green-50 hover:bg-green-100"
-                    : "border-orange-100 bg-orange-50 hover:bg-orange-100"
-                }`}
-              >
-                <div className="flex flex-col items-center">
-                  {isLoading ? (
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-                  ) : (
-                    <>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className={`w-8 h-8 mb-2 group-hover:scale-110 transition-transform ${
-                          studentData?.status === "freezed"
-                            ? "text-green-500"
-                            : "text-orange-500"
-                        }`}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M9 9.563C9 9.252 9.252 9 9.563 9h4.874c.311 0 .563.252.563.563v4.874c0 .311-.252.563-.563.563H9.564A.562.562 0 019 14.437V9.564z"
-                        />
-                      </svg>
-                      <h3
-                        className={`text-lg font-semibold mb-1 ${
-                          studentData?.status === "freezed"
-                            ? "text-green-600"
-                            : "text-orange-600"
-                        }`}
-                      >
-                        {studentData?.status === "freezed"
-                          ? "Unfreeze Student"
-                          : "Freeze Student"}
-                      </h3>
-                      <p
-                        className={`text-sm text-center ${
-                          studentData?.status === "freezed"
-                            ? "text-green-600/70"
-                            : "text-orange-600/70"
-                        }`}
-                      >
-                        {studentData?.status === "freezed"
-                          ? "Restore student's academic status"
-                          : "Temporarily freeze student's academic progress"}
-                      </p>
-                    </>
-                  )}
-                </div>
-              </button>
-
-              {studentData?.status !== "freezed" && (
-                <button
-                  onClick={() => setShowMoveForm(true)}
-                  className="p-6 border-2 border-blue-100 rounded-xl bg-blue-50 hover:bg-blue-100 transition-all group"
-                >
-                  <div className="flex flex-col items-center">
+          <div className="grid grid-cols-1 gap-4">
+            <button
+              onClick={handleFreezeStudent}
+              disabled={isLoading || isYearBack}
+              className={`p-6 border-2 rounded-xl transition-all group relative ${
+                isYearBack
+                  ? "border-gray-100 bg-gray-50 cursor-not-allowed opacity-60"
+                  : "border-orange-100 bg-orange-50 hover:bg-orange-100"
+              }`}
+            >
+              <div className="flex flex-col items-center">
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+                ) : (
+                  <>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                       strokeWidth={1.5}
                       stroke="currentColor"
-                      className="w-8 h-8 text-blue-500 mb-2 group-hover:scale-110 transition-transform"
+                      className={`w-8 h-8 mb-2 group-hover:scale-110 transition-transform ${
+                        isYearBack ? "text-gray-400" : "text-orange-500"
+                      }`}
                     >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z"
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 9.563C9 9.252 9.252 9 9.563 9h4.874c.311 0 .563.252.563.563v4.874c0 .311-.252.563-.563.563H9.564A.562.562 0 019 14.437V9.564z"
                       />
                     </svg>
-                    <h3 className="text-lg font-semibold text-blue-600 mb-1">
-                      Move to Next Batch
+                    <h3
+                      className={`text-lg font-semibold mb-1 ${
+                        isYearBack ? "text-gray-500" : "text-orange-600"
+                      }`}
+                    >
+                      Year Back Student
                     </h3>
-                    <p className="text-sm text-blue-600/70 text-center">
-                      Transfer student to another batch
+                    <p
+                      className={`text-sm text-center ${
+                        isYearBack ? "text-gray-400" : "text-orange-600/70"
+                      }`}
+                    >
+                      {isYearBack
+                        ? "Student is already in Year Back status"
+                        : "Temporarily pause student's academic progress"}
                     </p>
-                  </div>
-                </button>
-              )}
-            </div>
-          )}
+                  </>
+                )}
+              </div>
+            </button>
+
+            <button
+              onClick={handlePassOutStudent}
+              disabled={isLoading || isPassedOut}
+              className={`p-6 border-2 rounded-xl transition-all group relative ${
+                isPassedOut
+                  ? "border-gray-100 bg-gray-50 cursor-not-allowed opacity-60"
+                  : "border-green-100 bg-green-50 hover:bg-green-100"
+              }`}
+            >
+              <div className="flex flex-col items-center">
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+                ) : (
+                  <>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className={`w-8 h-8 mb-2 group-hover:scale-110 transition-transform ${
+                        isPassedOut ? "text-gray-400" : "text-green-500"
+                      }`}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5"
+                      />
+                    </svg>
+                    <h3
+                      className={`text-lg font-semibold mb-1 ${
+                        isPassedOut ? "text-gray-500" : "text-green-600"
+                      }`}
+                    >
+                      Pass Out Student
+                    </h3>
+                    <p
+                      className={`text-sm text-center ${
+                        isPassedOut ? "text-gray-400" : "text-green-600/70"
+                      }`}
+                    >
+                      {isPassedOut
+                        ? "Student is already Passed Out"
+                        : "Mark student as graduated/completed"}
+                    </p>
+                  </>
+                )}
+              </div>
+            </button>
+          </div>
         </div>
       </DialogBody>
     </Dialog>

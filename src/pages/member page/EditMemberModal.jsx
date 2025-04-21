@@ -86,7 +86,7 @@ const EditMemberModal = ({
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Member updated successfully!",
+          text: "Faculty updated successfully!",
           confirmButtonColor: "#5570F1",
         });
         setLoading(false);
@@ -109,7 +109,7 @@ const EditMemberModal = ({
       <Card className="mx-auto w-full h-auto overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <Typography variant="h5" className="text-c-grays">
-            Edit Member
+            Edit Faculty
           </Typography>
           <button
             onClick={handleOpen}
@@ -269,7 +269,7 @@ const EditMemberModal = ({
             {loading ? (
               <span className="loading loading-dots loading-lg"></span>
             ) : (
-              "Update Member"
+              "Update Faculty"
             )}
           </Button>
         </div>

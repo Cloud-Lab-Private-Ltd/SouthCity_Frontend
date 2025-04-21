@@ -683,7 +683,6 @@ const VoucherBody = () => {
     return voucherPermission?.[type] || false;
   };
 
-  console.log("record", records);
 
   return (
     <div className="bg-[#F5F5F5]">
@@ -737,13 +736,13 @@ const VoucherBody = () => {
               </div>
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Select Course *
+                  Select Programs *
                 </label>
                 <Select
                   value={selectedCourse}
                   onChange={setSelectedCourse}
                   options={courseOptions}
-                  placeholder="Select Course"
+                  placeholder="Select Programs"
                   isSearchable
                   isDisabled={!selectedBatch}
                   className="text-c-grays"
@@ -1033,7 +1032,7 @@ const VoucherBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
-                    Course Name
+                  Programs Name
                   </Typography>
                 </th>
                 <th className="p-4 border-b border-gray-100">

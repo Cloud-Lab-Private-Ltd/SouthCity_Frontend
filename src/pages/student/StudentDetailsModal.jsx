@@ -29,7 +29,7 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
             />
           ) : (
             <div className="h-24 w-24 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 text-3xl font-bold border-4 border-white shadow-lg">
-              {studentData.fullName.charAt(0)}
+              {studentData.fullName?.charAt(0)}
             </div>
           )}
           <div>
@@ -72,9 +72,9 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
               <InfoItem label="NIC" value={studentData.nic} />
               <InfoItem label="Gender" value={studentData.gender} />
               <InfoItem label="Date of Birth" value={studentData.dob} />
-              <InfoItem label="Marital Status" value={studentData.maritalStatus} />
-              <InfoItem label="Religion" value={studentData.religion} />
               <InfoItem label="Nationality" value={studentData.nationality} />
+              <InfoItem label="Organization" value={studentData.organization} />
+              <InfoItem label="Enrollment Number" value={studentData.enrollementNumber} />
             </div>
           </Card>
 
@@ -95,12 +95,28 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
 
           <Card className="p-6 shadow-sm">
             <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
-              Parent Information
+              Guardian Details
             </Typography>
             <div className="space-y-4">
-              <InfoItem label="Father's Name" value={studentData.fatherName} />
-              <InfoItem label="Father's Profession" value={studentData.fatherProfession} />
-              <InfoItem label="Relationship" value={studentData.relationShip} />
+              <InfoItem label="Guardian Name" value={studentData.fatherName} />
+              <InfoItem label="Guardian Profession" value={studentData.fatherProfession} />
+              <InfoItem label="Guardian Relationship" value={studentData.relationShip} />
+              <InfoItem label="Guardian NIC" value={studentData.GuardianNIC} />
+              <InfoItem label="Guardian Gender" value={studentData.GuardianGender} />
+              <InfoItem label="Guardian Nationality" value={studentData.GuardianNationality} />
+              <InfoItem label="Guardian Phone Number" value={studentData.GuardianPhoneNumber} />
+              <InfoItem label="Guardian Mobile Number" value={studentData.GuardianMobileNumber} />
+              <InfoItem label="Guardian Email" value={studentData.GuardianEmail} />
+            </div>
+          </Card>
+
+          <Card className="p-6 shadow-sm">
+            <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
+              Guardian Address Information
+            </Typography>
+            <div className="space-y-4">
+              <InfoItem label="Guardian Current Address" value={studentData.GuardianCurrentAddress} />
+              <InfoItem label="Guardian Permanent Address" value={studentData.GuardianPermenantAddress} />
             </div>
           </Card>
 
@@ -110,7 +126,6 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
             </Typography>
             <div className="space-y-4">
               <InfoItem label="Academic Status" value={studentData.academicStatus} />
-              <InfoItem label="Current Semester" value={studentData.currentSemester} />
               <InfoItem label="Batch Name" value={studentData.batchName} />
               <InfoItem label="Highest Qualification" value={studentData.higestQualification} />
               <InfoItem 
@@ -152,18 +167,19 @@ const StudentDetailsModal = ({ open, handleOpen, studentData }) => {
           {studentData.course?.length > 0 && (
             <Card className="p-6 shadow-sm col-span-2">
               <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
-                Enrolled Courses
+                Enrolled Programs
               </Typography>
               <div className="grid gap-4">
                 {studentData.course.map((course, index) => (
                   <div key={index} className="p-4 bg-purple-50 rounded-lg">
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      <InfoItem label="Course Name" value={course.name} />
-                      <InfoItem label="Level" value={course.Level} />
+                      <InfoItem label="Programs Name" value={course.name} />
                       <InfoItem label="Status" value={course.Status} />
                       <InfoItem label="Duration" value={course.duration} />
-                      <InfoItem label="Category" value={course.category} />
                       <InfoItem label="Total Fee" value={course.totalFee} />
+                      {course.Semesters && (
+                        <InfoItem label="Number of Semesters" value={course.Semesters.length} />
+                      )}
                     </div>
                   </div>
                 ))}

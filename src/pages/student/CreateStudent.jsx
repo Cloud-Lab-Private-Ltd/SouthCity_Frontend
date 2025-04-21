@@ -17,25 +17,14 @@ const CreateStudent = () => {
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  const [academicQualifications, setAcademicQualifications] = useState([
-    {
-      levelOfStudy: "",
-      subjects: "",
-      years: "",
-      marksGrade: "",
-      institutionName: "",
-    },
-  ]);
-
   // Add CSV upload handlers
   const [csvFile, setCSVFile] = useState(null);
-
   const [formData, setFormData] = useState({
+    // Student Details
     fullName: "",
     email: "",
     nic: "",
     password: "",
-    fatherName: "",
     currentAddress: "",
     permanentAddress: "",
     mobileNumber: "",
@@ -43,19 +32,35 @@ const CreateStudent = () => {
     gender: "",
     course: "",
     dob: "",
-    maritalStatus: "",
-    relationShip: "",
-    organization: "",
-    higestQualification: "",
     nationality: "Pakistani",
     province: "",
     domicile: "",
-    religion: "",
     city: "",
-    fatherProfession: "",
-    verified: true,
+    organization: "",
+    higestQualification: "",
     batch: "",
     profileImage: null,
+    enrollementNumber: "", // Added enrollment number field
+
+    // Guardian Details
+    fatherName: "",
+    relationShip: "",
+    fatherProfession: "",
+    GuardianNIC: "",
+    GuardianNationality: "",
+    GuardianGender: "",
+    GuardianPermenantAddress: "",
+    GuardianCurrentAddress: "",
+    GuardianPhoneNumber: "",
+    GuardianMobileNumber: "",
+    GuardianEmail: "",
+
+    // Fee Details
+    admissionFee: "",
+    libraryFee: "",
+    securityFee: "",
+
+    verified: true,
   });
 
   const handleChange = (e) => {
@@ -63,26 +68,6 @@ const CreateStudent = () => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-  };
-
-  const addQualification = () => {
-    setAcademicQualifications([
-      ...academicQualifications,
-      {
-        levelOfStudy: "",
-        subjects: "",
-        years: "",
-        marksGrade: "",
-        institutionName: "",
-      },
-    ]);
-  };
-
-  const removeQualification = (index) => {
-    const newQualifications = academicQualifications.filter(
-      (_, i) => i !== index
-    );
-    setAcademicQualifications(newQualifications);
   };
 
   const handleBulkUpload = async () => {
@@ -95,10 +80,8 @@ const CreateStudent = () => {
       });
       return;
     }
-
     const formData = new FormData();
     formData.append("csvFile", csvFile);
-
     setLoading(true);
     try {
       const response = await axios.post(
@@ -111,7 +94,6 @@ const CreateStudent = () => {
           },
         }
       );
-
       if (response.data) {
         Swal.fire({
           icon: "success",
@@ -160,25 +142,33 @@ const CreateStudent = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Form data ko copy karein
+    const studentData = { ...formData };
+
+    // Course ko array mein convert karein
+    if (studentData.course) {
+      studentData.course = [studentData.course];
+    }
+
+    // FormData object banayein
     const formDataToSend = new FormData();
 
-    // Append all form fields
-    Object.keys(formData).forEach((key) => {
-      if (key === "profileImage" && formData[key]) {
-        formDataToSend.append("profileImage", formData[key]);
-      } else {
-        formDataToSend.append(key, formData[key]);
-      }
-    });
+    // Profile image ko alag se handle karein
+    if (studentData.profileImage) {
+      formDataToSend.append("profileImage", studentData.profileImage);
+      delete studentData.profileImage;
+    }
 
-    // Append academic qualifications
-    academicQualifications.forEach((qual, index) => {
-      Object.keys(qual).forEach((key) => {
-        formDataToSend.append(
-          `academicQualifications[${index}][${key}]`,
-          qual[key]
-        );
-      });
+    // Baqi sari fields ko append karein
+    Object.keys(studentData).forEach((key) => {
+      if (key === "course") {
+        // Course array ke har element ko alag se append karein
+        studentData.course.forEach((courseId) => {
+          formDataToSend.append("course[]", courseId);
+        });
+      } else {
+        formDataToSend.append(key, studentData[key]);
+      }
     });
 
     try {
@@ -192,7 +182,6 @@ const CreateStudent = () => {
           },
         }
       );
-
       if (response.data) {
         Swal.fire({
           icon: "success",
@@ -216,29 +205,30 @@ const CreateStudent = () => {
           gender: "",
           course: "",
           dob: "",
-          maritalStatus: "",
-          relationShip: "",
-          organization: "",
-          higestQualification: "",
           nationality: "Pakistani",
           province: "",
           domicile: "",
-          religion: "",
           city: "",
           fatherProfession: "",
           verified: true,
           batch: "",
           profileImage: null,
+          organization: "",
+          higestQualification: "",
+          admissionFee: "",
+          libraryFee: "",
+          securityFee: "",
+          enrollementNumber: "",
+          GuardianNIC: "",
+          GuardianNationality: "",
+          GuardianGender: "",
+          GuardianPermenantAddress: "",
+          GuardianCurrentAddress: "",
+          GuardianPhoneNumber: "",
+          GuardianMobileNumber: "",
+          GuardianEmail: "",
+          relationShip: "",
         });
-        setAcademicQualifications([
-          {
-            levelOfStudy: "",
-            subjects: "",
-            years: "",
-            marksGrade: "",
-            institutionName: "",
-          },
-        ]);
       }
     } catch (error) {
       Swal.fire({
@@ -260,7 +250,6 @@ const CreateStudent = () => {
             Create Student
           </h2>
         </div>
-
         <div className="flex flex-wrap items-center gap-3">
           <input
             type="file"
@@ -289,7 +278,6 @@ const CreateStudent = () => {
             </svg>
             Select CSV
           </Button>
-
           <Button
             className="bg-c-purple h-[45px] flex items-center gap-2 min-w-[140px] shadow-md"
             onClick={handleBulkUpload}
@@ -317,7 +305,6 @@ const CreateStudent = () => {
               </>
             )}
           </Button>
-
           <Button
             className="bg-red-500 flex items-center gap-2 min-w-[140px] shadow-md"
             onClick={() => navigate("/student")}
@@ -340,519 +327,524 @@ const CreateStudent = () => {
           </Button>
         </div>
       </div>
-
       <Card className="p-6 bg-white">
         <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-12 gap-6">
-            {/* Basic Information */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Email */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Email *
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* NIC */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                NIC *
-              </label>
-              <input
-                type="text"
-                name="nic"
-                value={formData.nic}
-                onChange={handleChange}
-                placeholder="12345-1234567-1"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Password */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Password *
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Father Name */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Father Name *
-              </label>
-              <input
-                type="text"
-                name="fatherName"
-                value={formData.fatherName}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Current Address */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Current Address *
-              </label>
-              <input
-                type="text"
-                name="currentAddress"
-                value={formData.currentAddress}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Permanent Address */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Permanent Address *
-              </label>
-              <input
-                type="text"
-                name="permanentAddress"
-                value={formData.permanentAddress}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Mobile Number */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Mobile Number *
-              </label>
-              <input
-                type="text"
-                name="mobileNumber"
-                value={formData.mobileNumber}
-                onChange={handleChange}
-                placeholder="0300-1234567"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Phone Number */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Phone Number
-              </label>
-              <input
-                type="text"
-                name="phoneNumber"
-                value={formData.phoneNumber}
-                onChange={handleChange}
-                placeholder="021-1234567"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              />
-            </div>
-
-            {/* Gender */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Gender *
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-            </div>
-
-            {/* Date of Birth */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Date of Birth *
-              </label>
-              <input
-                type="date"
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Marital Status */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Marital Status *
-              </label>
-              <select
-                name="maritalStatus"
-                value={formData.maritalStatus}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              >
-                <option value="">Select Status</option>
-                <option value="Single">Single</option>
-                <option value="Married">Married</option>
-              </select>
-            </div>
-
-            {/* Relationship */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Relationship *
-              </label>
-              <input
-                type="text"
-                name="relationShip"
-                value={formData.relationShip}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Organization */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Organization *
-              </label>
-              <input
-                type="text"
-                name="organization"
-                value={formData.organization}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Highest Qualification */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Highest Qualification *
-              </label>
-              <input
-                type="text"
-                name="higestQualification"
-                value={formData.higestQualification}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Province */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Province *
-              </label>
-              <input
-                type="text"
-                name="province"
-                value={formData.province}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Domicile */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Domicile *
-              </label>
-              <input
-                type="text"
-                name="domicile"
-                value={formData.domicile}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Religion */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Religion *
-              </label>
-              <input
-                type="text"
-                name="religion"
-                value={formData.religion}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* City */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                City *
-              </label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Father Profession */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Father Profession *
-              </label>
-              <input
-                type="text"
-                name="fatherProfession"
-                value={formData.fatherProfession}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Profile Image */}
-            <div className="col-span-12 md:col-span-6 xl:col-span-4">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Profile Image *{" "}
-                <span className="text-[11px] text-c-purple">
-                  (JPG, PNG only)
-                </span>
-              </label>
-              <input
-                type="file"
-                name="profileImage"
-                onChange={(e) =>
-                  setFormData({ ...formData, profileImage: e.target.files[0] })
-                }
-                accept=".jpg,.jpeg,.png"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                required
-              />
-            </div>
-
-            {/* Batch Selection */}
-            <div className="col-span-12">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Batch *
-              </label>
-              <Select
-                options={batchOptions}
-                value={batchOptions?.find(
-                  (option) => option.value === formData.batch
-                )}
-                onChange={(selected) => {
-                  setFormData({
-                    ...formData,
-                    batch: selected.value,
-                    course: "", // Reset course when batch changes
-                  });
-                  // This will trigger the useEffect to load new courses
-                }}
-                styles={{
-                  input: (base) => ({
-                    ...base,
-                    "input:focus": {
-                      boxShadow: "none",
-                    },
-                  }),
-                }}
-                className="text-c-grays"
-                placeholder="Select Batch"
-                isSearchable
-                required
-              />
-            </div>
-
-            {/* Academic Qualifications Section */}
-            <div className="col-span-12">
-              <Typography className="text-lg font-semibold text-c-grays mb-4">
-                Academic Qualifications
-              </Typography>
-              {academicQualifications.map((qual, index) => (
-                <div
-                  key={index}
-                  className="relative grid grid-cols-1 md:grid-cols-5 gap-4 mb-4 p-4 border rounded-lg"
+          {/* Student Details Section */}
+          <div className="mb-6">
+            <Typography className="text-xl font-semibold text-c-grays mb-4 border-b pb-2">
+              Student Details
+            </Typography>
+            <div className="grid grid-cols-12 gap-6">
+              {/* Basic Information */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              {/* Email */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              {/* NIC */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  NIC *
+                </label>
+                <input
+                  type="text"
+                  name="nic"
+                  value={formData.nic}
+                  onChange={handleChange}
+                  placeholder="12345-1234567-1"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              {/* Enrollment Number */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Enrollment Number *
+                </label>
+                <input
+                  type="text"
+                  name="enrollementNumber"
+                  value={formData.enrollementNumber}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              {/* Password */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              {/* Current Address */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Current Address *
+                </label>
+                <input
+                  type="text"
+                  name="currentAddress"
+                  value={formData.currentAddress}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              {/* Permanent Address */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Permanent Address
+                </label>
+                <input
+                  type="text"
+                  name="permanentAddress"
+                  value={formData.permanentAddress}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Mobile Number */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Mobile Number *
+                </label>
+                <input
+                  type="text"
+                  name="mobileNumber"
+                  value={formData.mobileNumber}
+                  onChange={handleChange}
+                  placeholder="0300-1234567"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              {/* Phone Number - Moved back to student section */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  placeholder="021-1234567"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Gender */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Gender
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 >
-                  <div>
-                    <label className="block text-c-grays text-sm font-medium mb-2">
-                      Level of Study *
-                    </label>
-                    <input
-                      type="text"
-                      value={qual.levelOfStudy}
-                      onChange={(e) => {
-                        const newQuals = [...academicQualifications];
-                        newQuals[index].levelOfStudy = e.target.value;
-                        setAcademicQualifications(newQuals);
-                      }}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-c-grays text-sm font-medium mb-2">
-                      Subjects *
-                    </label>
-                    <input
-                      type="text"
-                      value={qual.subjects}
-                      onChange={(e) => {
-                        const newQuals = [...academicQualifications];
-                        newQuals[index].subjects = e.target.value;
-                        setAcademicQualifications(newQuals);
-                      }}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-c-grays text-sm font-medium mb-2">
-                      Years *
-                    </label>
-                    <input
-                      type="text"
-                      value={qual.years}
-                      onChange={(e) => {
-                        const newQuals = [...academicQualifications];
-                        newQuals[index].years = e.target.value;
-                        setAcademicQualifications(newQuals);
-                      }}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-c-grays text-sm font-medium mb-2">
-                      Marks/Grade *
-                    </label>
-                    <input
-                      type="text"
-                      value={qual.marksGrade}
-                      onChange={(e) => {
-                        const newQuals = [...academicQualifications];
-                        newQuals[index].marksGrade = e.target.value;
-                        setAcademicQualifications(newQuals);
-                      }}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-c-grays text-sm font-medium mb-2">
-                      Institution Name *
-                    </label>
-                    <input
-                      type="text"
-                      value={qual.institutionName}
-                      onChange={(e) => {
-                        const newQuals = [...academicQualifications];
-                        newQuals[index].institutionName = e.target.value;
-                        setAcademicQualifications(newQuals);
-                      }}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                      required
-                    />
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => removeQualification(index)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-
-              <Button
-                type="button"
-                onClick={addQualification}
-                className="bg-c-purple mt-2"
-              >
-                Add Qualification
-              </Button>
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              {/* Date of Birth */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Date of Birth *
+                </label>
+                <input
+                  type="date"
+                  name="dob"
+                  value={formData.dob}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              {/* Organization */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Father Organization
+                </label>
+                <input
+                  type="text"
+                  name="organization"
+                  value={formData.organization}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Highest Qualification */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Highest Qualification
+                </label>
+                <input
+                  type="text"
+                  name="higestQualification"
+                  value={formData.higestQualification}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Province */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Province
+                </label>
+                <input
+                  type="text"
+                  name="province"
+                  value={formData.province}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Domicile */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Domicile *
+                </label>
+                <input
+                  type="text"
+                  name="domicile"
+                  value={formData.domicile}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              {/* City */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  City
+                </label>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Profile Image */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Profile Image{" "}
+                  <span className="text-[11px] text-c-purple">
+                    (JPG, PNG only)
+                  </span>
+                </label>
+                <input
+                  type="file"
+                  name="profileImage"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      profileImage: e.target.files[0],
+                    })
+                  }
+                  accept=".jpg,.jpeg,.png"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Batch Selection */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Batch *
+                </label>
+                <Select
+                  options={batchOptions}
+                  value={batchOptions?.find(
+                    (option) => option.value === formData.batch
+                  )}
+                  onChange={(selected) => {
+                    setFormData({
+                      ...formData,
+                      batch: selected.value,
+                      course: "", // Reset course when batch changes
+                    });
+                    // This will trigger the useEffect to load new courses
+                  }}
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
+                  className="text-c-grays"
+                  placeholder="Select Batch"
+                  isSearchable
+                  required
+                />
+              </div>
+              {/* Programs Selection */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Programs *
+                </label>
+                <Select
+                  options={courseOptions}
+                  value={courseOptions.find(
+                    (course) => course?.value === formData?.course
+                  )}
+                  onChange={(selected) => {
+                    setFormData({
+                      ...formData,
+                      course: selected?.value,
+                    });
+                  }}
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
+                  className="text-c-grays"
+                  required
+                />
+              </div>
             </div>
+          </div>
 
-            {/* Course Selection */}
-            <div className="col-span-12">
-              <label className="block text-c-grays text-sm font-medium mb-2">
-                Course *
-              </label>
-              <Select
-                options={courseOptions}
-                value={courseOptions.find(
-                  (course) => course?._id === formData?.course
-                )}
-                onChange={(selected) => {
-                  setFormData({
-                    ...formData,
-                    course: selected?.value,
-                  });
-                }}
-                styles={{
-                  input: (base) => ({
-                    ...base,
-                    "input:focus": {
-                      boxShadow: "none",
-                    },
-                  }),
-                }}
-                className="text-c-grays"
-                required
-              />
+          {/* Guardian Details Section - Updated with new fields */}
+          <div className="mb-6">
+            <Typography className="text-xl font-semibold text-c-grays mb-4 border-b pb-2">
+              Guardian Details
+            </Typography>
+            <div className="grid grid-cols-12 gap-6">
+              {/* Guardian Name */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian Name *
+                </label>
+                <input
+                  type="text"
+                  name="fatherName"
+                  value={formData.fatherName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  required
+                />
+              </div>
+              {/* Guardian Profession */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian Profession
+                </label>
+                <input
+                  type="text"
+                  name="fatherProfession"
+                  value={formData.fatherProfession}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian Relationship
+                </label>
+                <input
+                  type="text"
+                  name="relationShip"
+                  value={formData.relationShip}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Guardian NIC */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian NIC
+                </label>
+                <input
+                  type="text"
+                  name="GuardianNIC"
+                  value={formData.GuardianNIC}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Guardian Nationality */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian Nationality
+                </label>
+                <input
+                  type="text"
+                  name="GuardianNationality"
+                  value={formData.GuardianNationality}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Guardian Gender */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian Gender
+                </label>
+                <select
+                  name="GuardianGender"
+                  value={formData.GuardianGender}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              {/* Guardian Permanent Address */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian Permanent Address
+                </label>
+                <input
+                  type="text"
+                  name="GuardianPermenantAddress"
+                  value={formData.GuardianPermenantAddress}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Guardian Current Address */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian Current Address
+                </label>
+                <input
+                  type="text"
+                  name="GuardianCurrentAddress"
+                  value={formData.GuardianCurrentAddress}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Guardian Phone Number */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian Phone Number
+                </label>
+                <input
+                  type="text"
+                  name="GuardianPhoneNumber"
+                  value={formData.GuardianPhoneNumber}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Guardian Mobile Number */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian Mobile Number
+                </label>
+                <input
+                  type="text"
+                  name="GuardianMobileNumber"
+                  value={formData.GuardianMobileNumber}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+              {/* Guardian Email */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Guardian Email
+                </label>
+                <input
+                  type="email"
+                  name="GuardianEmail"
+                  value={formData.GuardianEmail}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Fee Details Section */}
+          <div className="mb-6">
+            <Typography className="text-xl font-semibold text-c-grays mb-4 border-b pb-2">
+              Fee Details
+            </Typography>
+            <div className="grid grid-cols-12 gap-6">
+              {/* Admission Fee */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Admission Fee 
+                </label>
+                <input
+                  type="number"
+                  name="admissionFee"
+                  value={formData.admissionFee}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+           
+                />
+              </div>
+              {/* Library Fee */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Library Fee
+                </label>
+                <input
+                  type="number"
+                  name="libraryFee"
+                  value={formData.libraryFee}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                
+                />
+              </div>
+              {/* Security Fee */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Security Fee 
+                </label>
+                <input
+                  type="number"
+                  name="securityFee"
+                  value={formData.securityFee}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+              
+                />
+              </div>
             </div>
           </div>
 

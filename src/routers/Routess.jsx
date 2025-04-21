@@ -4,6 +4,8 @@ import { Index } from "../compunent/sidebar/Sidebar";
 import ProfileDrop from "../compunent/header/ProfileDrop";
 import { Badge, IconButton } from "@material-tailwind/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/solid";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExpand, faCompress } from "@fortawesome/free-solid-svg-icons";
 import Private from "./Private";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Login from "../pages/login/Login";
@@ -17,19 +19,79 @@ import CoursePage from "../pages/course/Course";
 import BatchPage from "../pages/batch/Batch";
 import StudentPage from "../pages/student/Student";
 import VoucherPage from "../pages/voucher/Voucher";
-import ActionLogPage from "../pages/action log/ActionLog";
+// import ActionLogPage from "../pages/action log/ActionLog";
 import BulkMessagePage from "../pages/bulk message/BulkMessage";
 import PermissionPage from "../pages/permission/Permission";
 import Notification from "../pages/notifications/Notification";
 import StudentVoucher from "../pages/student vouncher/StudentVoucher";
 import TrashStudent from "../pages/student/TrashStudent";
 import CreateStudent from "../pages/student/CreateStudent";
-import Feespage from "../pages/fees page/Feespage";
+// import Feespage from "../pages/fees page/Feespage";
+import LedgerPage from "../pages/ledger/Ledger";
+import StudentLedger from "../pages/student/StudentLedger";
 
 const Routess = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  // Function to toggle fullscreen
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        /* Safari */
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) {
+        /* IE11 */
+        document.documentElement.msRequestFullscreen();
+      }
+      setIsFullScreen(true);
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        /* Safari */
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        /* IE11 */
+        document.msExitFullscreen();
+      }
+      setIsFullScreen(false);
+    }
+  };
+
+  // Listen for fullscreen change events
+  useEffect(() => {
+    const handleFullScreenChange = () => {
+      setIsFullScreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullScreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullScreenChange);
+    document.addEventListener("mozfullscreenchange", handleFullScreenChange);
+    document.addEventListener("MSFullscreenChange", handleFullScreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullScreenChange);
+      document.removeEventListener(
+        "webkitfullscreenchange",
+        handleFullScreenChange
+      );
+      document.removeEventListener(
+        "mozfullscreenchange",
+        handleFullScreenChange
+      );
+      document.removeEventListener(
+        "MSFullscreenChange",
+        handleFullScreenChange
+      );
+    };
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -98,14 +160,13 @@ const Routess = () => {
     return studentPermission?.[type] || false;
   };
 
-  const coursepermissions = permissions[0]?.read;
+  const progamspermissions = permissions[0]?.read;
   const batchpermissions = permissions[1]?.read;
   const studentpermissions = permissions[2]?.read;
-  const voucherpermissions = permissions[3]?.read;
-  const actionlogpermissions = permissions[4]?.read;
-  const bulkpermissions = permissions[5]?.read;
-  const degreepermissions = permissions[6]?.read;
-  const statuspermissions = permissions[7]?.read;
+  const ledgerpermissions = permissions[3]?.read;
+  const bulkpermissions = permissions[4]?.read;
+  const degreepermissions = permissions[5]?.read;
+  const statuspermissions = permissions[6]?.read;
   const feespermissions = permissions[8]?.read;
 
   return (
@@ -165,6 +226,17 @@ const Routess = () => {
                   <div className="h-[70px] flex items-center justify-end gap-4 dark:text-d-text">
                     <span>{formattedDate}</span>
                     <span>{formattedTime}</span>
+                    {/* Add fullscreen toggle button */}
+                    <IconButton
+                      variant="text"
+                      className="relative"
+                      onClick={toggleFullScreen}
+                    >
+                      <FontAwesomeIcon
+                        icon={isFullScreen ? faCompress : faExpand}
+                        className="h-5 w-5 text-gray-600"
+                      />
+                    </IconButton>
                     <div
                       className="relative cursor-pointer"
                       onClick={() => navigate("/notifications")}
@@ -196,6 +268,17 @@ const Routess = () => {
                       {type}
                     </h1>
                     <div className="h-[70px] flex items-center">
+                      {/* Add fullscreen toggle button for mobile */}
+                      <IconButton
+                        variant="text"
+                        className="relative"
+                        onClick={toggleFullScreen}
+                      >
+                        <FontAwesomeIcon
+                          icon={isFullScreen ? faCompress : faExpand}
+                          className="h-5 w-5 text-gray-600"
+                        />
+                      </IconButton>
                       <div
                         className="relative cursor-pointer"
                         onClick={() => navigate("/notifications")}
@@ -317,7 +400,7 @@ const Routess = () => {
                   ""
                 )}
 
-                {admin === "admins" ? (
+                {/* {admin === "admins" ? (
                   <>
                     <Route path="/fees-fields" element={<Feespage />}></Route>
                   </>
@@ -327,7 +410,7 @@ const Routess = () => {
                   </>
                 ) : (
                   ""
-                )}
+                )} */}
 
                 {admin === "admins" ? (
                   <>
@@ -345,7 +428,7 @@ const Routess = () => {
                   <>
                     <Route path="/course" element={<CoursePage />}></Route>
                   </>
-                ) : coursepermissions ? (
+                ) : progamspermissions ? (
                   <>
                     <Route path="/course" element={<CoursePage />}></Route>
                   </>
@@ -377,7 +460,7 @@ const Routess = () => {
                   ""
                 )}
 
-                {admin === "admins" ? (
+                {/* {admin === "admins" ? (
                   <>
                     <Route path="/voucher" element={<VoucherPage />}></Route>
                   </>
@@ -387,9 +470,9 @@ const Routess = () => {
                   </>
                 ) : (
                   ""
-                )}
+                )} */}
 
-                {admin === "admins" ? (
+                {/* {admin === "admins" ? (
                   <>
                     <Route
                       path="/action-log"
@@ -405,7 +488,7 @@ const Routess = () => {
                   </>
                 ) : (
                   ""
-                )}
+                )} */}
 
                 {admin === "admins" ? (
                   <>
@@ -419,6 +502,36 @@ const Routess = () => {
                     <Route
                       path="/bulk-message"
                       element={<BulkMessagePage />}
+                    ></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route path="/ledger" element={<LedgerPage />}></Route>
+                  </>
+                ) : ledgerpermissions ? (
+                  <>
+                    <Route path="/ledger" element={<LedgerPage />}></Route>
+                  </>
+                ) : (
+                  ""
+                )}
+
+                {admin === "admins" ? (
+                  <>
+                    <Route
+                      path="/student-ledger/:id"
+                      element={<StudentLedger />}
+                    ></Route>
+                  </>
+                ) : studentpermissions ? (
+                  <>
+                    <Route
+                      path="/student-ledger/:id"
+                      element={<StudentLedger />}
                     ></Route>
                   </>
                 ) : (

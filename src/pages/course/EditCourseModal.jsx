@@ -24,9 +24,7 @@ const EditCourseModal = ({
     degreeType: "",
     duration: "",
     noOfSemesters: "",
-    semesters: [{ semesterNo: "1", subjects: "" }],
-    perSemesterFee: "",
-    admissionFee: "",
+    semesters: [{ semesterNo: "1", subjects: "", semesterFees: "" }],
     totalFee: "",
     Status: "",
   });
@@ -35,22 +33,27 @@ const EditCourseModal = ({
   const [error, setError] = useState("");
 
   const { fees } = useSelector((state) => state.groupdata);
-  const semesterFee =
-    fees?.find((fee) => fee.feeType === "semester")?.amount || 0;
-  const otherFee = fees?.find((fee) => fee.feeType === "other")?.amount || 0;
 
   useEffect(() => {
     if (courseData) {
+      // Create a deep copy of the semesters to ensure we can modify them
+      const semestersCopy = courseData.Semesters
+        ? courseData.Semesters.map((sem) => ({
+            semesterNo: sem.semesterNo,
+            subjects: sem.subjects || "",
+            semesterFees: sem.semesterFees || "",
+            _id: sem._id,
+          }))
+        : [];
+
       setFormData({
-        name: courseData.name,
-        degreeType: courseData.degreeType._id, // Use _id from the nested object
-        duration: courseData.duration,
-        noOfSemesters: courseData.noOfSemesters,
-        semesters: courseData.Semesters,
-        perSemesterFee: courseData.perSemesterFee,
-        admissionFee: courseData.admissionFee,
-        totalFee: courseData.totalFee,
-        Status: courseData.Status,
+        name: courseData.name || "",
+        degreeType: courseData.degreeType?._id || "",
+        duration: courseData.duration || "",
+        noOfSemesters: courseData.noOfSemesters || "",
+        semesters: semestersCopy,
+        totalFee: courseData.totalFee || "",
+        Status: courseData.Status || "",
       });
     }
   }, [courseData]);
@@ -63,41 +66,24 @@ const EditCourseModal = ({
 
     if (name === "noOfSemesters") {
       const numSemesters = parseInt(value) || 0;
-      const newSemesters = Array.from({ length: numSemesters }, (_, index) => ({
-        semesterNo: (index + 1).toString(),
-        subjects: formData.semesters[index]?.subjects || "",
-      }));
-
-      // Recalculate total fee with new number of semesters
-      const perSemFee = parseFloat(formData.perSemesterFee) || 0;
-      const admFee = parseFloat(formData.admissionFee) || 0;
-      const totalFee = perSemFee * numSemesters + admFee;
+      const newSemesters = Array.from({ length: numSemesters }, (_, index) => {
+        // Preserve existing semester data if available
+        if (index < formData.semesters.length) {
+          return formData.semesters[index];
+        }
+        // Create new semester data for additional semesters
+        return {
+          semesterNo: (index + 1).toString(),
+          subjects: "",
+          semesterFees: "",
+        };
+      });
 
       setFormData({
         ...formData,
         [name]: value,
         semesters: newSemesters,
-        totalFee: totalFee.toString(),
       });
-    } else if (name === "perSemesterFee" || name === "admissionFee") {
-      const updatedFormData = {
-        ...formData,
-        [name]: value,
-      };
-
-      const perSemFee =
-        parseFloat(
-          name === "perSemesterFee" ? value : formData.perSemesterFee
-        ) || 0;
-      const admFee =
-        parseFloat(name === "admissionFee" ? value : formData.admissionFee) ||
-        0;
-      const numSemesters = parseInt(formData.noOfSemesters) || 0;
-
-      const totalFee = perSemFee * numSemesters + admFee;
-
-      updatedFormData.totalFee = totalFee.toString();
-      setFormData(updatedFormData);
     } else {
       setFormData({
         ...formData,
@@ -108,11 +94,17 @@ const EditCourseModal = ({
 
   const handleSemesterChange = (index, field, value) => {
     const updatedSemesters = [...formData.semesters];
-    updatedSemesters[index][field] = value;
-    setFormData({
-      ...formData,
-      semesters: updatedSemesters,
-    });
+    if (updatedSemesters[index]) {
+      updatedSemesters[index] = {
+        ...updatedSemesters[index],
+        [field]: value,
+      };
+
+      setFormData({
+        ...formData,
+        semesters: updatedSemesters,
+      });
+    }
   };
 
   const handleSubmit = () => {
@@ -141,6 +133,14 @@ const EditCourseModal = ({
         semester.semesterNo
       );
       formDataToSend.append(`Semesters[${index}][subjects]`, semester.subjects);
+      formDataToSend.append(
+        `Semesters[${index}][semesterFees]`,
+        semester.semesterFees
+      );
+      // Include the _id if it exists (for existing semesters)
+      if (semester._id) {
+        formDataToSend.append(`Semesters[${index}][_id]`, semester._id);
+      }
     });
 
     setLoading(true);
@@ -155,7 +155,7 @@ const EditCourseModal = ({
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Course updated successfully!",
+          text: "Programs updated successfully!",
           confirmButtonColor: "#5570F1",
         });
         setLoading(false);
@@ -165,6 +165,14 @@ const EditCourseModal = ({
       .catch((error) => {
         setLoading(false);
         setError(error.response?.data?.message || "Failed to update course");
+
+        // Show error with SweetAlert
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.response?.data?.message || "Failed to update course",
+          confirmButtonColor: "#5570F1",
+        });
       });
   };
 
@@ -178,7 +186,7 @@ const EditCourseModal = ({
       <Card className="mx-auto w-full p-6 h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between">
           <Typography variant="h5" className="mb-6 text-c-grays">
-            Edit Course
+            Edit Programs
           </Typography>
           <IconButton
             variant="text"
@@ -193,7 +201,7 @@ const EditCourseModal = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
-              Course Name *
+              Programs Name *
             </label>
             <input
               type="text"
@@ -254,30 +262,6 @@ const EditCourseModal = ({
 
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
-              Per Semester Fee *
-            </label>
-            <input
-              type="number"
-              value={semesterFee}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
-              readOnly
-            />
-          </div>
-
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
-              Admission Fee *
-            </label>
-            <input
-              type="number"
-              value={otherFee}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
-              readOnly
-            />
-          </div>
-
-          <div>
-            <label className="block text-c-grays text-sm font-medium mb-2">
               Total Fee *
             </label>
             <input
@@ -317,7 +301,7 @@ const EditCourseModal = ({
           </Typography>
           {formData.semesters.map((semester, index) => (
             <div key={index} className="mb-4 p-4 border rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-c-grays text-sm font-medium mb-2">
                     Semester No
@@ -335,12 +319,31 @@ const EditCourseModal = ({
                   </label>
                   <input
                     type="text"
-                    value={semester.subjects}
+                    value={semester.subjects || ""}
                     onChange={(e) =>
                       handleSemesterChange(index, "subjects", e.target.value)
                     }
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                     placeholder="e.g. Programming, Calculus, Physics"
+                  />
+                </div>
+                <div>
+                  <label className="block text-c-grays text-sm font-medium mb-2">
+                    Semester Fee *
+                  </label>
+                  <input
+                    type="number"
+                    value={semester.semesterFees || ""}
+                    onChange={(e) =>
+                      handleSemesterChange(
+                        index,
+                        "semesterFees",
+                        e.target.value
+                      )
+                    }
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                    placeholder="Enter semester fee"
+                    required
                   />
                 </div>
               </div>
@@ -370,7 +373,7 @@ const EditCourseModal = ({
             {loading ? (
               <span className="loading loading-dots loading-lg"></span>
             ) : (
-              "Update Course"
+              "Update Programs"
             )}
           </Button>
         </div>

@@ -55,7 +55,7 @@ const MemberBody = () => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Member created successfully!",
+          text: "Faculty created successfully!",
           confirmButtonColor: "#5570F1",
         });
         setLoading(false);
@@ -128,7 +128,7 @@ const MemberBody = () => {
       if (result.isConfirmed) {
         Swal.fire({
           title: "Deleted!",
-          text: "Member has been deleted successfully",
+          text: "Faculty has been deleted successfully",
           icon: "success",
           confirmButtonColor: "#5570F1",
         });
@@ -171,7 +171,7 @@ const MemberBody = () => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Members imported successfully!",
+          text: "Faculty imported successfully!",
           confirmButtonColor: "#5570F1",
         });
         dispatch(MembersGet());
@@ -314,13 +314,13 @@ const MemberBody = () => {
       />
 
       <div className="mb-8">
-        <h2 className="text-[1.5rem] font-semibold text-c-grays">MEMBERS</h2>
+        <h2 className="text-[1.5rem] font-semibold text-c-grays">FACULTY</h2>
       </div>
       {(admin === "admins" || checkPermission("insert")) && (
         <Card className="p-6 mb-8 bg-white">
           <div className="mb-6 flex flex-col md:flex-row justify-between gap-4">
             <Typography className="text-xl font-semibold text-c-grays">
-              Add New Member
+              Add New Faculty
             </Typography>
             <div className="flex flex-wrap gap-4 items-center">
               <input
@@ -489,7 +489,7 @@ const MemberBody = () => {
                 {loading ? (
                   <span className="loading loading-dots loading-lg"></span>
                 ) : (
-                  "Add Member"
+                  "Add Faculty"
                 )}
               </Button>
             </div>
@@ -499,11 +499,11 @@ const MemberBody = () => {
       <Card className="overflow-hidden bg-white">
         <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Typography className="text-xl font-semibold text-c-grays">
-            Members List
+            Faculty List
           </Typography>
           <div className="flex gap-4">
             <Button className="bg-c-purple" onClick={handleExport}>
-              Export Members
+              Export Faculty
             </Button>
             <div className="w-full md:w-72">
               <input

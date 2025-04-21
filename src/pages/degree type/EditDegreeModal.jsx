@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Button, Dialog, Card, Typography } from "@material-tailwind/react";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
-import Swal from "sweetalert2";
 
 const EditDegreeModal = ({
   open,
@@ -13,8 +12,8 @@ const EditDegreeModal = ({
 }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  // const [startDate, setStartDate] = useState("");
+  // const [endDate, setEndDate] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -36,8 +35,8 @@ const EditDegreeModal = ({
         {
           name,
           description,
-          startDate,
-          endDate,
+          // startDate,
+          // endDate,
         },
         {
           headers: {
@@ -47,8 +46,8 @@ const EditDegreeModal = ({
       )
       .then((res) => {
         setLoading(false);
-        setEndDate("");
-        setStartDate("");
+        // setEndDate("");
+        // setStartDate("");
         onSuccess();
         handleOpen();
       })
@@ -124,7 +123,7 @@ const EditDegreeModal = ({
               placeholder="Enter description"
             />
           </div>
-          <div>
+          {/* <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
               Start Date
             </label>
@@ -146,7 +145,7 @@ const EditDegreeModal = ({
               onChange={(e) => setEndDate(e.target.value)}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
@@ -158,7 +157,7 @@ const EditDegreeModal = ({
             Cancel
           </Button>
           <Button
-            className="bg-c-purple"
+            className="bg-c-purple h-[50px] flex items-center justify-center overflow-hidden"
             onClick={handleSubmit}
             disabled={loading}
           >

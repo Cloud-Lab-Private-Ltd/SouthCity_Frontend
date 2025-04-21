@@ -10,6 +10,8 @@ import { PresentationChartBarIcon } from "@heroicons/react/24/solid";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import logo from "../../assets/img/logo.png";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMoneyBillWave } from "@fortawesome/free-solid-svg-icons";
 
 export function Index({ isDrawerOpen }) {
   const permissions = useSelector(
@@ -23,14 +25,13 @@ export function Index({ isDrawerOpen }) {
   const studentName = localStorage.getItem("groupName");
   const location = useLocation();
 
-  const coursepermissions = permissions[0]?.read;
+  const progamspermissions = permissions[0]?.read;
   const batchpermissions = permissions[1]?.read;
   const studentpermissions = permissions[2]?.read;
-  const voucherpermissions = permissions[3]?.read;
-  const actionlogpermissions = permissions[4]?.read;
-  const bulkpermissions = permissions[5]?.read;
-  const degreepermissions = permissions[6]?.read;
-  const statuspermissions = permissions[7]?.read;
+  const ledgerpermissions = permissions[3]?.read;
+  const bulkpermissions = permissions[4]?.read;
+  const degreepermissions = permissions[5]?.read;
+  const statuspermissions = permissions[6]?.read;
   const feespermissions = permissions[8]?.read;
 
   const navigate = useNavigate();
@@ -168,7 +169,7 @@ export function Index({ isDrawerOpen }) {
                         />
                       </svg>
                     </ListItemPrefix>
-                    Member
+                    Faculty
                   </ListItem>
                 </>
               ) : (
@@ -275,7 +276,9 @@ export function Index({ isDrawerOpen }) {
                     </svg>
                   </ListItem>
                 </>
-              ) : degreepermissions === false && statuspermissions === false && feespermissions === false ? (
+              ) : degreepermissions === false &&
+                statuspermissions === false &&
+                feespermissions === false ? (
                 <></>
               ) : (
                 ""
@@ -350,7 +353,7 @@ export function Index({ isDrawerOpen }) {
                           ""
                         )}
 
-                        {admin === "admins" ? (
+                        {/* {admin === "admins" ? (
                           <>
                             <ListItem
                               className={`text-c-grays hover:bg-[#F5F5F5] ${
@@ -378,7 +381,7 @@ export function Index({ isDrawerOpen }) {
                           </>
                         ) : (
                           ""
-                        )}
+                        )} */}
                       </div>
                     </>
                   )}
@@ -411,10 +414,10 @@ export function Index({ isDrawerOpen }) {
                         />
                       </svg>
                     </ListItemPrefix>
-                    Course
+                    Programs
                   </ListItem>
                 </>
-              ) : coursepermissions ? (
+              ) : progamspermissions ? (
                 <>
                   <ListItem
                     className={`text-c-grays hover:bg-[#F5F5F5] ${
@@ -440,7 +443,7 @@ export function Index({ isDrawerOpen }) {
                         />
                       </svg>
                     </ListItemPrefix>
-                    Course
+                    Programs
                   </ListItem>
                 </>
               ) : (
@@ -571,6 +574,44 @@ export function Index({ isDrawerOpen }) {
                 ""
               )}
 
+              {admin === "admins" ? (
+                <>
+                  <ListItem
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/ledger" ? "bg-[#F5F5F5]" : ""
+                    }`}
+                    onClick={() => navigate("/ledger")}
+                  >
+                    <ListItemPrefix>
+                      <FontAwesomeIcon
+                        icon={faMoneyBillWave}
+                        className="h-5 w-5"
+                      />
+                    </ListItemPrefix>
+                    Ledger
+                  </ListItem>
+                </>
+              ) : ledgerpermissions ? (
+                <>
+                  <ListItem
+                    className={`text-c-grays hover:bg-[#F5F5F5] ${
+                      location.pathname === "/ledger" ? "bg-[#F5F5F5]" : ""
+                    }`}
+                    onClick={() => navigate("/ledger")}
+                  >
+                    <ListItemPrefix>
+                      <FontAwesomeIcon
+                        icon={faMoneyBillWave}
+                        className="h-5 w-5"
+                      />
+                    </ListItemPrefix>
+                    Ledger
+                  </ListItem>
+                </>
+              ) : (
+                ""
+              )}
+
               {studentName === "Students" ? (
                 <>
                   <ListItem
@@ -606,7 +647,7 @@ export function Index({ isDrawerOpen }) {
                 ""
               )}
 
-              {admin === "admins" ? (
+              {/* {admin === "admins" ? (
                 <>
                   <ListItem
                     className={`text-c-grays hover:bg-[#F5F5F5] ${
@@ -666,9 +707,9 @@ export function Index({ isDrawerOpen }) {
                 </>
               ) : (
                 ""
-              )}
+              )} */}
 
-              {admin === "admins" ? (
+              {/* {admin === "admins" ? (
                 <>
                   <ListItem
                     className={`text-c-grays hover:bg-[#F5F5F5] ${
@@ -728,7 +769,7 @@ export function Index({ isDrawerOpen }) {
                 </>
               ) : (
                 ""
-              )}
+              )} */}
 
               {admin === "admins" ? (
                 <>

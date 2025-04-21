@@ -11,7 +11,7 @@ const MemberDetailsModal = ({ open, handleOpen, memberData }) => {
       <Card className="mx-auto w-full max-h-[90vh] overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-6">
           <Typography variant="h5" className="text-c-grays">
-            Member Details
+            Faculty Details
           </Typography>
           <button
             onClick={handleOpen}

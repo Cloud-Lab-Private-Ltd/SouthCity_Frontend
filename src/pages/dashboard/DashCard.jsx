@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AreaChartHero } from "./AreaChart";
-import UserStatusDashboard from "./UserStatusDashboard";
+// import UserStatusDashboard from "./UserStatusDashboard";
 
 const DashCard = () => {
   const navigate = useNavigate();
@@ -75,10 +75,10 @@ const DashCard = () => {
               >
                 <div className="bg-white rounded-xl p-6 shadow-lg">
                   <div className="flex justify-between items-start">
-                    <div className="bg-yellow-100 p-3 rounded-lg">
+                    <div className="bg-red-100 p-3 rounded-lg">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-8 w-8 text-yellow-600"
+                        className="h-8 w-8 text-red-600"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -91,17 +91,17 @@ const DashCard = () => {
                         />
                       </svg>
                     </div>
-                    <span className="text-yellow-600 text-sm font-medium px-2.5 py-0.5 rounded-lg bg-yellow-100">
-                      Pending
+                    <span className="text-red-600 text-sm font-medium px-2.5 py-0.5 rounded-lg bg-red-100">
+                    unpaid
                     </span>
                   </div>
                   <div className="mt-6">
                     <h3 className="text-3xl font-bold text-gray-700">
-                      {vouchers?.filter((v) => v.status === "Pending").length ||
+                      {vouchers?.filter((v) => v.status === "unpaid").length ||
                         0}
                     </h3>
                     <p className="text-c-grays mt-1 text-sm">
-                      Pending Vouchers
+                    unpaid Vouchers
                     </p>
                   </div>
                 </div>
@@ -291,7 +291,7 @@ const DashCard = () => {
                       <h3 className="text-3xl font-bold text-gray-700">
                         {members?.members?.length || 0}
                       </h3>
-                      <p className="text-c-grays mt-1 text-sm">Total Members</p>
+                      <p className="text-c-grays mt-1 text-sm">Total Faculty</p>
                     </div>
                   </div>
                 </div>
@@ -323,7 +323,7 @@ const DashCard = () => {
                       <h3 className="text-3xl font-bold text-gray-700">
                         {members?.members?.length || 0}
                       </h3>
-                      <p className="text-c-grays mt-1 text-sm">Total Members</p>
+                      <p className="text-c-grays mt-1 text-sm">Total Faculty</p>
                     </div>
                   </div>
                 </div>
@@ -428,7 +428,9 @@ const DashCard = () => {
                       <h3 className="text-3xl font-bold text-gray-700">
                         {courses?.courses?.length || 0}
                       </h3>
-                      <p className="text-c-grays mt-1 text-sm">Total Courses</p>
+                      <p className="text-c-grays mt-1 text-sm">
+                        Total Programs
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -461,7 +463,9 @@ const DashCard = () => {
                       <h3 className="text-3xl font-bold text-gray-700">
                         {courses?.courses?.length || 0}
                       </h3>
-                      <p className="text-c-grays mt-1 text-sm">Total Courses</p>
+                      <p className="text-c-grays mt-1 text-sm">
+                        Total Programs
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -544,13 +548,13 @@ const DashCard = () => {
         </>
       )}
 
-      {admin === "admins" ? (
+      {/* {admin === "admins" ? (
         <>
           <UserStatusDashboard />
         </>
       ) : (
         ""
-      )}
+      )} */}
 
       {admin === "admins" ? (
         <>

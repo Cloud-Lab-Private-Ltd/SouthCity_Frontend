@@ -51,7 +51,6 @@ const BatchDetailsModal = ({ open, handleOpen, batchData }) => {
             <div className="space-y-4">
               <InfoItem label="Batch Name" value={batchData.batchName} />
               <InfoItem label="Session Type" value={batchData.sessionType} />
-              <InfoItem label="Current Semester" value={batchData.currentSemester} />
               <InfoItem label="Number of Students" value={batchData.numberOfStudents} />
               <InfoItem 
                 label="Status" 
@@ -92,30 +91,15 @@ const BatchDetailsModal = ({ open, handleOpen, batchData }) => {
             </div>
           </Card>
 
-          <Card className="p-6 shadow-sm col-span-2">
-            <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
-              Schedule
-            </Typography>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {batchData.schedule.map((item, index) => (
-                <div key={index} className="p-4 bg-purple-50 rounded-lg">
-                  <div className="space-y-2">
-                    <p className="font-semibold text-purple-700">{item.day}</p>
-                    <p className="text-gray-700">{item.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
 
           <Card className="p-6 shadow-sm col-span-2">
             <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
-              Course Information
+            Programs Information
             </Typography>
             {batchData.course.map((course, index) => (
               <div key={index} className="p-4 bg-purple-50 rounded-lg mb-4">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <InfoItem label="Course Name" value={course.name} />
+                  <InfoItem label="Programs Name" value={course.name} />
                   <InfoItem label="Level" value={course.Level} />
                   <InfoItem label="Category" value={course.category} />
                   <InfoItem label="Duration" value={course.duration} />

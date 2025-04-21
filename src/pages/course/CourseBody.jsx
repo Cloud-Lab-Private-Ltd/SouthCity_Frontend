@@ -14,12 +14,13 @@ const CourseBody = () => {
     degreeType: "",
     duration: "",
     noOfSemesters: "",
-    semesters: [{ semesterNo: "1", subjects: "" }],
+    semesters: [{ semesterNo: "1", subjects: "", semesterFees: "" }],
     perSemesterFee: "",
     admissionFee: "",
     totalFee: "",
     Status: "Active",
   });
+
   const [loading, setLoading] = useState(false);
   const [degreeTypes, setDegreeTypes] = useState([]);
   const { fees } = useSelector((state) => state.groupdata);
@@ -29,7 +30,7 @@ const CourseBody = () => {
   const dispatch = useDispatch();
 
   // Get semester and other fees
-  const semesterFee =
+  const semesterFees =
     fees?.find((fee) => fee.feeType === "semester")?.amount || 0;
   const otherFee = fees?.find((fee) => fee.feeType === "other")?.amount || 0;
 
@@ -54,6 +55,7 @@ const CourseBody = () => {
       const newSemesters = Array.from({ length: numSemesters }, (_, index) => ({
         semesterNo: (index + 1).toString(),
         subjects: formData.semesters[index]?.subjects || "",
+        semesterFees: formData.semesters[index]?.semesterFees || "",
       }));
 
       // Recalculate total fee with new number of semesters
@@ -122,13 +124,17 @@ const CourseBody = () => {
     formDataToSend.append("totalFee", formData.totalFee);
     formDataToSend.append("Status", formData.Status);
 
-    // Append Semesters data in array format
+    // In the handleSubmit function, update the formDataToSend.append for semesters:
     formData.semesters.forEach((semester, index) => {
       formDataToSend.append(
         `Semesters[${index}][semesterNo]`,
         semester.semesterNo
       );
       formDataToSend.append(`Semesters[${index}][subjects]`, semester.subjects);
+      formDataToSend.append(
+        `Semesters[${index}][semesterFees]`,
+        semester.semesterFees
+      );
     });
 
     setLoading(true);
@@ -143,7 +149,7 @@ const CourseBody = () => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Course created successfully!",
+          text: "Programs created successfully!",
           confirmButtonColor: "#5570F1",
         });
         setLoading(false);
@@ -154,7 +160,7 @@ const CourseBody = () => {
           degreeType: "",
           duration: "",
           noOfSemesters: "",
-          semesters: [{ semesterNo: "1", subjects: "" }],
+          semesters: [{ semesterNo: "1", subjects: "", semesterFees: "" }],
           perSemesterFee: "",
           admissionFee: "",
           totalFee: "",
@@ -216,7 +222,7 @@ const CourseBody = () => {
       if (result.isConfirmed) {
         Swal.fire({
           title: "Deleted!",
-          text: "Course has been deleted successfully",
+          text: "Programs has been deleted successfully",
           icon: "success",
           confirmButtonColor: "#5570F1",
         });
@@ -259,7 +265,7 @@ const CourseBody = () => {
         Swal.fire({
           icon: "success",
           title: "Success",
-          text: "Courses imported successfully!",
+          text: "Programs imported successfully!",
           confirmButtonColor: "#5570F1",
         });
         dispatch(CoursesGet());
@@ -269,7 +275,7 @@ const CourseBody = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: error.response?.data?.message || "Failed to import courses",
+        text: error.response?.data?.message || "Failed to import Programs",
         confirmButtonColor: "#5570F1",
       });
     } finally {
@@ -345,7 +351,9 @@ const CourseBody = () => {
   // Add permission check function
   const checkPermission = (type) => {
     if (admin === "admins") return true;
-    const coursePermission = permissions?.find((p) => p.pageName === "Course");
+    const coursePermission = permissions?.find(
+      (p) => p.pageName === "Programs"
+    );
     return coursePermission?.[type] || false;
   };
 
@@ -360,13 +368,13 @@ const CourseBody = () => {
       />
 
       <div className="mb-8">
-        <h2 className="text-[1.5rem] font-semibold text-c-grays">COURSES</h2>
+        <h2 className="text-[1.5rem] font-semibold text-c-grays uppercase">Programs</h2>
       </div>
       {(admin === "admins" || checkPermission("insert")) && (
         <Card className="p-6 mb-8 bg-white">
           <div className="mb-6 flex flex-col md:flex-row justify-between  gap-4">
             <Typography className="text-xl font-semibold text-c-grays">
-              Add Course
+              Add Programs
             </Typography>
             <div className="flex flex-wrap gap-4 items-center">
               <input
@@ -400,7 +408,7 @@ const CourseBody = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Course Name *
+                  Programs Name *
                 </label>
                 <input
                   type="text"
@@ -427,7 +435,7 @@ const CourseBody = () => {
                   <option value="">Select Degree Type</option>
                   {degreeTypes.map((type) => (
                     <option key={type?._id} value={type?._id}>
-                      {type?.name} {type?.duration}
+                      {type?.name}
                     </option>
                   ))}
                 </select>
@@ -462,13 +470,13 @@ const CourseBody = () => {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Per Semester Fee *
                 </label>
                 <input
                   type="number"
-                  value={semesterFee}
+                  value={semesterFees}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
                   readOnly
                 />
@@ -484,7 +492,7 @@ const CourseBody = () => {
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
                   readOnly
                 />
-              </div>
+              </div> */}
 
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
@@ -507,7 +515,7 @@ const CourseBody = () => {
               </Typography>
               {formData.semesters.map((semester, index) => (
                 <div key={index} className="mb-4 p-4 border rounded-lg">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <label className="block text-c-grays text-sm font-medium mb-2">
                         Semester No
@@ -537,6 +545,25 @@ const CourseBody = () => {
                         placeholder="e.g. Programming, Calculus, Physics"
                       />
                     </div>
+                    <div>
+                      <label className="block text-c-grays text-sm font-medium mb-2">
+                        Semester Fee *
+                      </label>
+                      <input
+                        type="number"
+                        value={semester.semesterFees}
+                        onChange={(e) =>
+                          handleSemesterChange(
+                            index,
+                            "semesterFees",
+                            e.target.value
+                          )
+                        }
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                        placeholder="Enter semester fee"
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -551,7 +578,7 @@ const CourseBody = () => {
                 {loading ? (
                   <span className="loading loading-dots loading-lg"></span>
                 ) : (
-                  "Add Course"
+                  "Add Programs"
                 )}
               </Button>
             </div>
@@ -561,17 +588,17 @@ const CourseBody = () => {
       <Card className="overflow-hidden bg-white">
         <div className="p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <Typography className="text-xl font-semibold text-c-grays">
-            Courses List
+            Programs List
           </Typography>
           <div className="flex gap-4">
             <Button className="bg-c-purple" onClick={handleExport}>
-              Export Courses
+              Export Programs
             </Button>
             <div className="w-full md:w-72">
               <input
                 type="text"
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                placeholder="Search courses..."
+                placeholder="Search Programs..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 autoComplete="off"
@@ -587,7 +614,7 @@ const CourseBody = () => {
               <tr className="bg-gray-50">
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
-                    Course Name
+                    Programs Name
                   </Typography>
                 </th>
                 <th className="p-4 border-b border-gray-100">

@@ -51,7 +51,7 @@ const ProfileField = () => {
             setloader(false);
             dispatch(ProfileGet());
           } else {
-            console.log("post profile fields", res.data);
+            // console.log("post profile fields", res.data);
             setloader(false);
           }
         })

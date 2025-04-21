@@ -11,8 +11,8 @@ const DegreeBody = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    startDate: "",
-    endDate: "",
+    // startDate: "",
+    // endDate: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -30,7 +30,7 @@ const DegreeBody = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.startDate || !formData.endDate) {
+    if (!formData.name) {
       Swal.fire({
         icon: "warning",
         title: "Required Fields",
@@ -218,7 +218,7 @@ const DegreeBody = () => {
                   required
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Start Date *
                 </label>
@@ -244,7 +244,7 @@ const DegreeBody = () => {
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   required
                 />
-              </div>
+              </div> */}
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Description
@@ -308,11 +308,11 @@ const DegreeBody = () => {
                     Description
                   </Typography>
                 </th>
-                <th className="p-4 border-b border-gray-100">
+                {/* <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
                     Duration
                   </Typography>
-                </th>
+                </th> */}
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
                     Actions
@@ -356,11 +356,11 @@ const DegreeBody = () => {
                         {item.description || "No description available"}
                       </Typography>
                     </td>
-                    <td className="p-4 border-b border-gray-100">
+                    {/* <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
                         {item.duration || "Duration not specified"}
                       </Typography>
-                    </td>
+                    </td> */}
                     <td className="p-4 border-b border-gray-100">
                       <div className="flex gap-2">
                         {(admin === "admins" || checkPermission("update")) && (

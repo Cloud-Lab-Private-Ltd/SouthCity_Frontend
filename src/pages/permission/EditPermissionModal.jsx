@@ -16,15 +16,8 @@ const EditPermissionModal = ({
   onSuccess,
 }) => {
   const [permissions, setPermissions] = useState([
-    // {
-    //   pageName: "Members",
-    //   insert: false,
-    //   update: false,
-    //   delete: false,
-    //   read: false,
-    // },
     {
-      pageName: "Courses",
+      pageName: "Programs",
       insert: false,
       update: false,
       delete: false,
@@ -45,14 +38,7 @@ const EditPermissionModal = ({
       read: false,
     },
     {
-      pageName: "Voucher",
-      insert: false,
-      update: false,
-      delete: false,
-      read: false,
-    },
-    {
-      pageName: "Action Log",
+      pageName: "Ledger",
       insert: false,
       update: false,
       delete: false,
@@ -77,13 +63,6 @@ const EditPermissionModal = ({
       insert: false,
       update: false,
       delete: false,
-      read: false,
-    },
-    {
-      pageName: "Fees",
-   
-      update: false,
-    
       read: false,
     },
   ]);

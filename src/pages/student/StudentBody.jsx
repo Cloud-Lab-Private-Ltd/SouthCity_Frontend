@@ -58,23 +58,32 @@ const StudentBody = () => {
     dispatch(StudentsGet());
   };
 
-  // Add state for batch filter
-  const [selectedBatch, setSelectedBatch] = useState(null);
+  // Add state for program filter
+  const [selectedProgram, setSelectedProgram] = useState(null);
 
-  // Get batches from Redux
-  const { batches } = useSelector((state) => state.groupdata);
+  // Add state for academic status filter
+  const [selectedAcademicStatus, setSelectedAcademicStatus] = useState(null);
 
-  // Create batch options
-  const batchOptions = batches?.batches
-    ?.filter((batch) => batch.status === "Active")
-    ?.map((batch) => ({
-      value: batch._id,
-      label: batch.batchName,
-    }));
+  // Get courses/programs from Redux
+  const { courses } = useSelector((state) => state.groupdata);
+
+  // Create program options
+  const programOptions = courses?.courses?.map((course) => ({
+    value: course._id,
+    label: course.name,
+  }));
+
+  // Create academic status options
+  const academicStatusOptions = [
+    // { value: "active", label: "Active" },
+    { value: "Year back", label: "Year Back" },
+    { value: "Pass out", label: "Pass Out" },
+    // { value: "inActive", label: "Inactive" },
+  ];
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 5;
+  const recordsPerPage = 7;
   const lastIndex = currentPage * recordsPerPage;
   const firstIndex = lastIndex - recordsPerPage;
 
@@ -83,15 +92,20 @@ const StudentBody = () => {
     const searchValue = searchTerm.toLowerCase();
     const matchesSearch =
       item.registrationId?.toLowerCase().includes(searchValue) ||
+      item.enrollementNumber?.toLowerCase().includes(searchValue) ||
       item.fullName?.toLowerCase().includes(searchValue) ||
       item.email?.toLowerCase().includes(searchValue) ||
       item.phoneNumber?.toLowerCase().includes(searchValue);
 
-    const matchesBatch = selectedBatch
-      ? item.batch?._id === selectedBatch.value
+    const matchesProgram = selectedProgram
+      ? item.course?.some((course) => course._id === selectedProgram.value)
       : true;
 
-    return matchesSearch && matchesBatch;
+    const matchesAcademicStatus = selectedAcademicStatus
+      ? item.academicStatus === selectedAcademicStatus.value
+      : true;
+
+    return matchesSearch && matchesProgram && matchesAcademicStatus;
   });
 
   const records = filteredStudents?.slice(firstIndex, lastIndex);
@@ -256,13 +270,13 @@ const StudentBody = () => {
             <div className="flex flex-col lg:flex-row lg:items-center gap-4">
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Batch Filter
+                  Program Filter
                 </label>
                 <Select
-                  value={selectedBatch}
-                  onChange={setSelectedBatch}
-                  options={batchOptions}
-                  placeholder="Select Batch"
+                  value={selectedProgram}
+                  onChange={setSelectedProgram}
+                  options={programOptions}
+                  placeholder="Select Program"
                   isClearable
                   className="text-sm"
                   styles={{
@@ -275,6 +289,29 @@ const StudentBody = () => {
                   }}
                 />
               </div>
+
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Academic Status
+                </label>
+                <Select
+                  value={selectedAcademicStatus}
+                  onChange={setSelectedAcademicStatus}
+                  options={academicStatusOptions}
+                  placeholder="Select Academic Status"
+                  isClearable
+                  className="text-sm"
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
+                />
+              </div>
+
               <div className="flex-1">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Search Students
@@ -282,7 +319,7 @@ const StudentBody = () => {
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Search by name, email, registration ID or phone..."
+                    placeholder="Search ..."
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -308,7 +345,7 @@ const StudentBody = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto h-[70vh]">
+          <div className="overflow-x-auto h-[82vh]">
             <table className="w-full min-w-max table-auto text-left">
               <thead>
                 <tr className="bg-gray-50">
@@ -319,9 +356,25 @@ const StudentBody = () => {
                   </th>
                   <th className="p-4 border-b border-gray-100">
                     <Typography className="text-c-grays font-semibold">
+                      Enrollment Number
+                    </Typography>
+                  </th>
+                  <th className="p-4 border-b border-gray-100">
+                    <Typography className="text-c-grays font-semibold">
                       Full Name
                     </Typography>
                   </th>
+                  <th className="p-4 border-b border-gray-100">
+                    <Typography className="text-c-grays font-semibold">
+                      Batch
+                    </Typography>
+                  </th>
+                  <th className="p-4 border-b border-gray-100">
+                    <Typography className="text-c-grays font-semibold">
+                      Program
+                    </Typography>
+                  </th>
+
                   <th className="p-4 border-b border-gray-100">
                     <Typography className="text-c-grays font-semibold">
                       Email
@@ -329,7 +382,7 @@ const StudentBody = () => {
                   </th>
                   <th className="p-4 border-b border-gray-100">
                     <Typography className="text-c-grays font-semibold">
-                      Phone Number
+                      Mobile Number
                     </Typography>
                   </th>
                   <th className="p-4 border-b border-gray-100">
@@ -339,7 +392,7 @@ const StudentBody = () => {
                   </th>
                   <th className="p-4 border-b border-gray-100">
                     <Typography className="text-c-grays font-semibold">
-                      Verified Student
+                      Academic Status
                     </Typography>
                   </th>
                   <th className="p-4 border-b border-gray-100">
@@ -366,7 +419,16 @@ const StudentBody = () => {
                         <div className="skeleton h-4 w-48"></div>
                       </td>
                       <td className="p-4 border-b border-gray-100">
+                        <div className="skeleton h-4 w-48"></div>
+                      </td>
+                      <td className="p-4 border-b border-gray-100">
                         <div className="skeleton h-4 w-32"></div>
+                      </td>
+                      <td className="p-4 border-b border-gray-100">
+                        <div className="skeleton h-4 w-24"></div>
+                      </td>
+                      <td className="p-4 border-b border-gray-100">
+                        <div className="skeleton h-4 w-24"></div>
                       </td>
                       <td className="p-4 border-b border-gray-100">
                         <div className="skeleton h-4 w-24"></div>
@@ -391,9 +453,25 @@ const StudentBody = () => {
                       </td>
                       <td className="p-4 border-b border-gray-100">
                         <Typography className="text-c-grays">
+                          {student.enrollementNumber}
+                        </Typography>
+                      </td>
+                      <td className="p-4 border-b border-gray-100">
+                        <Typography className="text-c-grays">
                           {student.fullName}
                         </Typography>
                       </td>
+                      <td className="p-4 border-b border-gray-100">
+                        <Typography className="text-c-grays">
+                          {student?.batch?.batchName}
+                        </Typography>
+                      </td>
+                      <td className="p-4 border-b border-gray-100">
+                        <Typography className="text-c-grays">
+                          {student.course[0]?.name}
+                        </Typography>
+                      </td>
+
                       <td className="p-4 border-b border-gray-100">
                         <Typography className="text-c-grays">
                           {student.email}
@@ -401,7 +479,7 @@ const StudentBody = () => {
                       </td>
                       <td className="p-4 border-b border-gray-100">
                         <Typography className="text-c-grays">
-                          {student.phoneNumber}
+                          {student.mobileNumber}
                         </Typography>
                       </td>
                       <td className="p-4 border-b border-gray-100">
@@ -409,15 +487,13 @@ const StudentBody = () => {
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
                             student.status === "active"
                               ? "bg-green-100 text-green-800"
-                              : student.status === "freezed"
-                              ? "bg-orange-100 text-orange-800"
+                              : student.status === "inActive"
+                              ? "bg-red-400 text-white"
                               : "bg-gray-100 text-gray-800"
                           }`}
                         >
                           {student.status === "active"
                             ? "Active"
-                            : student.status === "freezed"
-                            ? "Freezed"
                             : student.status}
                         </span>
                       </td>
@@ -425,12 +501,22 @@ const StudentBody = () => {
                       <td className="p-4 border-b border-gray-100">
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            student.verified
+                            student.academicStatus === "active"
                               ? "bg-green-100 text-green-800"
-                              : "bg-yellow-100 text-yellow-800"
+                              : student.academicStatus === "inActive"
+                              ? "bg-red-400 text-white"
+                              : student.academicStatus === "Year back"
+                              ? "bg-orange-100 text-orange-800"
+                              : student.academicStatus === "Pass out"
+                              ? "bg-green-900 text-white"
+                              : "bg-gray-100 text-gray-800"
                           }`}
                         >
-                          {student.verified ? "Verified" : "Pending"}
+                          {student.academicStatus === "active"
+                            ? "Active"
+                            : student.academicStatus === "Year back"
+                            ? "Year Back"
+                            : student.academicStatus}
                         </span>
                       </td>
                       <td className="p-4 border-b border-gray-100">
@@ -492,14 +578,17 @@ const StudentBody = () => {
 
                                 {(admin === "admins" ||
                                   checkPermission("update")) && (
+                                  // Find this section in the dropdown menu
                                   <button
                                     onClick={() => {
-                                      handleFailStudent(student); // Pass entire student object
+                                      handleFailStudent(student);
                                       setOpenMenu(null);
                                     }}
-                                    disabled={student.status === "failed"}
+                                    disabled={
+                                      student.academicStatus === "yearback"
+                                    }
                                     className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 ${
-                                      student.status === "failed"
+                                      student.academicStatus === "yearback"
                                         ? "text-gray-400"
                                         : "text-orange-600"
                                     }`}
@@ -518,9 +607,35 @@ const StudentBody = () => {
                                         d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
                                       />
                                     </svg>
-                                    Mark as Failed
+                                    Year Back
                                   </button>
                                 )}
+
+                                <button
+                                  onClick={() => {
+                                    navigate(`/student-ledger/${student._id}`, {
+                                      state: { from: "student" },
+                                    });
+                                    setOpenMenu(null);
+                                  }}
+                                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-blue-600"
+                                >
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-4 h-4"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"
+                                    />
+                                  </svg>
+                                  View Ledger
+                                </button>
 
                                 {(admin === "admins" ||
                                   checkPermission("update")) && (

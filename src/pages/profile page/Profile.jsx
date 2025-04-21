@@ -187,20 +187,69 @@ const Profile = () => {
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm text-gray-500">
-                          Father's Name
+                          Father/Guardian Name
                         </label>
                         <p className="font-medium">
-                          {student?.student?.fatherName}
+                          {student?.student?.fatherName || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Father Profession
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.fatherProfession || "-"}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Email</label>
-                        <p className="font-medium">{student?.student?.email}</p>
+                        <p className="font-medium">
+                          {student?.student?.email || "-"}
+                        </p>
                       </div>
                       <div>
-                        <label className="text-sm text-gray-500">Phone</label>
+                        <label className="text-sm text-gray-500">
+                          Mobile Number
+                        </label>
                         <p className="font-medium">
-                          {student?.student?.phoneNumber}
+                          {student?.student?.mobileNumber || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Phone Number
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.phoneNumber || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Date of Birth
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.dob || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">CNIC</label>
+                        <p className="font-medium">
+                          {student?.student?.nic || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Nationality
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.nationality || "-"}
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="text-sm text-gray-500">Gender</label>
+                        <p className="font-medium">
+                          {student?.student?.gender || "-"}
                         </p>
                       </div>
                     </div>
@@ -215,23 +264,114 @@ const Profile = () => {
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm text-gray-500">Course</label>
+                        <label className="text-sm text-gray-500">Program</label>
                         <p className="font-medium">
-                          {student?.student?.course[0]?.name}
+                          {student?.student?.course[0]?.name || "-"}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Batch</label>
                         <p className="font-medium">
-                          {student?.student?.batch?.batchName}
+                          {student?.student?.batch?.batchName || "-"}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">
-                          Current Semester
+                          Enrollment Number
                         </label>
                         <p className="font-medium">
-                          {student?.student?.currentSemester}
+                          {student?.student?.enrollementNumber || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Academic Status
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.academicStatus || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Highest Qualification
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.higestQualification || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Organization
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.organization || "-"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Guardian Information */}
+                <div className="card bg-base-100 shadow-md">
+                  <div className="card-body">
+                    <h3 className="card-title text-gray-700 mb-4">
+                      Guardian Details
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Guardian NIC
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.GuardianNIC || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Guardian Gender
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.GuardianGender || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Guardian Email
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.GuardianEmail || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Guardian Mobile
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.GuardianMobileNumber || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Guardian Phone
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.GuardianPhoneNumber || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Guardian Nationality
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.GuardianNationality || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Relationship
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.relationShip || "-"}
                         </p>
                       </div>
                     </div>
@@ -246,19 +386,57 @@ const Profile = () => {
                     </h3>
                     <div className="space-y-3">
                       <div>
-                        <label className="text-sm text-gray-500">Address</label>
+                        <label className="text-sm text-gray-500">
+                          Current Address
+                        </label>
                         <p className="font-medium">
-                          {student?.student?.address}
+                          {student?.student?.currentAddress || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Permanent Address
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.permanentAddress || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Guardian Current Address
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.GuardianCurrentAddress || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Guardian Permanent Address
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.GuardianPermenantAddress || "-"}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">City</label>
-                        <p className="font-medium">{student?.student?.city}</p>
+                        <p className="font-medium">
+                          {student?.student?.city || "-"}
+                        </p>
                       </div>
                       <div>
-                        <label className="text-sm text-gray-500">Country</label>
+                        <label className="text-sm text-gray-500">
+                          Province
+                        </label>
                         <p className="font-medium">
-                          {student?.student?.country}
+                          {student?.student?.province || "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm text-gray-500">
+                          Domicile
+                        </label>
+                        <p className="font-medium">
+                          {student?.student?.domicile || "-"}
                         </p>
                       </div>
                     </div>
@@ -324,18 +502,20 @@ const Profile = () => {
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm text-gray-500">Email</label>
-                        <p className="font-medium">{profile?.member?.email}</p>
+                        <p className="font-medium">
+                          {profile?.member?.email || "-"}
+                        </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Group</label>
                         <p className="font-medium">
-                          {profile?.member?.group?.name}
+                          {profile?.member?.group?.name || "-"}
                         </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Phone</label>
                         <p className="font-medium">
-                          {profile?.member?.phoneNumber}
+                          {profile?.member?.phoneNumber || "-"}
                         </p>
                       </div>
                     </div>
@@ -350,12 +530,14 @@ const Profile = () => {
                     <div className="space-y-3">
                       <div>
                         <label className="text-sm text-gray-500">City</label>
-                        <p className="font-medium">{profile?.member?.city}</p>
+                        <p className="font-medium">
+                          {profile?.member?.city || "-"}
+                        </p>
                       </div>
                       <div>
                         <label className="text-sm text-gray-500">Country</label>
                         <p className="font-medium">
-                          {profile?.member?.country}
+                          {profile?.member?.country || "-"}
                         </p>
                       </div>
                     </div>

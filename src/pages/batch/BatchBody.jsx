@@ -14,9 +14,7 @@ const BatchBody = () => {
     course: [],
     startDate: "",
     endDate: "",
-    currentSemester: "",
     status: "",
-    schedule: [{ day: "", time: "" }],
     sessionType: "",
     batchCoordinator: "",
   });
@@ -39,22 +37,7 @@ const BatchBody = () => {
     });
   };
 
-  const handleScheduleChange = (index, field, value) => {
-    const updatedSchedule = [...formData.schedule];
-    updatedSchedule[index][field] = value;
-    setFormData({
-      ...formData,
-      schedule: updatedSchedule,
-    });
-  };
-
-  const addSchedule = () => {
-    setFormData({
-      ...formData,
-      schedule: [...formData.schedule, { day: "", time: "" }],
-    });
-  };
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -82,9 +65,7 @@ const BatchBody = () => {
           course: [],
           startDate: "",
           endDate: "",
-          currentSemester: "",
           status: "",
-          schedule: [{ day: "", time: "" }],
           sessionType: "",
           batchCoordinator: "",
         });
@@ -289,8 +270,6 @@ const BatchBody = () => {
   const records = filteredBatches?.slice(firstIndex, lastIndex);
   const npage = Math.ceil(filteredBatches?.length / recordsPerPage);
 
-  console.log(records)
-
   const prePage = () => {
     if (currentPage !== 1) {
       setCurrentPage(currentPage - 1);
@@ -445,19 +424,7 @@ const BatchBody = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Current Semester *
-                </label>
-                <input
-                  type="number"
-                  name="currentSemester"
-                  value={formData.currentSemester}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
-                />
-              </div>
+       
 
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
@@ -478,7 +445,7 @@ const BatchBody = () => {
             </div>
             <div className="mt-6 mb-6">
               <Typography className="text-lg font-semibold text-c-grays mb-4">
-                Course Selection
+                Programs Selection
               </Typography>
               <div className="w-full">
                 <div className="flex gap-4 mb-4">
@@ -487,7 +454,7 @@ const BatchBody = () => {
                     onChange={(e) => setSelectedCourseId(e.target.value)}
                     className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   >
-                    <option value="">Select Course</option>
+                    <option value="">Select Programs</option>
                     {courses?.courses
                       ?.filter((course) => course.Status === "Active")
                       .map((course) => (
@@ -502,7 +469,7 @@ const BatchBody = () => {
                     className="bg-c-purple"
                     disabled={!selectedCourseId}
                   >
-                    Add Course
+                    Add Programs
                   </Button>
                 </div>
 
@@ -537,84 +504,7 @@ const BatchBody = () => {
                 </div>
               </div>
             </div>
-            {/* Schedule Section */}
-            <div className="mt-6">
-              <div className="flex justify-between items-center mb-4">
-                <Typography className="text-lg font-semibold text-c-grays">
-                  Schedule
-                </Typography>
-                <Button
-                  type="button"
-                  onClick={addSchedule}
-                  className="bg-c-purple"
-                >
-                  Add Schedule
-                </Button>
-              </div>
 
-              {formData.schedule.map((item, index) => (
-                <div
-                  key={index}
-                  className="mb-4 p-4 border rounded-lg relative"
-                >
-                  <button
-                    type="button"
-                    onClick={() => removeSchedule(index)}
-                    className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-c-grays text-sm font-medium mb-2">
-                        Day
-                      </label>
-                      <select
-                        value={item.day}
-                        onChange={(e) =>
-                          handleScheduleChange(index, "day", e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                      >
-                        <option value="">Select Day</option>
-                        <option value="Monday">Monday</option>
-                        <option value="Tuesday">Tuesday</option>
-                        <option value="Wednesday">Wednesday</option>
-                        <option value="Thursday">Thursday</option>
-                        <option value="Friday">Friday</option>
-                        <option value="Saturday">Saturday</option>
-                        <option value="Sunday">Sunday</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-c-grays text-sm font-medium mb-2">
-                        Time
-                      </label>
-                      <input
-                        type="text"
-                        value={item.time}
-                        onChange={(e) =>
-                          handleScheduleChange(index, "time", e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                        placeholder="e.g. 09:00 AM - 11:00 AM"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
             <div className="mt-6 flex justify-end">
               <Button
                 type="submit"
@@ -665,7 +555,7 @@ const BatchBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
-                    Course
+                    Programs
                   </Typography>
                 </th>
                 <th className="p-4 border-b border-gray-100">
@@ -680,7 +570,7 @@ const BatchBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
-                   Number Of students
+                    Number Of students
                   </Typography>
                 </th>
                 <th className="p-4 border-b border-gray-100">

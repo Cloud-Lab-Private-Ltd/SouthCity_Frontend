@@ -281,7 +281,6 @@ const ViewSplitVouchersModal = ({
     setEditModalOpen(true);
   };
 
-  console.log("splitVouchers:", splitVouchers);
 
   return (
     <Dialog open={open} handler={handleOpen} size="lg">

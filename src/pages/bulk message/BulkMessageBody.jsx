@@ -137,7 +137,7 @@ const BulkMessageBody = () => {
   return (
     <div className="bg-[#F5F5F5] min-h-screen">
       <div className="mb-8">
-        <h2 className="text-[1.5rem] font-semibold text-c-grays">
+        <h2 className="text-[1.5rem] font-semibold text-c-grays uppercase">
           Bulk Message
         </h2>
       </div>

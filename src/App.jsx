@@ -21,6 +21,7 @@ import {
 } from "./features/GroupApiSlice";
 import { DotLoader } from "react-spinners";
 import ActivityDetector from "./routers/ActivityDetector";
+import { AllLedgersGet } from "./features/LedgerApiSlice";
 
 function App() {
   const navigate = useNavigate();
@@ -102,6 +103,7 @@ function App() {
         dispatch(NotificationsGet());
         dispatch(TrashedStudentsGet());
         dispatch(FeesGet());
+        dispatch(AllLedgersGet());
       } catch (error) {
         console.error("Error dispatching API calls:", error);
       }
