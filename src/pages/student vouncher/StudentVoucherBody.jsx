@@ -20,8 +20,6 @@ const StudentVoucherBody = () => {
     (voucher) => !voucher.splitVouchers?.length
   );
 
-  console.warn(vouchers);
-
   // Helper function to correctly calculate fees for split vouchers
   const calculateSplitFees = (voucher) => {
     // If it's not a split voucher or doesn't have a payment percentage, return original values

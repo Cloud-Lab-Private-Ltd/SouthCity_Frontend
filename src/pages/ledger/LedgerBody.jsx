@@ -3,7 +3,6 @@ import { Card, Typography, Button, Chip } from "@material-tailwind/react";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter, faSearch } from "@fortawesome/free-solid-svg-icons";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -26,14 +25,12 @@ const LedgerBody = () => {
 
   const { courses } = useSelector((state) => state.groupdata);
 
-  // Status options for filter
-  const statusOptions = [
-    { value: "Paid", label: "Paid" },
-    { value: "Partial", label: "Partial" },
-    { value: "Pending", label: "Pending" },
-  ];
-
-  
+  // // Status options for filter
+  // const statusOptions = [
+  //   { value: "Paid", label: "Paid" },
+  //   { value: "Partial", label: "Partial" },
+  //   { value: "Pending", label: "Pending" },
+  // ];
 
   // Course options for filter
   const courseOptions =
@@ -162,7 +159,7 @@ const LedgerBody = () => {
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Search ..."
+                    placeholder="Search students by ID or Name..."
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -193,7 +190,7 @@ const LedgerBody = () => {
                   }}
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Status
                 </label>
@@ -213,7 +210,7 @@ const LedgerBody = () => {
                     }),
                   }}
                 />
-              </div>
+              </div> */}
               {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -318,11 +315,11 @@ const LedgerBody = () => {
                         Split Vouchers
                       </Typography>
                     </th>
-                    <th className="p-4 border-b border-gray-100">
+                    {/* <th className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays font-semibold">
                         Status
                       </Typography>
-                    </th>
+                    </th> */}
                     <th className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays font-semibold">
                         Action
@@ -377,7 +374,7 @@ const LedgerBody = () => {
                           className="text-xs font-medium"
                         />
                       </td>
-                      <td className="p-4 border-b border-gray-100">
+                      {/* <td className="p-4 border-b border-gray-100">
                         <Chip
                           size="sm"
                           variant="ghost"
@@ -397,7 +394,7 @@ const LedgerBody = () => {
                           }
                           className="text-xs font-medium"
                         />
-                      </td>
+                      </td> */}
                       <td className="p-4 border-b border-gray-100">
                         {item.student && (
                           <Button

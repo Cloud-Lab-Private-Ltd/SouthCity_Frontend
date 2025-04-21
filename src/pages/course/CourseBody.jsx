@@ -15,8 +15,6 @@ const CourseBody = () => {
     duration: "",
     noOfSemesters: "",
     semesters: [{ semesterNo: "1", subjects: "", semesterFees: "" }],
-    perSemesterFee: "",
-    admissionFee: "",
     totalFee: "",
     Status: "Active",
   });
@@ -28,11 +26,6 @@ const CourseBody = () => {
   const fileInputRef = useRef(null);
   const token = localStorage.getItem("token");
   const dispatch = useDispatch();
-
-  // Get semester and other fees
-  const semesterFees =
-    fees?.find((fee) => fee.feeType === "semester")?.amount || 0;
-  const otherFee = fees?.find((fee) => fee.feeType === "other")?.amount || 0;
 
   useEffect(() => {
     fetchDegreeTypes();
@@ -58,10 +51,14 @@ const CourseBody = () => {
         semesterFees: formData.semesters[index]?.semesterFees || "",
       }));
 
-      // Recalculate total fee with new number of semesters
-      const perSemFee = parseFloat(formData.perSemesterFee) || 0;
+      // Calculate sum of all semester fees
+      const totalSemesterFees = newSemesters.reduce((sum, semester) => {
+        return sum + (parseFloat(semester.semesterFees) || 0);
+      }, 0);
+
+      // Add admission fee to get total fee
       const admFee = parseFloat(formData.admissionFee) || 0;
-      const totalFee = perSemFee * numSemesters + admFee;
+      const totalFee = totalSemesterFees + admFee;
 
       setFormData({
         ...formData,
@@ -69,25 +66,21 @@ const CourseBody = () => {
         semesters: newSemesters,
         totalFee: totalFee.toString(),
       });
-    } else if (name === "perSemesterFee" || name === "admissionFee") {
-      const updatedFormData = {
+    } else if (name === "admissionFee") {
+      // Calculate sum of all semester fees
+      const totalSemesterFees = formData.semesters.reduce((sum, semester) => {
+        return sum + (parseFloat(semester.semesterFees) || 0);
+      }, 0);
+
+      // Add new admission fee to get total fee
+      const admFee = parseFloat(value) || 0;
+      const totalFee = totalSemesterFees + admFee;
+
+      setFormData({
         ...formData,
         [name]: value,
-      };
-
-      const perSemFee =
-        parseFloat(
-          name === "perSemesterFee" ? value : formData.perSemesterFee
-        ) || 0;
-      const admFee =
-        parseFloat(name === "admissionFee" ? value : formData.admissionFee) ||
-        0;
-      const numSemesters = parseInt(formData.noOfSemesters) || 0;
-
-      const totalFee = perSemFee * numSemesters + admFee;
-
-      updatedFormData.totalFee = totalFee.toString();
-      setFormData(updatedFormData);
+        totalFee: totalFee.toString(),
+      });
     } else {
       setFormData({
         ...formData,
@@ -99,10 +92,29 @@ const CourseBody = () => {
   const handleSemesterChange = (index, field, value) => {
     const updatedSemesters = [...formData.semesters];
     updatedSemesters[index][field] = value;
-    setFormData({
-      ...formData,
-      semesters: updatedSemesters,
-    });
+
+    // If the changed field is semesterFees, recalculate the total fee
+    if (field === "semesterFees") {
+      // Calculate sum of all semester fees
+      const totalSemesterFees = updatedSemesters.reduce((sum, semester) => {
+        return sum + (parseFloat(semester.semesterFees) || 0);
+      }, 0);
+
+      // Add admission fee to get total fee
+      const admFee = parseFloat(formData.admissionFee) || 0;
+      const totalFee = totalSemesterFees + admFee;
+
+      setFormData({
+        ...formData,
+        semesters: updatedSemesters,
+        totalFee: totalFee.toString(),
+      });
+    } else {
+      setFormData({
+        ...formData,
+        semesters: updatedSemesters,
+      });
+    }
   };
 
   const handleSubmit = (e) => {
@@ -113,14 +125,6 @@ const CourseBody = () => {
     formDataToSend.append("degreeType", formData.degreeType);
     formDataToSend.append("duration", formData.duration);
     formDataToSend.append("noOfSemesters", formData.noOfSemesters);
-    formDataToSend.append(
-      "perSemesterFee",
-      fees?.find((fee) => fee.feeType === "semester")?._id
-    );
-    formDataToSend.append(
-      "admissionFee",
-      fees?.find((fee) => fee.feeType === "other")?._id
-    );
     formDataToSend.append("totalFee", formData.totalFee);
     formDataToSend.append("Status", formData.Status);
 
@@ -161,8 +165,6 @@ const CourseBody = () => {
           duration: "",
           noOfSemesters: "",
           semesters: [{ semesterNo: "1", subjects: "", semesterFees: "" }],
-          perSemesterFee: "",
-          admissionFee: "",
           totalFee: "",
           Status: "Active",
         });
@@ -368,7 +370,9 @@ const CourseBody = () => {
       />
 
       <div className="mb-8">
-        <h2 className="text-[1.5rem] font-semibold text-c-grays uppercase">Programs</h2>
+        <h2 className="text-[1.5rem] font-semibold text-c-grays uppercase">
+          Programs
+        </h2>
       </div>
       {(admin === "admins" || checkPermission("insert")) && (
         <Card className="p-6 mb-8 bg-white">
@@ -470,29 +474,6 @@ const CourseBody = () => {
                 />
               </div>
 
-              {/* <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Per Semester Fee *
-                </label>
-                <input
-                  type="number"
-                  value={semesterFees}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
-                  readOnly
-                />
-              </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Admission Fee *
-                </label>
-                <input
-                  type="number"
-                  value={otherFee}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
-                  readOnly
-                />
-              </div> */}
 
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
@@ -503,8 +484,8 @@ const CourseBody = () => {
                   name="totalFee"
                   value={formData.totalFee}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple bg-gray-50"
+                  readOnly
                 />
               </div>
             </div>

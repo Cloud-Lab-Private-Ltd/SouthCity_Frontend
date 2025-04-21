@@ -79,10 +79,16 @@ const EditCourseModal = ({
         };
       });
 
+      // Calculate total fee based on semester fees
+      const totalSemesterFees = newSemesters.reduce((sum, semester) => {
+        return sum + (parseFloat(semester.semesterFees) || 0);
+      }, 0);
+
       setFormData({
         ...formData,
         [name]: value,
         semesters: newSemesters,
+        totalFee: totalSemesterFees.toString(),
       });
     } else {
       setFormData({
@@ -100,10 +106,24 @@ const EditCourseModal = ({
         [field]: value,
       };
 
-      setFormData({
-        ...formData,
-        semesters: updatedSemesters,
-      });
+      // If the changed field is semesterFees, recalculate the total fee
+      if (field === "semesterFees") {
+        // Calculate sum of all semester fees
+        const totalSemesterFees = updatedSemesters.reduce((sum, semester) => {
+          return sum + (parseFloat(semester.semesterFees) || 0);
+        }, 0);
+        
+        setFormData({
+          ...formData,
+          semesters: updatedSemesters,
+          totalFee: totalSemesterFees.toString()
+        });
+      } else {
+        setFormData({
+          ...formData,
+          semesters: updatedSemesters,
+        });
+      }
     }
   };
 
@@ -269,7 +289,8 @@ const EditCourseModal = ({
               name="totalFee"
               value={formData.totalFee}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple bg-gray-50"
+              readOnly
               required
             />
           </div>
