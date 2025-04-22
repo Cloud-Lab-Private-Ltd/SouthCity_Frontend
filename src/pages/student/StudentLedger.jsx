@@ -182,44 +182,70 @@ const StudentLedger = () => {
           <h3 className="text-lg font-semibold text-c-grays mb-4">
             Student Information
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Name</p>
-              <p className="font-medium">{student.fullName}</p>
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* Profile Image Section */}
+            <div className="flex justify-center md:justify-start">
+              {student.profileImage ? (
+                <img
+                  src={student.profileImage}
+                  alt={`${student.fullName}'s profile`}
+                  className="h-24 w-24 rounded-full object-cover border-2 border-c-purple"
+                />
+              ) : (
+                <div className="h-24 w-24 rounded-full bg-gray-200 flex items-center justify-center border-2 border-c-purple">
+                  <span className="text-2xl font-bold text-gray-500">
+                    {student.fullName.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Registration ID</p>
-              <p className="font-medium">{student.registrationId}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Program</p>
-              <p className="font-medium">{student.course[0]?.name}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Batch</p>
-              <p className="font-medium">{student.batch?.batchName}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Father/Guardian Name</p>
-              <p className="font-medium">{student.fatherName}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Phone</p>
-              <p className="font-medium">{student.phoneNumber}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="font-medium">{student.email}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Status</p>
-              <Chip
-                size="sm"
-                variant="ghost"
-                value={student.status === "active" ? "Active" : student.status}
-                color={student.status === "active" ? "green" : "amber"}
-                className="text-xs font-medium mt-1"
-              />
+
+            {/* Student Details Section */}
+            <div className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-sm text-gray-500">Name</p>
+                  <p className="font-medium">{student.fullName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Registration ID</p>
+                  <p className="font-medium">{student.registrationId}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Program</p>
+                  <p className="font-medium">{student.course[0]?.name}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Batch</p>
+                  <p className="font-medium">{student.batch?.batchName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Father/Guardian Name</p>
+                  <p className="font-medium">{student.fatherName}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Mobile Number</p>
+                  <p className="font-medium">
+                    {student.phoneNumber || student.mobileNumber}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Email</p>
+                  <p className="font-medium">{student.email}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Status</p>
+                  <Chip
+                    size="sm"
+                    variant="ghost"
+                    value={
+                      student.status === "active" ? "Active" : student.status
+                    }
+                    color={student.status === "active" ? "green" : "amber"}
+                    className="text-xs font-medium mt-1"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>

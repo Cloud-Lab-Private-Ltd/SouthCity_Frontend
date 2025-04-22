@@ -381,7 +381,7 @@ const CreateStudent = () => {
               {/* Enrollment Number */}
               <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Enrollment Number *
+                  Enrollment Number 
                 </label>
                 <input
                   type="text"
@@ -389,7 +389,6 @@ const CreateStudent = () => {
                   value={formData.enrollementNumber}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  required
                 />
               </div>
               {/* Password */}
