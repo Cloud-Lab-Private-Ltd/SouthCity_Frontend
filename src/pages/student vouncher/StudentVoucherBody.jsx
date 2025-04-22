@@ -17,7 +17,7 @@ const StudentVoucherBody = () => {
   const dispatch = useDispatch();
 
   const filteredVouchers = vouchers?.filter(
-    (voucher) => !voucher.splitVouchers?.length
+    (voucher) => !voucher.splitVouchers?.length && voucher.status !== "Paid"
   );
 
   // Helper function to correctly calculate fees for split vouchers
@@ -41,14 +41,6 @@ const StudentVoucherBody = () => {
       securityFee: Math.round(parseInt(voucher.securityFee) * percentage) || 0,
       libraryFee: Math.round(parseInt(voucher.libraryFee) * percentage) || 0,
     };
-  };
-
-  // Helper function to calculate total fee from components
-  const calculateTotalFee = (voucher) => {
-    const fees = calculateSplitFees(voucher);
-    return (
-      fees.admissionFee + fees.semesterFee + fees.securityFee + fees.libraryFee
-    );
   };
 
   // Format date function for PDF
@@ -420,12 +412,81 @@ const StudentVoucherBody = () => {
     return match ? parseInt(match[1]) : 0;
   };
 
-  // Sort vouchers by semester number (ascending)
+  // Helper function to extract split number from monthOf string
+  const getSplitNumber = (monthOf) => {
+    if (!monthOf) return 0;
+    const splitMatch = monthOf.match(/Split (\d+)/);
+    return splitMatch ? parseInt(splitMatch[1]) : 0;
+  };
+
+  // Sort vouchers by semester number and then by split number
   const sortedVouchers = filteredVouchers
     ? [...filteredVouchers].sort((a, b) => {
-        return getSemesterNumber(a.monthOf) - getSemesterNumber(b.monthOf);
+        const semesterA = getSemesterNumber(a.monthOf);
+        const semesterB = getSemesterNumber(b.monthOf);
+
+        // If different semesters, sort by semester
+        if (semesterA !== semesterB) {
+          return semesterA - semesterB;
+        }
+
+        // If same semester, sort by split number (Split 1 before Split 2)
+        const splitA = getSplitNumber(a.monthOf);
+        const splitB = getSplitNumber(b.monthOf);
+        return splitA - splitB;
       })
     : [];
+
+  // Function to check if a voucher's upload button should be enabled
+  const isVoucherUploadEnabled = (currentVoucher) => {
+    if (!sortedVouchers || sortedVouchers.length === 0) return true;
+
+    const currentSemesterNum = getSemesterNumber(currentVoucher.monthOf);
+    const currentSplitNum = getSplitNumber(currentVoucher.monthOf);
+
+    // Always enable first semester's first split
+    if (currentSemesterNum === 1 && currentSplitNum === 1) return true;
+
+    // For other splits in first semester
+    if (currentSemesterNum === 1 && currentSplitNum > 1) {
+      // Check if previous splits are paid
+      for (const voucher of sortedVouchers) {
+        const semesterNum = getSemesterNumber(voucher.monthOf);
+        const splitNum = getSplitNumber(voucher.monthOf);
+
+        // If this is a previous split in the same semester and it's not paid, disable
+        if (
+          semesterNum === currentSemesterNum &&
+          splitNum < currentSplitNum &&
+          voucher.status !== "Paid"
+        ) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // For other semesters, check both previous semesters and previous splits
+    // First check if all previous semesters are paid
+    if (!isPreviousSemestersPaid(currentVoucher)) return false;
+
+    // Then check if previous splits in the current semester are paid
+    for (const voucher of sortedVouchers) {
+      const semesterNum = getSemesterNumber(voucher.monthOf);
+      const splitNum = getSplitNumber(voucher.monthOf);
+
+      // If this is a previous split in the same semester and it's not paid, disable
+      if (
+        semesterNum === currentSemesterNum &&
+        splitNum < currentSplitNum &&
+        voucher.status !== "Paid"
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  };
 
   // Function to check if previous semester vouchers are paid
   const isPreviousSemestersPaid = (currentVoucher) => {
@@ -489,7 +550,7 @@ const StudentVoucherBody = () => {
                       <Typography className="text-xl font-bold text-blue-800">
                         {voucher.voucherNumber}
                       </Typography>
-                      <div className="mt-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs inline-block">
+                      <div className="mt-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-md inline-block">
                         {voucher.monthOf}
                       </div>
 
@@ -677,25 +738,25 @@ const StudentVoucherBody = () => {
                     {voucher.status !== "Paid" && (
                       <Button
                         className={`flex items-center gap-2 ${
-                          isPreviousSemestersPaid(voucher)
+                          isVoucherUploadEnabled(voucher)
                             ? "bg-green-600 hover:bg-green-700"
                             : "bg-gray-400 cursor-not-allowed"
                         }`}
                         onClick={() => {
-                          if (isPreviousSemestersPaid(voucher)) {
+                          if (isVoucherUploadEnabled(voucher)) {
                             handleUploadSlip(voucher._id);
                           } else {
                             Swal.fire({
                               icon: "warning",
                               title: "Payment Order Required",
-                              text: "You must pay previous semester fees before paying this voucher.",
+                              text: "You must pay previous fees before paying this voucher.",
                               confirmButtonColor: "#5570F1",
                             });
                           }
                         }}
                         fullWidth
                         disabled={
-                          !isPreviousSemestersPaid(voucher) || uploadLoading
+                          !isVoucherUploadEnabled(voucher) || uploadLoading
                         }
                       >
                         {uploadLoading ? (

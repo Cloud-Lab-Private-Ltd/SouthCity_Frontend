@@ -83,7 +83,7 @@ const DegreeBody = () => {
         name: "degree-admin-delete-password",
       },
       showCancelButton: true,
-      confirmButtonText: "Delete",
+      confirmButtonText: "Next",
       confirmButtonColor: "#5570F1",
       cancelButtonColor: "#d33",
       showLoaderOnConfirm: true,
@@ -92,33 +92,55 @@ const DegreeBody = () => {
           Swal.showValidationMessage("Please enter admin password");
           return false;
         }
-        return axios
-          .delete(`${BASE_URL}/api/v1/sch/degree-types/${id}`, {
-            headers: {
-              "x-access-token": token,
-            },
-            data: {
-              adminPassword,
-            },
-          })
-          .then((response) => {
-            dispatch(DegreeTypesGet());
-            return response;
-          })
-          .catch((error) => {
-            Swal.showValidationMessage(
-              error.response?.data?.message || "Failed to delete degree type"
-            );
-          });
+        // Store the password for the next step
+        return adminPassword;
       },
       allowOutsideClick: () => !Swal.isLoading(),
     }).then((result) => {
       if (result.isConfirmed) {
+        // Second confirmation step
         Swal.fire({
-          title: "Deleted!",
-          text: "Degree type has been deleted successfully",
-          icon: "success",
-          confirmButtonColor: "#5570F1",
+          title: "Permanent Deletion",
+          text: "This degree type will be permanently deleted. This action cannot be undone. Are you sure?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Yes, delete it!",
+          cancelButtonText: "No, cancel",
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+        }).then((finalResult) => {
+          if (finalResult.isConfirmed) {
+            // Now proceed with the actual deletion
+            Swal.showLoading();
+            axios
+              .delete(`${BASE_URL}/api/v1/sch/degree-types/${id}`, {
+                headers: {
+                  "x-access-token": token,
+                },
+                data: {
+                  adminPassword: result.value, // Use the password from the first step
+                },
+              })
+              .then((response) => {
+                dispatch(DegreeTypesGet());
+                Swal.fire({
+                  title: "Deleted!",
+                  text: "Degree type has been deleted successfully",
+                  icon: "success",
+                  confirmButtonColor: "#5570F1",
+                });
+              })
+              .catch((error) => {
+                Swal.fire({
+                  title: "Error!",
+                  text:
+                    error.response?.data?.message ||
+                    "Failed to delete degree type",
+                  icon: "error",
+                  confirmButtonColor: "#5570F1",
+                });
+              });
+          }
         });
       }
     });

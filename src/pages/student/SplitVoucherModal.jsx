@@ -5,7 +5,6 @@ import {
   DialogBody,
   DialogFooter,
   Button,
-  Typography,
   Alert,
 } from "@material-tailwind/react";
 import DatePicker from "react-datepicker";
@@ -19,7 +18,6 @@ import { NotificationsGet } from "../../features/GroupApiSlice";
 const SplitVoucherModal = ({ open, handleClose, voucher }) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const [splitAmount, setSplitAmount] = useState("");
   const [firstDueDate, setFirstDueDate] = useState(null);
   const [secondDueDate, setSecondDueDate] = useState(null);
 
@@ -108,7 +106,6 @@ const SplitVoucherModal = ({ open, handleClose, voucher }) => {
 
   // Reset form when modal is closed
   const onClose = () => {
-    setSplitAmount("");
     setFirstDueDate(null);
     setSecondDueDate(null);
     setPaymentPercentage(50);

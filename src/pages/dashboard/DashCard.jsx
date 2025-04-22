@@ -1,6 +1,7 @@
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { AreaChartHero } from "./AreaChart";
+import StudentFeeLedger from "./StudentFeeLedger";
 // import UserStatusDashboard from "./UserStatusDashboard";
 
 const DashCard = () => {
@@ -25,6 +26,8 @@ const DashCard = () => {
 
   const { vouchers } = useSelector((state) => state.profiledata);
   const studentName = localStorage.getItem("groupName");
+
+  console.log(vouchers);
 
   return (
     <div>
@@ -67,7 +70,6 @@ const DashCard = () => {
                   </div>
                 </div>
               </div>
-
               {/* Pending Vouchers */}
               <div
                 className="transform hover:scale-105 transition-all cursor-pointer"
@@ -92,7 +94,7 @@ const DashCard = () => {
                       </svg>
                     </div>
                     <span className="text-red-600 text-sm font-medium px-2.5 py-0.5 rounded-lg bg-red-100">
-                    unpaid
+                      unpaid
                     </span>
                   </div>
                   <div className="mt-6">
@@ -100,9 +102,7 @@ const DashCard = () => {
                       {vouchers?.filter((v) => v.status === "unpaid").length ||
                         0}
                     </h3>
-                    <p className="text-c-grays mt-1 text-sm">
-                    unpaid Vouchers
-                    </p>
+                    <p className="text-c-grays mt-1 text-sm">unpaid Vouchers</p>
                   </div>
                 </div>
               </div>
@@ -224,6 +224,11 @@ const DashCard = () => {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* Use the StudentFeeLedger component */}
+          {studentName === "Students" && vouchers && vouchers.length > 0 && (
+            <StudentFeeLedger vouchers={vouchers} />
           )}
         </>
       ) : (

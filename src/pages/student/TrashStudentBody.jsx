@@ -100,7 +100,7 @@ const TrashStudentBody = () => {
         name: "admin-delete-password",
       },
       showCancelButton: true,
-      confirmButtonText: "Delete",
+      confirmButtonText: "Next",
       confirmButtonColor: "#5570F1",
       cancelButtonColor: "#d33",
       showLoaderOnConfirm: true,
@@ -109,38 +109,59 @@ const TrashStudentBody = () => {
           Swal.showValidationMessage("Please enter admin password");
           return false;
         }
-        return axios
-          .delete(`${BASE_URL}/api/v1/sch/students/${id}`, {
-            headers: {
-              "x-access-token": token,
-            },
-            data: {
-              adminPassword,
-            },
-          })
-          .then((response) => {
-            dispatch(StudentsGet());
-            dispatch(TrashedStudentsGet());
-            return response;
-          })
-          .catch((error) => {
-            Swal.showValidationMessage(
-              error.response?.data?.message || "Failed to delete student"
-            );
-          });
+        // Store the password for the next step
+        return adminPassword;
       },
       allowOutsideClick: () => !Swal.isLoading(),
     }).then((result) => {
       if (result.isConfirmed) {
+        // Second confirmation step
         Swal.fire({
-          title: "Deleted!",
-          text: "Student has been permanently deleted.",
-          icon: "success",
-          confirmButtonColor: "#5570F1",
+          title: "Permanent Deletion",
+          text: "This student will be permanently deleted. This action cannot be undone. Are you sure?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Yes, delete it!",
+          cancelButtonText: "No, cancel",
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+        }).then((finalResult) => {
+          if (finalResult.isConfirmed) {
+            // Now proceed with the actual deletion
+            Swal.showLoading();
+            axios
+              .delete(`${BASE_URL}/api/v1/sch/students/${id}`, {
+                headers: {
+                  "x-access-token": token,
+                },
+                data: {
+                  adminPassword: result.value, // Use the password from the first step
+                },
+              })
+              .then((response) => {
+                dispatch(StudentsGet());
+                dispatch(TrashedStudentsGet());
+                Swal.fire({
+                  title: "Deleted!",
+                  text: "Student has been permanently deleted.",
+                  icon: "success",
+                  confirmButtonColor: "#5570F1",
+                });
+              })
+              .catch((error) => {
+                Swal.fire({
+                  title: "Error!",
+                  text: error.response?.data?.message || "Failed to delete student",
+                  icon: "error",
+                  confirmButtonColor: "#5570F1",
+                });
+              });
+          }
         });
       }
     });
   };
+  
 
   return (
     <div className="bg-[#F5F5F5]">

@@ -536,17 +536,16 @@ const StudentLedger = () => {
                             </button>
                           )}
 
-                          {/* Edit button - only show for vouchers that are not paid */}
-                          {voucher.status?.toLowerCase() !== "paid" &&
-                            !voucher.isSplit && (
-                              <button
-                                className="p-1 text-blue-500 hover:bg-blue-50 rounded"
-                                title="Edit Voucher Status"
-                                onClick={() => handleEditVoucher(voucher)}
-                              >
-                                <FontAwesomeIcon icon={faPencilAlt} />
-                              </button>
-                            )}
+                          {/* Edit button - show for all vouchers regardless of status */}
+                          {!voucher.isSplit && (
+                            <button
+                              className="p-1 text-blue-500 hover:bg-blue-50 rounded"
+                              title="Edit Voucher Status"
+                              onClick={() => handleEditVoucher(voucher)}
+                            >
+                              <FontAwesomeIcon icon={faPencilAlt} />
+                            </button>
+                          )}
 
                           {/* Split button - only show for unpaid vouchers with remaining amount and not in processing status */}
                           {voucher.remainingAmount > 0 &&
@@ -692,19 +691,14 @@ const StudentLedger = () => {
                                 </button>
                               )}
 
-                              {/* Edit button for split vouchers - only show if not paid */}
-                              {splitVoucher.status?.toLowerCase() !==
-                                "paid" && (
-                                <button
-                                  className="p-1 text-blue-500 hover:bg-blue-50 rounded"
-                                  title="Edit Voucher Status"
-                                  onClick={() =>
-                                    handleEditVoucher(splitVoucher)
-                                  }
-                                >
-                                  <FontAwesomeIcon icon={faPencilAlt} />
-                                </button>
-                              )}
+                              {/* Edit button for split vouchers - show for all split vouchers */}
+                              <button
+                                className="p-1 text-blue-500 hover:bg-blue-50 rounded"
+                                title="Edit Voucher Status"
+                                onClick={() => handleEditVoucher(splitVoucher)}
+                              >
+                                <FontAwesomeIcon icon={faPencilAlt} />
+                              </button>
 
                               {/* Edit Split button - only show for split vouchers */}
                               {splitVoucher.status?.toLowerCase() !== "paid" &&

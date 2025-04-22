@@ -6,9 +6,11 @@ import { BellIcon } from "@heroicons/react/24/outline";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const Notification = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { notifications, notificationLoading } = useSelector((state) => state.groupdata);
   const token = localStorage.getItem("token");
 
@@ -75,6 +77,18 @@ const Notification = () => {
     });
   };
 
+  const handleNotificationClick = (notification) => {
+    // Mark notification as read
+    if (!notification.isRead) {
+      handleMarkAsRead(notification._id);
+    }
+    
+    // Navigate based on notification type
+    if (notification.type === "ledger" && notification.sender && notification.sender._id) {
+      navigate(`/student-ledger/${notification.sender._id}`);
+    }
+  };
+
   return (
     <div className="bg-[#F5F5F5] min-h-[90vh] px-6 py-5">
       <div className="mb-8">
@@ -118,7 +132,8 @@ const Notification = () => {
                 key={notification._id}
                 className={`p-4 rounded-lg border transition-all duration-300 hover:shadow-md ${
                   notification?.isRead ? 'bg-white' : 'bg-blue-50'
-                }`}
+                } ${notification.type === "ledger" ? 'cursor-pointer' : ''}`}
+                onClick={() => notification.type === "ledger" ? handleNotificationClick(notification) : null}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
@@ -134,9 +149,17 @@ const Notification = () => {
                       {notification?.message}
                     </Typography>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>From: {notification?.sender?.Name}</span>
+                      <span>From: {notification?.sender?.Name || notification?.sender?.fullName || "System"}</span>
                       <span>•</span>
                       <span>{formatDate(notification?.createdAt)}</span>
+                      {notification.type === "ledger" && (
+                        <>
+                          <span>•</span>
+                          <span className="text-blue-600 hover:underline">
+                            View Ledger
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                   {!notification.isRead && (
@@ -144,7 +167,10 @@ const Notification = () => {
                       variant="text" 
                       size="sm" 
                       color="blue"
-                      onClick={() => handleMarkAsRead(notification?._id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMarkAsRead(notification?._id);
+                      }}
                     >
                       Mark as read
                     </Button>
