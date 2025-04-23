@@ -453,7 +453,7 @@ const StudentBody = () => {
                       </td>
                       <td className="p-4 border-b border-gray-100">
                         <Typography className="text-c-grays">
-                          {student.enrollementNumber}
+                          {student?.enrollementNumber?student.enrollementNumber:"N/A"}
                         </Typography>
                       </td>
                       <td className="p-4 border-b border-gray-100">

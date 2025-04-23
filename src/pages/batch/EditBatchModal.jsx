@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { Button, Dialog, Card, Typography } from "@material-tailwind/react";
+import { Button, Dialog, Card, Typography, Alert } from "@material-tailwind/react";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
-import Swal from "sweetalert2";
 import { useSelector } from "react-redux";
 
 const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
@@ -18,6 +17,7 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
   });
   const [loading, setLoading] = useState(false);
   const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [error, setError] = useState("");
 
   // Get data from Redux
   const { courses } = useSelector((state) => state.groupdata);
@@ -57,7 +57,6 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
     }
   };
 
-
   // Filter members to show only Coordinators and unblocked members
   const coordinatorOptions = members?.members
     ?.filter(
@@ -68,7 +67,11 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
         {member.Name} - {member.staffId}
       </option>
     ));
+    
   const handleSubmit = () => {
+    // Clear any previous errors
+    setError("");
+    
     const dataToSend = {
       ...formData,
       course: formData.course,
@@ -82,24 +85,13 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
         },
       })
       .then((res) => {
-        Swal.fire({
-          icon: "success",
-          title: "Success",
-          text: "Batch updated successfully!",
-          confirmButtonColor: "#5570F1",
-        });
         setLoading(false);
         onSuccess();
         handleOpen();
       })
       .catch((error) => {
         setLoading(false);
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: error.response?.data?.message || "Failed to update batch",
-          confirmButtonColor: "#5570F1",
-        });
+        setError(error.response?.data?.message || "Failed to update batch");
       });
   };
 
@@ -114,6 +106,12 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
         <Typography variant="h5" className="mb-6 text-c-grays">
           Edit Batch
         </Typography>
+
+        {error && (
+          <Alert color="red" className="mb-4" onClose={() => setError("")}>
+            {error}
+          </Alert>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -193,8 +191,6 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
               required
             />
           </div>
-
-       
 
           <div>
             <label className="block text-c-grays text-sm font-medium mb-2">
