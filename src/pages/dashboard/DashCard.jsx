@@ -27,8 +27,6 @@ const DashCard = () => {
   const { vouchers } = useSelector((state) => state.profiledata);
   const studentName = localStorage.getItem("groupName");
 
-  console.log(vouchers);
-
   return (
     <div>
       {studentName === "Students" ? (

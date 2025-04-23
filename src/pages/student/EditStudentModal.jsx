@@ -12,7 +12,8 @@ import Select from "react-select";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
 import Swal from "sweetalert2";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { NotificationsGet } from "../../features/GroupApiSlice";
 
 const EditStudentModal = ({
   open,
@@ -71,6 +72,7 @@ const EditStudentModal = ({
   const { batches } = useSelector((state) => state.groupdata);
   const [profileImage, setProfileImage] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const dispatch = useDispatch();
 
   const batchOptions = batches?.batches?.map((batch) => ({
     value: batch._id,
@@ -189,6 +191,8 @@ const EditStudentModal = ({
       });
 
       handleOpen();
+      dispatch(NotificationsGet());
+
       onSuccess();
     } catch (error) {
       setErrorMessage(

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import Select from "react-select";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { BASE_URL } from "../../config/apiconfig";
 import {
   Dialog,
@@ -11,21 +10,14 @@ import {
   IconButton,
 } from "@material-tailwind/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
+import { NotificationsGet } from "../../features/GroupApiSlice";
 
 const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
   const token = localStorage.getItem("token");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showMoveForm, setShowMoveForm] = useState(false);
-  const [reason, setReason] = useState("");
-  const [selectedBatch, setSelectedBatch] = useState(null);
+  const dispatch = useDispatch();
 
-  const { batches } = useSelector((state) => state.groupdata);
-
-  const batchOptions = batches?.batches?.map((batch) => ({
-    value: batch._id,
-    label: batch.batchName,
-  }));
 
   const handleFreezeStudent = async () => {
     setIsLoading(true);
@@ -77,6 +69,8 @@ const FailStudentModal = ({ open, handleOpen, studentData, onSuccess }) => {
 
       if (response.data) {
         handleOpen();
+        dispatch(NotificationsGet());
+
         onSuccess && onSuccess();
       }
     } catch (error) {

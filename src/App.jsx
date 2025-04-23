@@ -45,7 +45,7 @@ function App() {
         socketRef.current = ws;
 
         ws.onopen = () => {
-          console.log("WebSocket Connected");
+          // console.log("WebSocket Connected");
           const message = {
             type: "userActivity",
             userId: userId,
@@ -56,18 +56,18 @@ function App() {
         };
 
         ws.onmessage = (event) => {
-          console.log("WebSocket message received:", event.data);
+          // console.log("WebSocket message received:", event.data);
         };
 
         ws.onerror = (error) => {
-          console.error("WebSocket error:", error);
+          // console.error("WebSocket error:", error);
         };
 
         ws.onclose = () => {
-          console.log("WebSocket disconnected");
+          // console.log("WebSocket disconnected");
         };
       } catch (error) {
-        console.error("Failed to connect WebSocket:", error);
+        // console.error("Failed to connect WebSocket:", error);
       }
     }
 
@@ -105,7 +105,7 @@ function App() {
         dispatch(FeesGet());
         dispatch(AllLedgersGet());
       } catch (error) {
-        console.error("Error dispatching API calls:", error);
+        // console.error("Error dispatching API calls:", error);
       }
     }
   }, []);

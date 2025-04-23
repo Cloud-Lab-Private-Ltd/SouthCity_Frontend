@@ -14,13 +14,13 @@ const UserStatusDashboard = () => {
         });
       })
       .catch((error) => {
-        console.error("Error fetching users:", error);
+        // console.error("Error fetching users:", error);
       });
 
     let wsUrl = localStorage.getItem("wsUrl");
 
     if (!wsUrl) {
-      console.warn("WebSocket URL not found in localStorage.");
+      // console.warn("WebSocket URL not found in localStorage.");
       return;
     }
 
@@ -38,17 +38,17 @@ const UserStatusDashboard = () => {
             updateUserStatus(data.user);
           }
         } catch (error) {
-          console.error("Error parsing WebSocket message:", error);
+          // console.error("Error parsing WebSocket message:", error);
         }
       };
 
       ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
+        // console.error("WebSocket error:", error);
       };
 
       return () => ws.close();
     } catch (error) {
-      console.error("Failed to connect WebSocket:", error);
+      // console.error("Failed to connect WebSocket:", error);
     }
   }, []);
 

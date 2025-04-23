@@ -5,7 +5,7 @@ import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
-import { StudentsGet } from "../../features/GroupApiSlice";
+import { NotificationsGet, StudentsGet } from "../../features/GroupApiSlice";
 import { useNavigate } from "react-router-dom";
 
 const CreateStudent = () => {
@@ -190,6 +190,8 @@ const CreateStudent = () => {
           confirmButtonColor: "#5570F1",
         });
         dispatch(StudentsGet());
+        dispatch(NotificationsGet());
+
         navigate("/student");
         // Reset form
         setFormData({

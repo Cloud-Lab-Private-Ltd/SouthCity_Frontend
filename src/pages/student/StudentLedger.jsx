@@ -703,7 +703,16 @@ const StudentLedger = () => {
                               {/* Edit Split button - only show for split vouchers */}
                               {splitVoucher.status?.toLowerCase() !== "paid" &&
                                 splitVoucher.status?.toLowerCase() !==
-                                  "processing" && (
+                                  "processing" &&
+                                // Add this condition to check if this is Split 2 and Split 1 is paid
+                                !(
+                                  splitVoucher.monthOf?.includes("Split 2") &&
+                                  voucher.splitVouchers?.some(
+                                    (sv) =>
+                                      sv.monthOf?.includes("Split 1") &&
+                                      sv.status?.toLowerCase() === "paid"
+                                  )
+                                ) && (
                                   <button
                                     className="p-1 text-purple-500 hover:bg-purple-50 rounded"
                                     title="Edit Split Percentage"

@@ -5,7 +5,7 @@ import { BASE_URL } from "../../config/apiconfig";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import CourseDetailsModal from "./CourseDetailsModal";
-import { CoursesGet } from "../../features/GroupApiSlice";
+import { CoursesGet, NotificationsGet } from "../../features/GroupApiSlice";
 import EditCourseModal from "./EditCourseModal";
 
 const CourseBody = () => {
@@ -158,6 +158,8 @@ const CourseBody = () => {
         });
         setLoading(false);
         dispatch(CoursesGet());
+        dispatch(NotificationsGet());
+
         // Reset form
         setFormData({
           name: "",
@@ -231,6 +233,8 @@ const CourseBody = () => {
               })
               .then((response) => {
                 dispatch(CoursesGet());
+                dispatch(NotificationsGet());
+
                 Swal.fire({
                   title: "Deleted!",
                   text: "Program has been deleted successfully",

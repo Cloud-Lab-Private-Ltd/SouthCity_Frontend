@@ -143,7 +143,6 @@ const GroupBody = () => {
 
   const { groups, loading } = useSelector((state) => state.groupdata);
 
-  //   console.log("groups", groups);
 
   const handleOpen = () => setOpen(!open);
 

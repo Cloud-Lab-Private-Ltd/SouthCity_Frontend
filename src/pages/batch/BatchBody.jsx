@@ -5,7 +5,7 @@ import { BASE_URL } from "../../config/apiconfig";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import BatchDetailsModal from "./BatchDetailsModal";
-import { BatchesGet } from "../../features/GroupApiSlice";
+import { BatchesGet, NotificationsGet } from "../../features/GroupApiSlice";
 import EditBatchModal from "./EditBatchModal";
 
 const BatchBody = () => {
@@ -59,6 +59,7 @@ const BatchBody = () => {
         });
         setLoading(false);
         dispatch(BatchesGet());
+        dispatch(NotificationsGet());
         setFormData({
           batchName: "",
           course: [],
@@ -131,6 +132,8 @@ const BatchBody = () => {
               })
               .then((response) => {
                 dispatch(BatchesGet());
+                dispatch(NotificationsGet());
+
                 Swal.fire({
                   title: "Deleted!",
                   text: "Batch has been deleted successfully",
