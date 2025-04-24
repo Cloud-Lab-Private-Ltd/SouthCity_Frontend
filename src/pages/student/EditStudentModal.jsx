@@ -64,7 +64,6 @@ const EditStudentModal = ({
     securityFee: "",
 
     verified: true,
-  
   });
 
   const [loading, setLoading] = useState(false);
@@ -266,11 +265,45 @@ const EditStudentModal = ({
                   NIC *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={formData.nic}
-                  onChange={(e) =>
-                    setFormData({ ...formData, nic: e.target.value })
-                  }
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing in the middle of the input
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as XXXXX-XXXXXXX-X
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 5) {
+                      // First 5 digits
+                      formattedValue = digitsOnly;
+                    } else if (digitsOnly.length <= 12) {
+                      // First 5 digits + hyphen + next digits up to 7
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        5
+                      )}-${digitsOnly.slice(5)}`;
+                    } else {
+                      // Complete format: 5 digits + hyphen + 7 digits + hyphen + 1 digit
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        5
+                      )}-${digitsOnly.slice(5, 12)}-${digitsOnly.slice(
+                        12,
+                        13
+                      )}`;
+                    }
+
+                    setFormData({
+                      ...formData,
+                      nic: formattedValue,
+                    });
+                  }}
+                  placeholder="XXXXX-XXXXXXX-X"
+                  maxLength="15"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
@@ -343,11 +376,36 @@ const EditStudentModal = ({
                   Mobile Number *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={formData.mobileNumber}
-                  onChange={(e) =>
-                    setFormData({ ...formData, mobileNumber: e.target.value })
-                  }
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as 03XX-XXXXXXX
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 4) {
+                      // First 4 digits (network code)
+                      formattedValue = digitsOnly;
+                    } else {
+                      // Format: 4 digits + hyphen + remaining digits (up to 7)
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        4
+                      )}-${digitsOnly.slice(4, 11)}`;
+                    }
+
+                    setFormData({
+                      ...formData,
+                      mobileNumber: formattedValue,
+                    });
+                  }}
+                  placeholder="03XX-XXXXXXX"
+                  maxLength="12"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
@@ -357,11 +415,36 @@ const EditStudentModal = ({
                   Phone Number
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={formData.phoneNumber}
-                  onChange={(e) =>
-                    setFormData({ ...formData, phoneNumber: e.target.value })
-                  }
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as 0XX-XXXXXXX
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 3) {
+                      // First 3 digits (area code)
+                      formattedValue = digitsOnly;
+                    } else {
+                      // Format: 3 digits + hyphen + remaining digits (up to 7)
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        3
+                      )}-${digitsOnly.slice(3, 10)}`;
+                    }
+
+                    setFormData({
+                      ...formData,
+                      phoneNumber: formattedValue,
+                    });
+                  }}
+                  placeholder="0XX-XXXXXXX"
+                  maxLength="11"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
@@ -631,14 +714,45 @@ const EditStudentModal = ({
                   Guardian NIC
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={formData.GuardianNIC}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing in the middle of the input
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as XXXXX-XXXXXXX-X
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 5) {
+                      // First 5 digits
+                      formattedValue = digitsOnly;
+                    } else if (digitsOnly.length <= 12) {
+                      // First 5 digits + hyphen + next digits up to 7
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        5
+                      )}-${digitsOnly.slice(5)}`;
+                    } else {
+                      // Complete format: 5 digits + hyphen + 7 digits + hyphen + 1 digit
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        5
+                      )}-${digitsOnly.slice(5, 12)}-${digitsOnly.slice(
+                        12,
+                        13
+                      )}`;
+                    }
+
                     setFormData({
                       ...formData,
-                      GuardianNIC: e.target.value,
-                    })
-                  }
+                      GuardianNIC: formattedValue,
+                    });
+                  }}
+                  placeholder="XXXXX-XXXXXXX-X"
+                  maxLength="15"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
@@ -719,14 +833,36 @@ const EditStudentModal = ({
                   Guardian Phone Number
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={formData.GuardianPhoneNumber}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as 0XX-XXXXXXX
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 3) {
+                      // First 3 digits (area code)
+                      formattedValue = digitsOnly;
+                    } else {
+                      // Format: 3 digits + hyphen + remaining digits (up to 7)
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        3
+                      )}-${digitsOnly.slice(3, 10)}`;
+                    }
+
                     setFormData({
                       ...formData,
-                      GuardianPhoneNumber: e.target.value,
-                    })
-                  }
+                      GuardianPhoneNumber: formattedValue,
+                    });
+                  }}
+                  placeholder="0XX-XXXXXXX"
+                  maxLength="11"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
@@ -736,14 +872,36 @@ const EditStudentModal = ({
                   Guardian Mobile Number
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={formData.GuardianMobileNumber}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as 03XX-XXXXXXX
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 4) {
+                      // First 4 digits (network code)
+                      formattedValue = digitsOnly;
+                    } else {
+                      // Format: 4 digits + hyphen + remaining digits (up to 7)
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        4
+                      )}-${digitsOnly.slice(4, 11)}`;
+                    }
+
                     setFormData({
                       ...formData,
-                      GuardianMobileNumber: e.target.value,
-                    })
-                  }
+                      GuardianMobileNumber: formattedValue,
+                    });
+                  }}
+                  placeholder="03XX-XXXXXXX"
+                  maxLength="12"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
@@ -766,6 +924,8 @@ const EditStudentModal = ({
               </div>
             </div>
           </div>
+
+
           {errorMessage && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg">
               {errorMessage}

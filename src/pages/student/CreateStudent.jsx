@@ -371,11 +371,46 @@ const CreateStudent = () => {
                   NIC *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   name="nic"
                   value={formData.nic}
-                  onChange={handleChange}
-                  placeholder="12345-1234567-1"
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing in the middle of the input
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as XXXXX-XXXXXXX-X
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 5) {
+                      // First 5 digits
+                      formattedValue = digitsOnly;
+                    } else if (digitsOnly.length <= 12) {
+                      // First 5 digits + hyphen + next digits up to 7
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        5
+                      )}-${digitsOnly.slice(5)}`;
+                    } else {
+                      // Complete format: 5 digits + hyphen + 7 digits + hyphen + 1 digit
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        5
+                      )}-${digitsOnly.slice(5, 12)}-${digitsOnly.slice(
+                        12,
+                        13
+                      )}`;
+                    }
+
+                    setFormData({
+                      ...formData,
+                      nic: formattedValue,
+                    });
+                  }}
+                  placeholder="XXXXX-XXXXXXX-X"
+                  maxLength="15"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   required
                 />
@@ -447,32 +482,84 @@ const CreateStudent = () => {
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-              {/* Mobile Number */}
+              {/* Mobile Number - Fixed format for Pakistani mobile numbers */}
               <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Mobile Number *
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   name="mobileNumber"
                   value={formData.mobileNumber}
-                  onChange={handleChange}
-                  placeholder="0300-1234567"
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as 03XX-XXXXXXX
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 4) {
+                      // First 4 digits (network code)
+                      formattedValue = digitsOnly;
+                    } else {
+                      // Format: 4 digits + hyphen + remaining digits (up to 7)
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        4
+                      )}-${digitsOnly.slice(4, 11)}`;
+                    }
+
+                    setFormData({
+                      ...formData,
+                      mobileNumber: formattedValue,
+                    });
+                  }}
+                  placeholder="03XX-XXXXXXX"
+                  maxLength="12"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                   required
                 />
               </div>
-              {/* Phone Number - Moved back to student section */}
+              {/* Phone Number - Fixed format for Pakistani landline numbers */}
               <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Phone Number
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   name="phoneNumber"
                   value={formData.phoneNumber}
-                  onChange={handleChange}
-                  placeholder="021-1234567"
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as 0XX-XXXXXXX
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 3) {
+                      // First 3 digits (area code)
+                      formattedValue = digitsOnly;
+                    } else {
+                      // Format: 3 digits + hyphen + remaining digits (up to 7)
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        3
+                      )}-${digitsOnly.slice(3, 10)}`;
+                    }
+
+                    setFormData({
+                      ...formData,
+                      phoneNumber: formattedValue,
+                    });
+                  }}
+                  placeholder="0XX-XXXXXXX"
+                  maxLength="11"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
@@ -695,10 +782,46 @@ const CreateStudent = () => {
                   Guardian NIC
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   name="GuardianNIC"
                   value={formData.GuardianNIC}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing in the middle of the input
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as XXXXX-XXXXXXX-X
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 5) {
+                      // First 5 digits
+                      formattedValue = digitsOnly;
+                    } else if (digitsOnly.length <= 12) {
+                      // First 5 digits + hyphen + next digits up to 7
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        5
+                      )}-${digitsOnly.slice(5)}`;
+                    } else {
+                      // Complete format: 5 digits + hyphen + 7 digits + hyphen + 1 digit
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        5
+                      )}-${digitsOnly.slice(5, 12)}-${digitsOnly.slice(
+                        12,
+                        13
+                      )}`;
+                    }
+
+                    setFormData({
+                      ...formData,
+                      GuardianNIC: formattedValue,
+                    });
+                  }}
+                  placeholder="XXXXX-XXXXXXX-X"
+                  maxLength="15"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
@@ -763,10 +886,37 @@ const CreateStudent = () => {
                   Guardian Phone Number
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   name="GuardianPhoneNumber"
                   value={formData.GuardianPhoneNumber}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as 0XX-XXXXXXX
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 3) {
+                      // First 3 digits (area code)
+                      formattedValue = digitsOnly;
+                    } else {
+                      // Format: 3 digits + hyphen + remaining digits (up to 7)
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        3
+                      )}-${digitsOnly.slice(3, 10)}`;
+                    }
+
+                    setFormData({
+                      ...formData,
+                      GuardianPhoneNumber: formattedValue,
+                    });
+                  }}
+                  placeholder="0XX-XXXXXXX"
+                  maxLength="11"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
@@ -776,10 +926,37 @@ const CreateStudent = () => {
                   Guardian Mobile Number
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   name="GuardianMobileNumber"
                   value={formData.GuardianMobileNumber}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    // Only allow digits and hyphens
+                    const value = e.target.value.replace(/[^\d-]/g, "");
+
+                    // Remove all hyphens first to handle user editing
+                    const digitsOnly = value.replace(/-/g, "");
+
+                    // Format as 03XX-XXXXXXX
+                    let formattedValue = "";
+
+                    if (digitsOnly.length <= 4) {
+                      // First 4 digits (network code)
+                      formattedValue = digitsOnly;
+                    } else {
+                      // Format: 4 digits + hyphen + remaining digits (up to 7)
+                      formattedValue = `${digitsOnly.slice(
+                        0,
+                        4
+                      )}-${digitsOnly.slice(4, 11)}`;
+                    }
+
+                    setFormData({
+                      ...formData,
+                      GuardianMobileNumber: formattedValue,
+                    });
+                  }}
+                  placeholder="03XX-XXXXXXX"
+                  maxLength="12"
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
