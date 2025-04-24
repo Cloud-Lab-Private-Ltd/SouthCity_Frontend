@@ -266,7 +266,7 @@ const EditStudentModal = ({
                   NIC *
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   value={formData.nic}
                   onChange={(e) =>
                     setFormData({ ...formData, nic: e.target.value })
@@ -343,7 +343,7 @@ const EditStudentModal = ({
                   Mobile Number *
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   value={formData.mobileNumber}
                   onChange={(e) =>
                     setFormData({ ...formData, mobileNumber: e.target.value })
@@ -357,7 +357,7 @@ const EditStudentModal = ({
                   Phone Number
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   value={formData.phoneNumber}
                   onChange={(e) =>
                     setFormData({ ...formData, phoneNumber: e.target.value })
@@ -631,7 +631,7 @@ const EditStudentModal = ({
                   Guardian NIC
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   value={formData.GuardianNIC}
                   onChange={(e) =>
                     setFormData({
@@ -719,7 +719,7 @@ const EditStudentModal = ({
                   Guardian Phone Number
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   value={formData.GuardianPhoneNumber}
                   onChange={(e) =>
                     setFormData({
@@ -736,7 +736,7 @@ const EditStudentModal = ({
                   Guardian Mobile Number
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   value={formData.GuardianMobileNumber}
                   onChange={(e) =>
                     setFormData({

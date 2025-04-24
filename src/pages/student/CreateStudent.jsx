@@ -371,7 +371,7 @@ const CreateStudent = () => {
                   NIC *
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="nic"
                   value={formData.nic}
                   onChange={handleChange}
@@ -383,7 +383,7 @@ const CreateStudent = () => {
               {/* Enrollment Number */}
               <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Enrollment Number 
+                  Enrollment Number
                 </label>
                 <input
                   type="text"
@@ -434,13 +434,26 @@ const CreateStudent = () => {
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
+              {/* City */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  City
+                </label>
+                <input
+                  type="text"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                />
+              </div>
               {/* Mobile Number */}
               <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Mobile Number *
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="mobileNumber"
                   value={formData.mobileNumber}
                   onChange={handleChange}
@@ -455,7 +468,7 @@ const CreateStudent = () => {
                   Phone Number
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
@@ -546,19 +559,7 @@ const CreateStudent = () => {
                   required
                 />
               </div>
-              {/* City */}
-              <div className="col-span-12 md:col-span-6 xl:col-span-4">
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  City
-                </label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                />
-              </div>
+
               {/* Profile Image */}
               <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 <label className="block text-c-grays text-sm font-medium mb-2">
@@ -694,7 +695,7 @@ const CreateStudent = () => {
                   Guardian NIC
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="GuardianNIC"
                   value={formData.GuardianNIC}
                   onChange={handleChange}
@@ -762,7 +763,7 @@ const CreateStudent = () => {
                   Guardian Phone Number
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="GuardianPhoneNumber"
                   value={formData.GuardianPhoneNumber}
                   onChange={handleChange}
@@ -775,7 +776,7 @@ const CreateStudent = () => {
                   Guardian Mobile Number
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   name="GuardianMobileNumber"
                   value={formData.GuardianMobileNumber}
                   onChange={handleChange}
@@ -807,7 +808,7 @@ const CreateStudent = () => {
               {/* Admission Fee */}
               <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Admission Fee 
+                  Admission Fee
                 </label>
                 <input
                   type="number"
@@ -815,7 +816,6 @@ const CreateStudent = () => {
                   value={formData.admissionFee}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-           
                 />
               </div>
               {/* Library Fee */}
@@ -829,13 +829,12 @@ const CreateStudent = () => {
                   value={formData.libraryFee}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                
                 />
               </div>
               {/* Security Fee */}
               <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 <label className="block text-c-grays text-sm font-medium mb-2">
-                  Security Fee 
+                  Security Fee
                 </label>
                 <input
                   type="number"
@@ -843,7 +842,6 @@ const CreateStudent = () => {
                   value={formData.securityFee}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              
                 />
               </div>
             </div>
