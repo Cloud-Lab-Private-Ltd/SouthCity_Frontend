@@ -27,6 +27,9 @@ const DashCard = () => {
   const { vouchers } = useSelector((state) => state.profiledata);
   const studentName = localStorage.getItem("groupName");
 
+  // Filter out vouchers where isSplit is true
+  const filteredVouchers = vouchers ? vouchers.filter(v => !v.isSplit) : [];
+
   return (
     <div>
       {studentName === "Students" ? (
@@ -62,7 +65,7 @@ const DashCard = () => {
                   </div>
                   <div className="mt-6">
                     <h3 className="text-3xl font-bold text-gray-700">
-                      {vouchers?.length || 0}
+                      {filteredVouchers.length || 0}
                     </h3>
                     <p className="text-c-grays mt-1 text-sm">Total Vouchers</p>
                   </div>
@@ -97,7 +100,7 @@ const DashCard = () => {
                   </div>
                   <div className="mt-6">
                     <h3 className="text-3xl font-bold text-gray-700">
-                      {vouchers?.filter((v) => v.status === "unpaid").length ||
+                      {filteredVouchers.filter((v) => v.status === "unpaid").length ||
                         0}
                     </h3>
                     <p className="text-c-grays mt-1 text-sm">unpaid Vouchers</p>
@@ -134,7 +137,7 @@ const DashCard = () => {
                   </div>
                   <div className="mt-6">
                     <h3 className="text-3xl font-bold text-gray-700">
-                      {vouchers?.filter((v) => v.status === "Paid").length || 0}
+                      {filteredVouchers.filter((v) => v.status === "Paid").length || 0}
                     </h3>
                     <p className="text-c-grays mt-1 text-sm">Paid Vouchers</p>
                   </div>
@@ -170,7 +173,7 @@ const DashCard = () => {
                   </div>
                   <div className="mt-6">
                     <h3 className="text-3xl font-bold text-gray-700">
-                      {vouchers?.filter((v) => v.status === "Processing")
+                      {filteredVouchers.filter((v) => v.status === "Processing")
                         .length || 0}
                     </h3>
                     <p className="text-c-grays mt-1 text-sm">
@@ -210,7 +213,7 @@ const DashCard = () => {
                   <div className="mt-6">
                     <h3 className="text-3xl font-bold text-gray-700">
                       Rs.{" "}
-                      {vouchers?.reduce(
+                      {filteredVouchers.reduce(
                         (sum, v) => sum + Number(v.totalFee),
                         0
                       ) || 0}
@@ -224,9 +227,9 @@ const DashCard = () => {
             </div>
           )}
 
-          {/* Use the StudentFeeLedger component */}
-          {studentName === "Students" && vouchers && vouchers.length > 0 && (
-            <StudentFeeLedger vouchers={vouchers} />
+          {/* Use the StudentFeeLedger component with filtered vouchers */}
+          {studentName === "Students" && filteredVouchers && filteredVouchers.length > 0 && (
+            <StudentFeeLedger vouchers={filteredVouchers} />
           )}
         </>
       ) : (
