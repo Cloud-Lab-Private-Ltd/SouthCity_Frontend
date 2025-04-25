@@ -5,14 +5,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFilter,
   faSearch,
-  faFileExport,
   faArrowLeft,
   faArrowRight,
+  faFilePdf,
+  faFileExcel,
 } from "@fortawesome/free-solid-svg-icons";
 import "react-datepicker/dist/react-datepicker.css";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { StatusesGet } from "../../features/GroupApiSlice";
+import jsPDF from "jspdf";
+// Import jspdf-autotable as a separate import
+import 'jspdf-autotable';
 
 const LedgerBody = () => {
   // State for filters
@@ -203,6 +207,175 @@ const LedgerBody = () => {
     document.body.removeChild(link);
   };
 
+  // Function to export data to PDF
+  const exportToPDF = () => {
+    try {
+      // Determine which data to export (filtered or all)
+      const dataToExport =
+        filteredData.length > 0 ? filteredData : nonSplitVouchers;
+
+      // Create a new PDF document in landscape orientation
+      const doc = new jsPDF('landscape');
+      
+      // Define constants for positioning
+      const pageWidth = doc.internal.pageSize.width;
+      const margin = 10;
+      const lineHeight = 7;
+      const fontSize = 10;
+      const smallFontSize = 8;
+      
+      // Add title
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.text("Financial Ledger Report", margin, margin + 10);
+      
+      // Add date
+      doc.setFontSize(smallFontSize);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Generated on: ${new Date().toLocaleDateString('en-GB')}`, margin, margin + 18);
+      
+      // Add summary
+      let currentY = margin + 30;
+      doc.setFontSize(fontSize);
+      doc.setFont("helvetica", "bold");
+      doc.text("Summary:", margin, currentY);
+      currentY += lineHeight;
+      
+      doc.setFont("helvetica", "normal");
+      doc.text(`Total Amount: Rs. ${totalAmount.toLocaleString()}`, margin + 5, currentY);
+      currentY += lineHeight;
+      
+      doc.text(`Total Paid: Rs. ${totalPaid.toLocaleString()}`, margin + 5, currentY);
+      currentY += lineHeight;
+      
+      doc.text(`Total Remaining: Rs. ${totalRemaining.toLocaleString()}`, margin + 5, currentY);
+      currentY += lineHeight * 2;
+      
+      // Table headers
+      const headers = [
+        "Voucher No", 
+        "Student ID", 
+        "Student Name", 
+        "Program", 
+        "Semester", 
+        "Created Date", 
+        "Due Date", 
+        "Total Amount", 
+        "Paid Amount", 
+        "Remaining", 
+        "Status"
+      ];
+      
+      // Calculate column widths
+      const tableWidth = pageWidth - (2 * margin);
+      const colWidths = [
+        tableWidth * 0.1,  // Voucher No
+        tableWidth * 0.08, // Student ID
+        tableWidth * 0.12, // Student Name
+        tableWidth * 0.12, // Program
+        tableWidth * 0.08, // Semester
+        tableWidth * 0.08, // Created Date
+        tableWidth * 0.08, // Due Date
+        tableWidth * 0.08, // Total Amount
+        tableWidth * 0.08, // Paid Amount
+        tableWidth * 0.08, // Remaining
+        tableWidth * 0.1   // Status
+      ];
+      
+      // Draw table header
+      doc.setFillColor(85, 112, 241); // c-purple color
+      doc.setDrawColor(85, 112, 241);
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(smallFontSize);
+      
+      // Draw header background
+      doc.rect(margin, currentY - 5, tableWidth, 8, 'F');
+      
+      // Draw header text
+      let xPos = margin;
+      headers.forEach((header, index) => {
+        doc.text(header, xPos + 2, currentY);
+        xPos += colWidths[index];
+      });
+      
+      currentY += lineHeight;
+      
+      // Reset text color for table body
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "normal");
+      
+      // Draw table rows
+      let rowCount = 0;
+      dataToExport.forEach((item) => {
+        // Alternate row background
+        if (rowCount % 2 === 0) {
+          doc.setFillColor(240, 240, 240);
+          doc.rect(margin, currentY - 5, tableWidth, 8, 'F');
+        }
+        
+        // Add new page if needed
+        if (currentY > doc.internal.pageSize.height - 20) {
+          doc.addPage();
+          currentY = margin + 10;
+          
+          // Draw header on new page
+          doc.setFillColor(85, 112, 241);
+          doc.setTextColor(255, 255, 255);
+          doc.setFont("helvetica", "bold");
+          doc.rect(margin, currentY - 5, tableWidth, 8, 'F');
+          
+          xPos = margin;
+          headers.forEach((header, index) => {
+            doc.text(header, xPos + 2, currentY);
+            xPos += colWidths[index];
+          });
+          
+          currentY += lineHeight;
+          doc.setTextColor(0, 0, 0);
+          doc.setFont("helvetica", "normal");
+        }
+        
+        // Prepare row data
+        const rowData = [
+          item.voucherNumber || "",
+          item.student?.registrationId || "",
+          item.student?.fullName || "",
+          item.course?.name || "",
+          item.monthOf || "",
+          new Date(item.createdAt).toLocaleDateString("en-GB"),
+          new Date(item.dueDate).toLocaleDateString("en-GB"),
+          `Rs. ${(item.totalFee || 0).toLocaleString()}`,
+          `Rs. ${(item.paidAmount || 0).toLocaleString()}`,
+          `Rs. ${(item.remainingAmount || 0).toLocaleString()}`,
+          item.status || "Unpaid"
+        ];
+        
+        // Draw row data
+        xPos = margin;
+        rowData.forEach((text, index) => {
+          // Truncate text if too long
+          let displayText = text;
+          if (text.length > 20) {
+            displayText = text.substring(0, 17) + "...";
+          }
+          doc.text(displayText, xPos + 2, currentY);
+          xPos += colWidths[index];
+        });
+        
+        currentY += lineHeight;
+        rowCount++;
+      });
+      
+      // Save the PDF
+      doc.save("ledger_report.pdf");
+    } catch (error) {
+      console.error("PDF Export Error:", error);
+      alert("Error exporting to PDF. Please check console for details.");
+    }
+  };
+
+
   return (
     <div className="bg-[#F5F5F5]">
       <div className="mb-8">
@@ -328,9 +501,12 @@ const LedgerBody = () => {
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500"
                 />
               </div>
-              <div className="flex items-end gap-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Actions
+                </label>
                 <Button
-                  className="bg-blue-500 flex items-center gap-2 px-4 py-2.5 shadow-md"
+                  className="bg-blue-500 flex items-center gap-2 px-4 py-2.5 shadow-md w-full"
                   onClick={() => {
                     setSearchTerm("");
                     setSelectedCourse(null);
@@ -342,14 +518,25 @@ const LedgerBody = () => {
                   <FontAwesomeIcon icon={faFilter} className="h-4 w-4" />
                   Reset Filters
                 </Button>
-                <Button
-                  className="bg-green-500 flex items-center gap-2 px-4 py-2.5 shadow-md"
-                  onClick={exportToCSV}
-                >
-                  <FontAwesomeIcon icon={faFileExport} className="h-4 w-4" />
-                  Export CSV
-                </Button>
               </div>
+            </div>
+            
+            {/* Export buttons in a separate row */}
+            <div className="mt-4 flex gap-4">
+              <Button
+                className="bg-green-500 flex items-center gap-2 px-4 py-2.5 shadow-md"
+                onClick={exportToCSV}
+              >
+                <FontAwesomeIcon icon={faFileExcel} className="h-4 w-4" />
+                Export CSV
+              </Button>
+              <Button
+                className="bg-red-500 flex items-center gap-2 px-4 py-2.5 shadow-md"
+                onClick={exportToPDF}
+              >
+                <FontAwesomeIcon icon={faFilePdf} className="h-4 w-4" />
+                Export PDF
+              </Button>
             </div>
           </div>
 
