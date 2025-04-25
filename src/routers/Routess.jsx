@@ -18,7 +18,7 @@ import Status from "../pages/status/Status";
 import CoursePage from "../pages/course/Course";
 import BatchPage from "../pages/batch/Batch";
 import StudentPage from "../pages/student/Student";
-import VoucherPage from "../pages/voucher/Voucher";
+// import VoucherPage from "../pages/voucher/Voucher";
 // import ActionLogPage from "../pages/action log/ActionLog";
 import BulkMessagePage from "../pages/bulk message/BulkMessage";
 import PermissionPage from "../pages/permission/Permission";
@@ -167,7 +167,7 @@ const Routess = () => {
   const bulkpermissions = permissions[4]?.read;
   const degreepermissions = permissions[5]?.read;
   const statuspermissions = permissions[6]?.read;
-  const feespermissions = permissions[8]?.read;
+  // const feespermissions = permissions[8]?.read;
 
   return (
     <div>
