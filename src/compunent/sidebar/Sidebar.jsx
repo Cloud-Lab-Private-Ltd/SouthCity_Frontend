@@ -588,7 +588,7 @@ export function Index({ isDrawerOpen }) {
                         className="h-5 w-5"
                       />
                     </ListItemPrefix>
-                    Ledger
+                    Financial Ledger / Report
                   </ListItem>
                 </>
               ) : ledgerpermissions ? (
@@ -605,7 +605,7 @@ export function Index({ isDrawerOpen }) {
                         className="h-5 w-5"
                       />
                     </ListItemPrefix>
-                    Ledger
+                    Financial Ledger / Report
                   </ListItem>
                 </>
               ) : (

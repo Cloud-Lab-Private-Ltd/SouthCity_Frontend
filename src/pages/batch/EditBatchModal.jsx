@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { Button, Dialog, Card, Typography, Alert } from "@material-tailwind/react";
+import {
+  Button,
+  Dialog,
+  Card,
+  Typography,
+  Alert,
+} from "@material-tailwind/react";
 import axios from "axios";
 import { BASE_URL } from "../../config/apiconfig";
 import { useSelector } from "react-redux";
@@ -21,7 +27,6 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
 
   // Get data from Redux
   const { courses } = useSelector((state) => state.groupdata);
-  const { statuses } = useSelector((state) => state.groupdata);
   const { members } = useSelector((state) => state.groupdata);
 
   useEffect(() => {
@@ -67,11 +72,11 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
         {member.Name} - {member.staffId}
       </option>
     ));
-    
+
   const handleSubmit = () => {
     // Clear any previous errors
     setError("");
-    
+
     const dataToSend = {
       ...formData,
       course: formData.course,
@@ -140,11 +145,8 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
               required
             >
               <option value="">Select Status</option>
-              {statuses?.statuses?.map((status) => (
-                <option key={status._id} value={status.name}>
-                  {status.name}
-                </option>
-              ))}
+              <option value={"Active"}>{"Active"}</option>
+              <option value={"Inactive"}>{"Inactive"}</option>
             </select>
           </div>
 
@@ -212,7 +214,7 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
 
         <div className="mt-6 mb-6">
           <Typography className="text-lg font-semibold text-c-grays mb-4">
-          Programs Selection
+            Programs Selection
           </Typography>
           <div className="w-full">
             <div className="flex gap-4 mb-4">

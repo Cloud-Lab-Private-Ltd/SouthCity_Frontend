@@ -40,6 +40,24 @@ const StudentLedger = () => {
     }
   };
 
+  // Add this function inside the StudentLedger component, before the return statement
+  // Function to get row background color based on status
+  const getRowBackgroundColor = (voucher) => {
+    if (voucher.paymentSlip) {
+      return "bg-green-50 border-l-4 border-green-400";
+    }
+    if (voucher.status?.toLowerCase() === "processing") {
+      return "bg-blue-50 border-l-4 border-blue-400";
+    }
+    if (voucher.status?.toLowerCase() === "paid") {
+      return "bg-green-50 border-l-4 border-green-400";
+    }
+    if (voucher.isSplit) {
+      return "bg-gray-50";
+    }
+    return "";
+  };
+
   // Get students from Redux store
   const { students } = useSelector((state) => state.groupdata);
   const {
@@ -412,13 +430,7 @@ const StudentLedger = () => {
                   <>
                     <tr
                       key={voucher._id}
-                      className={`hover:bg-gray-50 ${
-                        voucher.isSplit ? "bg-gray-50" : ""
-                      } ${
-                        voucher.paymentSlip
-                          ? "bg-green-50 border-l-4 border-green-400"
-                          : ""
-                      }`}
+                      className={`${getRowBackgroundColor(voucher)}`}
                     >
                       <td className="p-4 border-b border-gray-100">
                         <div className="flex items-center">
@@ -568,7 +580,7 @@ const StudentLedger = () => {
                       voucher.splitVouchers.map((splitVoucher) => (
                         <tr
                           key={splitVoucher._id}
-                          className={`bg-gray-100 ${
+                          className={`bg-purple-50 border-l-4 border-purple-400 ${
                             splitVoucher.paymentSlip
                               ? "border-l-4 border-green-400"
                               : ""

@@ -449,7 +449,6 @@ const CourseBody = () => {
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Degree Type *
@@ -469,22 +468,30 @@ const CourseBody = () => {
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Duration *
                 </label>
-                <input
-                  type="text"
+                <select
                   name="duration"
                   value={formData.duration}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  placeholder="e.g. 4 years"
                   required
-                />
+                >
+                  <option value="">Select Duration</option>
+                  <option value="1 year">1 year</option>
+                  <option value="2 years">2 years</option>
+                  <option value="3 years">3 years</option>
+                  <option value="4 years">4 years</option>
+                  <option value="5 years">5 years</option>
+                  <option value="6 years">6 years</option>
+                  <option value="7 years">7 years</option>
+                  <option value="8 years">8 years</option>
+                  <option value="9 years">9 years</option>
+                  <option value="10 years">10 years</option>
+                </select>
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Number of Semesters *
@@ -498,7 +505,6 @@ const CourseBody = () => {
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Total Fee *

@@ -25,8 +25,6 @@ const BatchBody = () => {
 
   // Get courses data from Redux
   const { courses } = useSelector((state) => state.groupdata);
-  // Get statuses data from Redux
-  const { statuses } = useSelector((state) => state.groupdata);
   // Get members data from Redux
   const { members } = useSelector((state) => state.groupdata);
 
@@ -394,11 +392,13 @@ const BatchBody = () => {
                   required
                 >
                   <option value="">Select Status</option>
-                  {statuses?.statuses?.map((status) => (
-                    <option key={status._id} value={status.name}>
-                      {status.name}
-                    </option>
-                  ))}
+                  <option value={"Active"}>
+                    {"Active"}
+                  </option>
+                  <option value={"Inactive"}>
+                    {"Inactive"}
+                  </option>
+          
                 </select>
               </div>
 

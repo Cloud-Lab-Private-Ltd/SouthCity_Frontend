@@ -379,8 +379,8 @@ const LedgerBody = () => {
   return (
     <div className="bg-[#F5F5F5]">
       <div className="mb-8">
-        <h2 className="text-[1.5rem] font-semibold text-c-grays">
-          FINANCIAL LEDGER
+        <h2 className="text-[1.5rem] font-semibold text-c-grays uppercase">
+        Financial Ledger / Report
         </h2>
       </div>
 
