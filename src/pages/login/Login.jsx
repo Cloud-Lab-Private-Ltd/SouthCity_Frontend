@@ -98,6 +98,43 @@ const Login = () => {
       });
   };
 
+  const handleForgotPassword = () => {
+    // Navigate to forgot password page or show modal
+    Swal.fire({
+      title: 'Forgot Password',
+      text: 'Please enter your email address to reset your password',
+      input: 'email',
+      inputPlaceholder: 'Enter your email',
+      showCancelButton: true,
+      confirmButtonColor: '#5570F1',
+      confirmButtonText: 'Reset Password',
+      cancelButtonText: 'Cancel',
+      showLoaderOnConfirm: true,
+      preConfirm: (email) => {
+        // Here you would implement the API call to reset password
+        return axios.post(`${BASE_URL}/api/v1/sch/auth/forgot-password`, { email })
+          .then(response => {
+            return response.data;
+          })
+          .catch(error => {
+            Swal.showValidationMessage(
+              `Request failed: ${error.response?.data?.message || 'Something went wrong'}`
+            );
+          });
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Password reset link has been sent to your email',
+          confirmButtonColor: '#5570F1',
+        });
+      }
+    });
+  };
+
   return (
     <div
       className="relative h-screen flex justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover items-center"
@@ -221,6 +258,18 @@ const Login = () => {
               </button>
             </div>
           </div>
+          
+          {/* Forgot Password Button */}
+          <div className="text-right">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className="text-sm font-medium text-c-purple hover:text-c-yellow transition-colors duration-300"
+            >
+              Forgot Password?
+            </button>
+          </div>
+          
           <div className="pt-5">
             <Button
               type="submit"

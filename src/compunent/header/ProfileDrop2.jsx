@@ -39,7 +39,6 @@ const ProfileDrop2 = () => {
   const batchpermissions = permissions[1]?.read;
   const degreepermissions = permissions[5]?.read;
   const statuspermissions = permissions[6]?.read;
-  const feespermissions = permissions[8]?.read;
   
   const closeMenu2 = (label, path) => {
     if (label === "Sign Out") {
