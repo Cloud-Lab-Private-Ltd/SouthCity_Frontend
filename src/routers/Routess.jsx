@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import { Index } from "../compunent/sidebar/Sidebar";
-import ProfileDrop from "../compunent/header/ProfileDrop";
-import { Badge, IconButton } from "@material-tailwind/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/solid";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faExpand, faCompress } from "@fortawesome/free-solid-svg-icons";
+import Navigation from "../compunent/header/Navigation";
 import Private from "./Private";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Login from "../pages/login/Login";
@@ -18,80 +14,49 @@ import Status from "../pages/status/Status";
 import CoursePage from "../pages/course/Course";
 import BatchPage from "../pages/batch/Batch";
 import StudentPage from "../pages/student/Student";
-// import VoucherPage from "../pages/voucher/Voucher";
-// import ActionLogPage from "../pages/action log/ActionLog";
 import BulkMessagePage from "../pages/bulk message/BulkMessage";
 import PermissionPage from "../pages/permission/Permission";
 import Notification from "../pages/notifications/Notification";
 import StudentVoucher from "../pages/student vouncher/StudentVoucher";
 import TrashStudent from "../pages/student/TrashStudent";
 import CreateStudent from "../pages/student/CreateStudent";
-// import Feespage from "../pages/fees page/Feespage";
+import Feespage from "../pages/fees page/Feespage";
 import LedgerPage from "../pages/ledger/Ledger";
 import StudentLedger from "../pages/student/StudentLedger";
 
 const Routess = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
   const location = useLocation();
-  const navigate = useNavigate();
-  const [isFullScreen, setIsFullScreen] = useState(false);
 
-  // Function to toggle fullscreen
-  const toggleFullScreen = () => {
-    if (!document.fullscreenElement) {
-      // Enter fullscreen
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        /* Safari */
-        document.documentElement.webkitRequestFullscreen();
-      } else if (document.documentElement.msRequestFullscreen) {
-        /* IE11 */
-        document.documentElement.msRequestFullscreen();
-      }
-      setIsFullScreen(true);
-    } else {
-      // Exit fullscreen
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        /* Safari */
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) {
-        /* IE11 */
-        document.msExitFullscreen();
-      }
-      setIsFullScreen(false);
-    }
+  // Get permissions from Redux store
+  const permissions = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.permissions || []
+  );
+
+  const admin = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.name || []
+  );
+
+  const studentName = localStorage.getItem("groupName");
+
+  // Check permissions for different modules
+  const coursepermissions = permissions[0]?.read;
+  const ledgerpermissions = permissions[3]?.read;
+  const studentpermissions = permissions[2]?.read;
+  const bulkpermissions = permissions[4]?.read;
+  const batchpermissions = permissions[1]?.read;
+  const degreepermissions = permissions[5]?.read;
+  const statuspermissions = permissions[6]?.read;
+  const feespermissions = permissions[8]?.read;
+
+  // Check permission helper function
+  const checkPermission = (type) => {
+    if (admin === "admins") return true;
+    const studentPermission = permissions?.find(
+      (p) => p.pageName === "Student"
+    );
+    return studentPermission?.[type] || false;
   };
-
-  // Listen for fullscreen change events
-  useEffect(() => {
-    const handleFullScreenChange = () => {
-      setIsFullScreen(!!document.fullscreenElement);
-    };
-
-    document.addEventListener("fullscreenchange", handleFullScreenChange);
-    document.addEventListener("webkitfullscreenchange", handleFullScreenChange);
-    document.addEventListener("mozfullscreenchange", handleFullScreenChange);
-    document.addEventListener("MSFullscreenChange", handleFullScreenChange);
-
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullScreenChange);
-      document.removeEventListener(
-        "webkitfullscreenchange",
-        handleFullScreenChange
-      );
-      document.removeEventListener(
-        "mozfullscreenchange",
-        handleFullScreenChange
-      );
-      document.removeEventListener(
-        "MSFullscreenChange",
-        handleFullScreenChange
-      );
-    };
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -111,6 +76,7 @@ const Routess = () => {
     setIsDrawerOpen(true);
     localStorage.setItem("isDrawerOpen", true);
   };
+
   const closeDrawer = () => {
     setIsDrawerOpen(false);
     localStorage.setItem("isDrawerOpen", false);
@@ -118,429 +84,89 @@ const Routess = () => {
 
   const hide1 = location.pathname === "/login";
 
-  const type = localStorage.getItem("type");
-
-  const [currentDateTime, setCurrentDateTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentDateTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const formattedDate = currentDateTime.toLocaleDateString();
-  const formattedTime = currentDateTime.toLocaleTimeString();
-  const { profile, student } = useSelector((state) => state.profiledata);
-  const studentName = localStorage.getItem("groupName");
-
-  const notifications = useSelector(
-    (state) => state.groupdata?.notifications || []
-  );
-
-  // Get unread count with proper array check
-  const unreadCount = Array.isArray(notifications)
-    ? notifications.filter((n) => !n.isRead).length
-    : 0;
-
-  const permissions = useSelector(
-    (state) => state.profiledata?.profile?.member?.group?.permissions || []
-  );
-
-  const admin = useSelector(
-    (state) => state.profiledata?.profile?.member?.group?.name || []
-  );
-
-  const checkPermission = (type) => {
-    if (admin === "admins") return true;
-    const studentPermission = permissions?.find(
-      (p) => p.pageName === "Student"
-    );
-    return studentPermission?.[type] || false;
-  };
-
-  const progamspermissions = permissions[0]?.read;
-  const batchpermissions = permissions[1]?.read;
-  const studentpermissions = permissions[2]?.read;
-  const ledgerpermissions = permissions[3]?.read;
-  const bulkpermissions = permissions[4]?.read;
-  const degreepermissions = permissions[5]?.read;
-  const statuspermissions = permissions[6]?.read;
-  // const feespermissions = permissions[8]?.read;
-
   return (
     <div>
       <div className="app">
         {!hide1 && (
-          <div className="header h-[70px] w-full">
-            <div className="flex h-[70px] w-[100%] shadow-md fixed z-[300]">
-              <div
-                className={
-                  isDrawerOpen
-                    ? "flex-none lg:w-[260px]"
-                    : "hidden transition-all ease-in"
-                }
-              ></div>
-              <div className="lg:block hidden w-[100%] bg-white dark:bg-d-back2">
-                <div className="grid grid-cols-2 px-6 flex-initial w-[100%]">
-                  <div className="flex items-center gap-3">
-                    <div className="h-[70px] flex items-center">
-                      <IconButton
-                        variant="text"
-                        size="lg"
-                        className="dark:text-d-text"
-                      >
-                        {isDrawerOpen ? (
-                          <XMarkIcon
-                            className="h-8 w-8 stroke-2"
-                            onClick={closeDrawer}
-                          />
-                        ) : (
-                          <Bars3Icon
-                            className="h-8 w-8 stroke-2"
-                            onClick={openDrawer}
-                          />
-                        )}
-                      </IconButton>
-                    </div>
-                    <div className="avatar online placeholder">
-                      <div className="bg-neutral text-neutral-content w-10 rounded-full">
-                        <span className="text-lg">
-                          {studentName === "Students" ? (
-                            <>{student?.student?.fullName?.[0]}</>
-                          ) : (
-                            <>{profile?.member?.Name?.[0]}</>
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                    <h1 className="text-[#282F3E] font-semibold dark:text-d-text">
-                      {studentName === "Students" ? (
-                        <>{student?.student?.fullName}</>
-                      ) : (
-                        <>{profile?.member?.Name}</>
-                      )}
-                    </h1>
-                  </div>
-                  <div className="h-[70px] flex items-center justify-end gap-4 dark:text-d-text">
-                    <span>{formattedDate}</span>
-                    <span>{formattedTime}</span>
-                    {/* Add fullscreen toggle button */}
-                    <IconButton
-                      variant="text"
-                      className="relative"
-                      onClick={toggleFullScreen}
-                    >
-                      <FontAwesomeIcon
-                        icon={isFullScreen ? faCompress : faExpand}
-                        className="h-5 w-5 text-gray-600"
-                      />
-                    </IconButton>
-                    <div
-                      className="relative cursor-pointer"
-                      onClick={() => navigate("/notifications")}
-                    >
-                      <Badge
-                        content={unreadCount}
-                        color="red"
-                        invisible={unreadCount === 0}
-                        className={`${
-                          unreadCount > 9 ? "rounded-full px-2" : ""
-                        }`}
-                      >
-                        <IconButton variant="text" className="relative">
-                          <BellIcon className="h-6 w-6 text-gray-600" />
-                        </IconButton>
-                      </Badge>
-                    </div>
-                    <ProfileDrop />
-                  </div>
-                </div>
-              </div>
-              <div className="lg:hidden block bg-white w-[100%] dark:bg-d-back2">
-                <div className="grid grid-cols-2 px-3 flex-initial w-[100%]">
-                  <div className="h-[70px] flex items-center justify-start gap-2">
-                    <ProfileDrop />
-                  </div>
-                  <div className="flex items-center gap-1 justify-end">
-                    <h1 className="text-[#282F3E] font-medium text-[0.9rem]">
-                      {type}
-                    </h1>
-                    <div className="h-[70px] flex items-center">
-                      {/* Add fullscreen toggle button for mobile */}
-                      <IconButton
-                        variant="text"
-                        className="relative"
-                        onClick={toggleFullScreen}
-                      >
-                        <FontAwesomeIcon
-                          icon={isFullScreen ? faCompress : faExpand}
-                          className="h-5 w-5 text-gray-600"
-                        />
-                      </IconButton>
-                      <div
-                        className="relative cursor-pointer"
-                        onClick={() => navigate("/notifications")}
-                      >
-                        <Badge
-                          content={unreadCount}
-                          color="red"
-                          invisible={unreadCount === 0}
-                          className={`${
-                            unreadCount > 9 ? "rounded-full px-2" : ""
-                          }`}
-                        >
-                          <IconButton variant="text" className="relative">
-                            <BellIcon className="h-6 w-6 text-gray-600" />
-                          </IconButton>
-                        </Badge>
-                      </div>
-                      <IconButton
-                        variant="text"
-                        size="lg"
-                        className="dark:text-d-text"
-                      >
-                        {isDrawerOpen ? (
-                          <XMarkIcon
-                            className="h-8 w-8 stroke-2"
-                            onClick={closeDrawer}
-                          />
-                        ) : (
-                          <Bars3Icon
-                            className="h-8 w-8 stroke-2"
-                            onClick={openDrawer}
-                          />
-                        )}
-                      </IconButton>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Navigation
+            isDrawerOpen={isDrawerOpen}
+            openDrawer={openDrawer}
+            closeDrawer={closeDrawer}
+          />
         )}
         <div className="flex">
           {!hide1 && (
-            <div
-              className={
-                isDrawerOpen
-                  ? "sidebar flex-none lg:w-[280px]  overflow-hidden"
-                  : ""
-              }
-            >
-              <Index isDrawerOpen={isDrawerOpen} />
-            </div>
+            <Index isDrawerOpen={isDrawerOpen} closeDrawer={closeDrawer} />
           )}
-          <div className="flex-initial w-[100%] overflow-x-hidden">
+          <div
+            className={`flex-1 overflow-x-hidden transition-all duration-300 ${
+              isDrawerOpen && !hide1 ? "md:ml-[120px]" : "ml-0"
+            }`}
+          >
             <Routes>
               <Route path="/login" element={<Login />}></Route>
               <Route path="*" element={<Dashboard />}></Route>
 
               <Route element={<Private />}>
-                {(admin === "admins" || checkPermission("insert")) && (
-                  <Route
-                    path="/create-student"
-                    element={<CreateStudent />}
-                  ></Route>
-                )}
-
-                {admin === "admins" ? (
-                  <>
-                    <Route
-                      path="/trash-students"
-                      element={<TrashStudent />}
-                    ></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
-                {studentName === "Students" ? (
-                  <>
-                    <Route
-                      path="/student-voucher"
-                      element={<StudentVoucher />}
-                    ></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
                 <Route path="/" element={<Dashboard />}></Route>
-                {admin === "admins" ? (
-                  <>
-                    <Route path="/group-role" element={<GroupPage />}></Route>
-                    <Route
-                      path="/permission"
-                      element={<PermissionPage />}
-                    ></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
-                {admin === "admins" ? (
-                  <>
-                    <Route path="/members" element={<Member />}></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
-                {admin === "admins" ? (
-                  <>
-                    <Route path="/degree-type" element={<Degree />}></Route>
-                  </>
-                ) : degreepermissions ? (
-                  <>
-                    <Route path="/degree-type" element={<Degree />}></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
-                {/* {admin === "admins" ? (
-                  <>
-                    <Route path="/fees-fields" element={<Feespage />}></Route>
-                  </>
-                ) : feespermissions ? (
-                  <>
-                    <Route path="/fees-fields" element={<Feespage />}></Route>
-                  </>
-                ) : (
-                  ""
-                )} */}
-
-                {admin === "admins" ? (
-                  <>
-                    <Route path="/status" element={<Status />}></Route>
-                  </>
-                ) : statuspermissions ? (
-                  <>
-                    <Route path="/status" element={<Status />}></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
-                {admin === "admins" ? (
-                  <>
-                    <Route path="/course" element={<CoursePage />}></Route>
-                  </>
-                ) : progamspermissions ? (
-                  <>
-                    <Route path="/course" element={<CoursePage />}></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
-                {admin === "admins" ? (
-                  <>
-                    <Route path="/batch" element={<BatchPage />}></Route>
-                  </>
-                ) : batchpermissions ? (
-                  <>
-                    <Route path="/batch" element={<BatchPage />}></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
-                {admin === "admins" ? (
-                  <>
-                    <Route path="/student" element={<StudentPage />}></Route>
-                  </>
-                ) : studentpermissions ? (
-                  <>
-                    <Route path="/student" element={<StudentPage />}></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
-                {/* {admin === "admins" ? (
-                  <>
-                    <Route path="/voucher" element={<VoucherPage />}></Route>
-                  </>
-                ) : voucherpermissions ? (
-                  <>
-                    <Route path="/voucher" element={<VoucherPage />}></Route>
-                  </>
-                ) : (
-                  ""
-                )} */}
-
-                {/* {admin === "admins" ? (
-                  <>
-                    <Route
-                      path="/action-log"
-                      element={<ActionLogPage />}
-                    ></Route>
-                  </>
-                ) : actionlogpermissions ? (
-                  <>
-                    <Route
-                      path="/action-log"
-                      element={<ActionLogPage />}
-                    ></Route>
-                  </>
-                ) : (
-                  ""
-                )} */}
-
-                {admin === "admins" ? (
-                  <>
-                    <Route
-                      path="/bulk-message"
-                      element={<BulkMessagePage />}
-                    ></Route>
-                  </>
-                ) : bulkpermissions ? (
-                  <>
-                    <Route
-                      path="/bulk-message"
-                      element={<BulkMessagePage />}
-                    ></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
-                {admin === "admins" ? (
-                  <>
-                    <Route path="/ledger" element={<LedgerPage />}></Route>
-                  </>
-                ) : ledgerpermissions ? (
-                  <>
-                    <Route path="/ledger" element={<LedgerPage />}></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
-                {admin === "admins" ? (
-                  <>
-                    <Route
-                      path="/student-ledger/:id"
-                      element={<StudentLedger />}
-                    ></Route>
-                  </>
-                ) : studentpermissions ? (
-                  <>
-                    <Route
-                      path="/student-ledger/:id"
-                      element={<StudentLedger />}
-                    ></Route>
-                  </>
-                ) : (
-                  ""
-                )}
-
                 <Route path="/profile" element={<Profile />}></Route>
-
                 <Route path="/notifications" element={<Notification />}></Route>
+
+                {/* Admin Routes - Only for admins */}
+                {admin === "admins" && (
+                  <>
+                    <Route path="/group-role" element={<GroupPage />} />
+                    <Route path="/permission" element={<PermissionPage />} />
+                    <Route path="/members" element={<Member />} />
+                    <Route path="/trash-students" element={<TrashStudent />} />
+                  </>
+                )}
+
+                {/* Core Settings Routes - Based on permissions */}
+                {(admin === "admins" || degreepermissions) && (
+                  <Route path="/degree-type" element={<Degree />} />
+                )}
+
+                {(admin === "admins" || statuspermissions) && (
+                  <Route path="/status" element={<Status />} />
+                )}
+
+                {(admin === "admins" || feespermissions) && (
+                  <Route path="/fees-fields" element={<Feespage />} />
+                )}
+
+                {/* Academic Routes - Based on permissions */}
+                {(admin === "admins" || coursepermissions) && (
+                  <Route path="/course" element={<CoursePage />} />
+                )}
+
+                {(admin === "admins" || batchpermissions) && (
+                  <Route path="/batch" element={<BatchPage />} />
+                )}
+
+                {/* Student Routes - Based on permissions */}
+                {(admin === "admins" || studentpermissions) && (
+                  <Route path="/student" element={<StudentPage />} />
+                )}
+
+                {(admin === "admins" || checkPermission("insert")) && (
+                  <Route path="/create-student" element={<CreateStudent />} />
+                )}
+
+                <Route path="/student-ledger/:id" element={<StudentLedger />} />
+
+                {/* Voucher Routes */}
+                {studentName === "Students" && (
+                  <Route path="/student-voucher" element={<StudentVoucher />} />
+                )}
+
+                {(admin === "admins" || bulkpermissions) && (
+                  <Route path="/bulk-message" element={<BulkMessagePage />} />
+                )}
+
+                {(admin === "admins" || ledgerpermissions) && (
+                  <Route path="/ledger" element={<LedgerPage />} />
+                )}
               </Route>
             </Routes>
           </div>

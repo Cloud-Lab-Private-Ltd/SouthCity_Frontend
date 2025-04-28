@@ -57,14 +57,6 @@ const Dashboard = () => {
       <div className="flex h-[100vh w-[100%]">
         <div className={"w-full "}>
           <div className="w-[100%] bg-c-back dark:bg-d-back min-h-[90vh] px-6 py-5 dash-body">
-            <div className="grid grid-cols-2">
-              <div>
-                <h2 className="text-c-grays dark:text-d-text  font-semibold text-[1.5rem] uppercase">
-                  DASHBOARD
-                </h2>
-              </div>
-              <div></div>
-            </div>
 
             <div>
               <DashCard />

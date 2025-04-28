@@ -11,6 +11,12 @@ import {
 import {
   PowerIcon,
   UserCircleIcon,
+  UserGroupIcon,
+  LockClosedIcon,
+  UserIcon,
+  Cog6ToothIcon,
+  BookOpenIcon,
+  ListBulletIcon,
 } from "@heroicons/react/24/solid";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -20,28 +26,116 @@ const ProfileDrop = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { profile, student } = useSelector((state) => state.profiledata);
   const studentName = localStorage.getItem("groupName");
+  
+  // Get permissions from Redux store
+  const permissions = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.permissions || []
+  );
+  
+  const admin = useSelector(
+    (state) => state.profiledata?.profile?.member?.group?.name || []
+  );
+  
+  // Check permissions
+  const progamspermissions = permissions[0]?.read;
+  const batchpermissions = permissions[1]?.read;
+  const degreepermissions = permissions[5]?.read;
+  const statuspermissions = permissions[6]?.read;
+  const feespermissions = permissions[8]?.read;
 
-  const closeMenu = (label) => {
+  const closeMenu = (label, path) => {
     if (label === "Sign Out") {
       localStorage.clear();
       navigate("/login");
       setIsMenuOpen(false);
     } else if(label === "My Profile") {
       navigate("/profile");
+      setIsMenuOpen(false);
+    } else if(path) {
+      navigate(path);
+      setIsMenuOpen(false);
     } else {
       setIsMenuOpen(false);
     }
   };
 
+  // Basic profile menu items
   const profileMenuItems = [
     {
       label: "My Profile",
       icon: UserCircleIcon,
+      path: "/profile"
     },
+  ];
+  
+  // Admin menu items
+  const adminMenuItems = [];
+  
+  if (admin === "admins") {
+    adminMenuItems.push(
+      {
+        label: "Group / Role",
+        icon: UserGroupIcon,
+        path: "/group-role"
+      },
+      {
+        label: "Permission",
+        icon: LockClosedIcon,
+        path: "/permission"
+      },
+      {
+        label: "Faculty",
+        icon: UserIcon,
+        path: "/members"
+      }
+    );
+  }
+  
+  // Core settings menu items
+  const coreSettingsItems = [];
+  
+  if (admin === "admins" || degreepermissions) {
+    coreSettingsItems.push({
+      label: "Degree Type",
+      icon: Cog6ToothIcon,
+      path: "/degree-type"
+    });
+  }
+  
+  if (admin === "admins" || statuspermissions) {
+    coreSettingsItems.push({
+      label: "Status",
+      icon: Cog6ToothIcon,
+      path: "/status"
+    });
+  }
+  
+  
+  // Program and batch menu items
+  const programBatchItems = [];
+  
+  if (admin === "admins" || progamspermissions) {
+    programBatchItems.push({
+      label: "Programs",
+      icon: BookOpenIcon,
+      path: "/course"
+    });
+  }
+  
+  if (admin === "admins" || batchpermissions) {
+    programBatchItems.push({
+      label: "Batch",
+      icon: ListBulletIcon,
+      path: "/batch"
+    });
+  }
+  
+  // Sign out should always be the last item
+  const signOutItem = [
     {
       label: "Sign Out",
       icon: PowerIcon,
-    },
+    }
   ];
 
   return (
@@ -65,34 +159,137 @@ const ProfileDrop = () => {
           />
         </Button>
       </MenuHandler>
-      <MenuList className="p-1">
-        {profileMenuItems.map(({ label, icon }, key) => {
-          const isLastItem = key === profileMenuItems.length - 1;
-          return (
-            <MenuItem
-              key={label}
-              onClick={() => closeMenu(label)}
-              className={`flex items-center gap-2 rounded ${
-                isLastItem
-                  ? "hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
-                  : ""
-              }`}
+      <MenuList className="p-1 max-h-[80vh] overflow-y-auto custom-scrollbar">
+        {/* Profile Section */}
+        {profileMenuItems.map(({ label, icon, path }, key) => (
+          <MenuItem
+            key={label}
+            onClick={() => closeMenu(label, path)}
+            className="flex items-center gap-2 rounded"
+          >
+            {React.createElement(icon, {
+              className: "h-4 w-4",
+              strokeWidth: 2,
+            })}
+            <Typography
+              as="span"
+              variant="small"
+              className="font-normal"
             >
-              {React.createElement(icon, {
-                className: `h-4 w-4 ${isLastItem ? "text-red-500" : ""}`,
-                strokeWidth: 2,
-              })}
-              <Typography
-                as="span"
-                variant="small"
-                className="font-normal"
-                color={isLastItem ? "red" : "inherit"}
+              {label}
+            </Typography>
+          </MenuItem>
+        ))}
+        
+        {/* Admin Section - only show if there are items */}
+        {adminMenuItems.length > 0 && (
+          <>
+            <hr className="my-2 border-blue-gray-50" />
+            <Typography className="text-xs font-semibold text-blue-gray-500 px-3 py-1.5">
+              Administration
+            </Typography>
+            {adminMenuItems.map(({ label, icon, path }, key) => (
+              <MenuItem
+                key={label}
+                onClick={() => closeMenu(label, path)}
+                className="flex items-center gap-2 rounded"
               >
-                {label}
-              </Typography>
-            </MenuItem>
-          );
-        })}
+                {React.createElement(icon, {
+                  className: "h-4 w-4",
+                  strokeWidth: 2,
+                })}
+                <Typography
+                  as="span"
+                  variant="small"
+                  className="font-normal"
+                >
+                  {label}
+                </Typography>
+              </MenuItem>
+            ))}
+          </>
+        )}
+        
+        {/* Core Settings Section - only show if there are items */}
+        {coreSettingsItems.length > 0 && (
+          <>
+            <hr className="my-2 border-blue-gray-50" />
+            <Typography className="text-xs font-semibold text-blue-gray-500 px-3 py-1.5">
+              Core Settings
+            </Typography>
+            {coreSettingsItems.map(({ label, icon, path }, key) => (
+              <MenuItem
+                key={label}
+                onClick={() => closeMenu(label, path)}
+                className="flex items-center gap-2 rounded"
+              >
+                {React.createElement(icon, {
+                  className: "h-4 w-4",
+                  strokeWidth: 2,
+                })}
+                <Typography
+                  as="span"
+                  variant="small"
+                  className="font-normal"
+                >
+                  {label}
+                </Typography>
+              </MenuItem>
+            ))}
+          </>
+        )}
+        
+        {/* Program and Batch Section - only show if there are items */}
+        {programBatchItems.length > 0 && (
+          <>
+            <hr className="my-2 border-blue-gray-50" />
+            <Typography className="text-xs font-semibold text-blue-gray-500 px-3 py-1.5">
+              Academic
+            </Typography>
+            {programBatchItems.map(({ label, icon, path }, key) => (
+              <MenuItem
+                key={label}
+                onClick={() => closeMenu(label, path)}
+                className="flex items-center gap-2 rounded"
+              >
+                {React.createElement(icon, {
+                  className: "h-4 w-4",
+                  strokeWidth: 2,
+                })}
+                <Typography
+                  as="span"
+                  variant="small"
+                  className="font-normal"
+                >
+                  {label}
+                </Typography>
+              </MenuItem>
+            ))}
+          </>
+        )}
+        
+        {/* Sign Out Section */}
+        <hr className="my-2 border-blue-gray-50" />
+        {signOutItem.map(({ label, icon }, key) => (
+          <MenuItem
+            key={label}
+            onClick={() => closeMenu(label)}
+            className="flex items-center gap-2 rounded hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
+          >
+            {React.createElement(icon, {
+              className: "h-4 w-4 text-red-500",
+              strokeWidth: 2,
+            })}
+            <Typography
+              as="span"
+              variant="small"
+              className="font-normal"
+              color="red"
+            >
+              {label}
+            </Typography>
+          </MenuItem>
+        ))}
       </MenuList>
     </Menu>
   );
