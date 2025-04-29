@@ -186,6 +186,62 @@ const StudentBody = () => {
     });
   };
 
+  // Add this function near the top of the component, with other handler functions
+  const handleResendAccountEmail = (studentId) => {
+    // Show confirmation dialog
+    Swal.fire({
+      title: "Resend Account Email",
+      text: "Are you sure you want to resend account details to this student?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, resend",
+      confirmButtonColor: "#5570F1",
+      cancelButtonColor: "#d33",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Show loading state
+        Swal.fire({
+          title: "Sending...",
+          text: "Please wait while we resend the account details.",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        // Make API call to resend account email
+        axios
+          .post(
+            `${BASE_URL}/api/v1/sch/resend`,
+            { id: studentId },
+            {
+              headers: {
+                "x-access-token": token,
+              },
+            }
+          )
+          .then(() => {
+            Swal.fire({
+              title: "Email Sent!",
+              text: "Account details have been resent to the student's email.",
+              icon: "success",
+              confirmButtonColor: "#5570F1",
+            });
+          })
+          .catch((error) => {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text:
+                error.response?.data?.message ||
+                "Failed to resend account details",
+              confirmButtonColor: "#5570F1",
+            });
+          });
+      }
+    });
+  };
+
   return (
     <div className="bg-[#F5F5F5]">
       <div className="mb-8">
@@ -453,7 +509,9 @@ const StudentBody = () => {
                       </td>
                       <td className="p-4 border-b border-gray-100">
                         <Typography className="text-c-grays">
-                          {student?.enrollementNumber?student.enrollementNumber:"N/A"}
+                          {student?.enrollementNumber
+                            ? student.enrollementNumber
+                            : "N/A"}
                         </Typography>
                       </td>
                       <td className="p-4 border-b border-gray-100">
@@ -608,6 +666,33 @@ const StudentBody = () => {
                                       />
                                     </svg>
                                     Year Back
+                                  </button>
+                                )}
+
+                                {(admin === "admins" ||
+                                  checkPermission("insert")) && (
+                                  <button
+                                    onClick={() => {
+                                      handleResendAccountEmail(student._id);
+                                      setOpenMenu(null);
+                                    }}
+                                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 text-blue-600"
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth={1.5}
+                                      stroke="currentColor"
+                                      className="w-4 h-4"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                                      />
+                                    </svg>
+                                    Resend Account Email
                                   </button>
                                 )}
 

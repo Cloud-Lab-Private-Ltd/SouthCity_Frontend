@@ -36,6 +36,9 @@ const AdminDashboard = ({
     (state) => state.ledgerdata
   );
 
+  const filteredGroups =
+    groups?.groups?.filter((group) => group.name !== "Students") || [];
+
   // Filter out parent vouchers with isSplit: true (same logic as in LedgerBody.jsx)
   const nonSplitVouchers =
     allLedgers?.data?.filter((item) => !item.isSplit) || [];
@@ -58,8 +61,6 @@ const AdminDashboard = ({
 
   return (
     <>
-
-
       {/* Main Dashboard Grid */}
       <div className="grid lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-6 my-4">
         {(admin === "admins" || studentpermissions) && (
@@ -267,7 +268,7 @@ const AdminDashboard = ({
                 </div>
                 <div className="mt-6">
                   <h3 className="text-3xl font-bold text-gray-700">
-                    {groups?.groups?.length || 0}
+                    {filteredGroups.length || 0}
                   </h3>
                   <p className="text-gray-500 mt-1 text-sm">Total Groups</p>
                 </div>

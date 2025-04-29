@@ -25,6 +25,7 @@ import {
   TrashedStudentsGet,
   VouchersGet,
 } from "../../features/GroupApiSlice";
+import backImg from "../../assets/img/back-img.jpg"
 
 const Login = () => {
   const navigate = useNavigate();
@@ -99,37 +100,196 @@ const Login = () => {
   };
 
   const handleForgotPassword = () => {
-    // Navigate to forgot password page or show modal
+    // Step 1: Request OTP
     Swal.fire({
-      title: 'Forgot Password',
-      text: 'Please enter your email address to reset your password',
-      input: 'email',
-      inputPlaceholder: 'Enter your email',
+      title: "Forgot Password",
+      html: `
+        <div class="text-left mb-4">
+          <p class="text-sm text-gray-600 mb-3">Enter your email address to receive a verification code</p>
+          <input 
+            type="email" 
+            id="email" 
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" 
+            placeholder="Enter your email"
+          >
+        </div>
+      `,
       showCancelButton: true,
-      confirmButtonColor: '#5570F1',
-      confirmButtonText: 'Reset Password',
-      cancelButtonText: 'Cancel',
+      confirmButtonColor: "#5570F1",
+      confirmButtonText: "Send Code",
+      cancelButtonText: "Cancel",
       showLoaderOnConfirm: true,
-      preConfirm: (email) => {
-        // Here you would implement the API call to reset password
-        return axios.post(`${BASE_URL}/api/v1/sch/auth/forgot-password`, { email })
-          .then(response => {
-            return response.data;
+      preConfirm: () => {
+        const email = document.getElementById("email").value;
+        if (!email) {
+          Swal.showValidationMessage("Please enter your email");
+          return false;
+        }
+
+        return axios
+          .post(`${BASE_URL}/api/v1/sch/forgot-password`, { email })
+          .then((response) => {
+            return { email, ...response.data };
           })
-          .catch(error => {
+          .catch((error) => {
             Swal.showValidationMessage(
-              `Request failed: ${error.response?.data?.message || 'Something went wrong'}`
+              `Request failed: ${
+                error.response?.data?.message || "Something went wrong"
+              }`
             );
           });
       },
-      allowOutsideClick: () => !Swal.isLoading()
+      allowOutsideClick: () => !Swal.isLoading(),
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const email = result.value.email;
+        // Step 2: Verify OTP
+        verifyOTP(email);
+      }
+    });
+  };
+
+  const verifyOTP = (email) => {
+    Swal.fire({
+      title: "Verify Code",
+      html: `
+        <div class="text-left mb-4">
+          <p class="text-sm text-gray-600 mb-3">Enter the verification code sent to your email</p>
+          <div class="flex justify-center space-x-2 mb-3">
+            <input type="text" id="otp" maxlength="6" 
+              class="w-full px-3 py-2 border border-gray-300 rounded-md text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-purple-500" 
+              placeholder="Enter 6-digit code">
+          </div>
+          <p class="text-xs text-gray-500">Didn't receive the code? <button type="button" id="resendBtn" class="text-purple-600 hover:text-purple-800">Resend</button></p>
+        </div>
+      `,
+      didOpen: () => {
+        // Add event listener for resend button
+        document.getElementById("resendBtn").addEventListener("click", () => {
+          axios
+            .post(`${BASE_URL}/api/v1/sch/forgot-password`, { email })
+            .then(() => {
+              Swal.showValidationMessage("Verification code resent!");
+              setTimeout(() => {
+                Swal.resetValidationMessage();
+              }, 2000);
+            })
+            .catch((error) => {
+              Swal.showValidationMessage(
+                `Failed to resend: ${
+                  error.response?.data?.message || "Something went wrong"
+                }`
+              );
+              setTimeout(() => {
+                Swal.resetValidationMessage();
+              }, 2000);
+            });
+        });
+      },
+      showCancelButton: true,
+      confirmButtonColor: "#5570F1",
+      confirmButtonText: "Verify",
+      cancelButtonText: "Cancel",
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const otp = document.getElementById("otp").value;
+        if (!otp || otp.length !== 6) {
+          Swal.showValidationMessage("Please enter a valid 6-digit code");
+          return false;
+        }
+
+        return axios
+          .post(`${BASE_URL}/api/v1/sch/verify-otp`, { otp })
+          .then((response) => {
+            return { otp, ...response.data };
+          })
+          .catch((error) => {
+            Swal.showValidationMessage(
+              `Verification failed: ${
+                error.response?.data?.message || "Invalid code"
+              }`
+            );
+          });
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const otp = result.value.otp;
+        // Step 3: Reset Password
+        resetPassword(otp);
+      }
+    });
+  };
+
+  const resetPassword = (otp) => {
+    Swal.fire({
+      title: "Reset Password",
+      html: `
+        <div class="text-left mb-4">
+          <p class="text-sm text-gray-600 mb-3">Create a new password</p>
+          <div class="mb-3">
+            <input 
+              type="password" 
+              id="newPassword" 
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" 
+              placeholder="New password"
+            >
+          </div>
+          <div>
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" 
+              placeholder="Confirm new password"
+            >
+          </div>
+          <p class="text-xs text-gray-500 mt-2">Password must be at least 6 characters</p>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonColor: "#5570F1",
+      confirmButtonText: "Reset Password",
+      cancelButtonText: "Cancel",
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+
+        if (!newPassword || newPassword.length < 6) {
+          Swal.showValidationMessage("Password must be at least 6 characters");
+          return false;
+        }
+
+        if (newPassword !== confirmPassword) {
+          Swal.showValidationMessage("Passwords do not match");
+          return false;
+        }
+
+        return axios
+          .post(`${BASE_URL}/api/v1/sch/reset-password`, {
+            otp,
+            newPassword,
+          })
+          .then((response) => {
+            return response.data;
+          })
+          .catch((error) => {
+            Swal.showValidationMessage(
+              `Reset failed: ${
+                error.response?.data?.message || "Something went wrong"
+              }`
+            );
+          });
+      },
+      allowOutsideClick: () => !Swal.isLoading(),
     }).then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: 'Password reset link has been sent to your email',
-          confirmButtonColor: '#5570F1',
+          icon: "success",
+          title: "Password Reset Successful",
+          text: "You can now login with your new password",
+          confirmButtonColor: "#5570F1",
         });
       }
     });
@@ -139,7 +299,7 @@ const Login = () => {
     <div
       className="relative h-screen flex justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-500 bg-no-repeat bg-cover items-center"
       style={{
-        backgroundImage: `url(https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)`,
+        backgroundImage: `url(${backImg})`,
       }}
     >
       <div className="absolute bg-black opacity-60 inset-0 z-0"></div>
@@ -258,19 +418,19 @@ const Login = () => {
               </button>
             </div>
           </div>
-          
+
           {/* Forgot Password Button */}
           <div className="text-right">
             <button
               type="button"
               onClick={handleForgotPassword}
-              className="text-sm font-medium text-c-purple hover:text-c-yellow transition-colors duration-300"
+              className="text-sm font-medium text-c-purple hover:text-purple-600 transition-colors duration-300"
             >
               Forgot Password?
             </button>
           </div>
-          
-          <div className="pt-5">
+
+          <div className="">
             <Button
               type="submit"
               className="rounded-full w-full h-[50px] overflow-hidden flex items-center justify-center bg-c-purple text-[1rem] tracking-wide"

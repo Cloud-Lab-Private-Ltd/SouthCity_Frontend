@@ -18,11 +18,12 @@ import {
   BookOpenIcon,
   ListBulletIcon,
 } from "@heroicons/react/24/solid";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const ProfileDrop = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // Get current location
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { profile, student } = useSelector((state) => state.profiledata);
   const studentName = localStorage.getItem("groupName");
@@ -42,6 +43,11 @@ const ProfileDrop = () => {
   const degreepermissions = permissions[5]?.read;
   const statuspermissions = permissions[6]?.read;
   const feespermissions = permissions[8]?.read;
+
+  // Check if a menu item is active based on current path
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   const closeMenu = (label, path) => {
     if (label === "Sign Out") {
@@ -165,16 +171,18 @@ const ProfileDrop = () => {
           <MenuItem
             key={label}
             onClick={() => closeMenu(label, path)}
-            className="flex items-center gap-2 rounded"
+            className={`flex items-center gap-2 rounded ${
+              isActive(path) ? "bg-c-purple/10 text-c-purple" : ""
+            }`}
           >
             {React.createElement(icon, {
-              className: "h-4 w-4",
+              className: `h-4 w-4 ${isActive(path) ? "text-c-purple" : ""}`,
               strokeWidth: 2,
             })}
             <Typography
               as="span"
               variant="small"
-              className="font-normal"
+              className={`font-normal ${isActive(path) ? "text-c-purple font-medium" : ""}`}
             >
               {label}
             </Typography>
@@ -192,16 +200,18 @@ const ProfileDrop = () => {
               <MenuItem
                 key={label}
                 onClick={() => closeMenu(label, path)}
-                className="flex items-center gap-2 rounded"
+                className={`flex items-center gap-2 rounded ${
+                  isActive(path) ? "bg-c-purple/10 text-c-purple" : ""
+                }`}
               >
                 {React.createElement(icon, {
-                  className: "h-4 w-4",
+                  className: `h-4 w-4 ${isActive(path) ? "text-c-purple" : ""}`,
                   strokeWidth: 2,
                 })}
                 <Typography
                   as="span"
                   variant="small"
-                  className="font-normal"
+                  className={`font-normal ${isActive(path) ? "text-c-purple font-medium" : ""}`}
                 >
                   {label}
                 </Typography>
@@ -221,16 +231,18 @@ const ProfileDrop = () => {
               <MenuItem
                 key={label}
                 onClick={() => closeMenu(label, path)}
-                className="flex items-center gap-2 rounded"
+                className={`flex items-center gap-2 rounded ${
+                  isActive(path) ? "bg-c-purple/10 text-c-purple" : ""
+                }`}
               >
                 {React.createElement(icon, {
-                  className: "h-4 w-4",
+                  className: `h-4 w-4 ${isActive(path) ? "text-c-purple" : ""}`,
                   strokeWidth: 2,
                 })}
                 <Typography
                   as="span"
                   variant="small"
-                  className="font-normal"
+                  className={`font-normal ${isActive(path) ? "text-c-purple font-medium" : ""}`}
                 >
                   {label}
                 </Typography>
@@ -250,16 +262,18 @@ const ProfileDrop = () => {
               <MenuItem
                 key={label}
                 onClick={() => closeMenu(label, path)}
-                className="flex items-center gap-2 rounded"
+                className={`flex items-center gap-2 rounded ${
+                  isActive(path) ? "bg-c-purple/10 text-c-purple" : ""
+                }`}
               >
                 {React.createElement(icon, {
-                  className: "h-4 w-4",
+                  className: `h-4 w-4 ${isActive(path) ? "text-c-purple" : ""}`,
                   strokeWidth: 2,
                 })}
                 <Typography
                   as="span"
                   variant="small"
-                  className="font-normal"
+                  className={`font-normal ${isActive(path) ? "text-c-purple font-medium" : ""}`}
                 >
                   {label}
                 </Typography>

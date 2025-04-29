@@ -60,14 +60,14 @@ const DashCard = () => {
           />
         </div>
 
-        {/* Right side nurse image - hidden on mobile */}
+        {/* Right side nurse image - hidden on mobile
         <div className="absolute right-0 bottom-0 h-full hidden md:flex items-end">
           <img
             src={nurseImage}
             alt="Medical Staff"
             className="h-[160px] object-contain"
           />
-        </div>
+        </div> */}
 
         {/* Center content */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center px-4 py-6">
