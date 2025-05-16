@@ -321,17 +321,17 @@ const GroupBody = () => {
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
-                        {item.name}
+                        {item?.name}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
-                        {item.description}
+                        {item?.description}
                       </Typography>
                     </td>
                     <td className="p-4 border-b border-gray-100">
-                      {item.name !== "finance" &&
-                        item.name !== "Coordinator" && (
+                      {item?.name !== "finance" &&
+                        item?.name !== "Coordinator" && (
                           <div className="flex gap-2">
                             <Button
                               size="sm"

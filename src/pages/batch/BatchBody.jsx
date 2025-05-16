@@ -288,8 +288,10 @@ const BatchBody = () => {
   const recordsPerPage = 5;
   const lastIndex = currentPage * recordsPerPage;
   const firstIndex = lastIndex - recordsPerPage;
-  const records = filteredBatches?.slice(firstIndex, lastIndex);
-  const npage = Math.ceil(filteredBatches?.length / recordsPerPage);
+  const records = filteredBatches?.slice(firstIndex, lastIndex) || [];
+  const npage = filteredBatches?.length
+    ? Math.ceil(filteredBatches.length / recordsPerPage)
+    : 1;
 
   const prePage = () => {
     if (currentPage !== 1) {
@@ -392,13 +394,8 @@ const BatchBody = () => {
                   required
                 >
                   <option value="">Select Status</option>
-                  <option value={"Active"}>
-                    {"Active"}
-                  </option>
-                  <option value={"Inactive"}>
-                    {"Inactive"}
-                  </option>
-          
+                  <option value={"Active"}>{"Active"}</option>
+                  <option value={"Inactive"}>{"Inactive"}</option>
                 </select>
               </div>
 
@@ -704,7 +701,9 @@ const BatchBody = () => {
 
         <div className="p-4 flex items-center justify-between border-t border-gray-100">
           <Typography className="text-c-grays">
-            Page {currentPage} of {npage}
+            {filteredBatches?.length
+              ? `Page ${currentPage} of ${npage}`
+              : "No data available"}
           </Typography>
           <div className="flex gap-2">
             <Button
@@ -712,7 +711,7 @@ const BatchBody = () => {
               size="sm"
               className="text-c-purple border-c-purple"
               onClick={prePage}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || !filteredBatches?.length}
             >
               Previous
             </Button>
@@ -721,7 +720,7 @@ const BatchBody = () => {
               size="sm"
               className="text-c-purple border-c-purple"
               onClick={nextPage}
-              disabled={currentPage === npage}
+              disabled={currentPage === npage || !filteredBatches?.length}
             >
               Next
             </Button>

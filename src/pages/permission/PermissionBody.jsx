@@ -373,7 +373,7 @@ const PermissionBody = () => {
                   <Checkbox
                     checked={page.update}
                     onChange={() => handlePermissionChange(pageIndex, "update")}
-                    label="Update"
+                    label="Edit"
                     className="text-c-purple"
                   />
                   <Checkbox

@@ -383,7 +383,19 @@ const CourseBody = () => {
     );
     return coursePermission?.[type] || false;
   };
+  const numberInputStyle = {
+    /* Remove spinner arrows for Chrome, Safari, Edge, Opera */
+    WebkitAppearance: "none",
+    MozAppearance: "textfield",
+    appearance: "textfield",
+    /* For Firefox */
+    margin: 0,
+  };
 
+  // Add this function inside your component
+  const preventScroll = (e) => {
+    e.target.blur();
+  };
   return (
     <div className="bg-[#F5F5F5]">
       <EditCourseModal
@@ -501,7 +513,10 @@ const CourseBody = () => {
                   name="noOfSemesters"
                   value={formData.noOfSemesters}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  onWheel={preventScroll}
+                  min="0"
+                  step="any"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple no-spinner"
                   required
                 />
               </div>
@@ -560,7 +575,7 @@ const CourseBody = () => {
                       <label className="block text-c-grays text-sm font-medium mb-2">
                         Semester Fee *
                       </label>
-                      <input
+                      {/* <input
                         type="number"
                         value={semester.semesterFees}
                         onChange={(e) =>
@@ -571,6 +586,22 @@ const CourseBody = () => {
                           )
                         }
                         className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                        placeholder="Enter semester fee"
+                        required
+                      /> */}
+                      <input
+                        type="number"
+                        value={semester.semesterFees}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || parseFloat(value) >= 0) {
+                            handleSemesterChange(index, "semesterFees", value);
+                          }
+                        }}
+                        onWheel={preventScroll}
+                        min="0"
+                        step="any"
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple no-spinner"
                         placeholder="Enter semester fee"
                         required
                       />

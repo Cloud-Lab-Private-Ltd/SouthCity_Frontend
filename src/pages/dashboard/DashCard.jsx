@@ -80,10 +80,10 @@ const DashCard = () => {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-white text-center drop-shadow-lg">
-            South City Institute of Medical Sciences
+            South city Health Care Education Hub Pvt Ltd
           </h1>
           <h2 className="text-lg text-white text-center drop-shadow-lg">
-            Course Fee Management System
+            Fees Management System
           </h2>
         </div>
       </div>

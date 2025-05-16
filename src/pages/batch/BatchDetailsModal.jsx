@@ -11,6 +11,7 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const BatchDetailsModal = ({ open, handleOpen, batchData }) => {
   if (!batchData) return null;
+  console.log("data before shoing in the view is ", batchData?.course);
 
   return (
     <Dialog
@@ -24,11 +25,13 @@ const BatchDetailsModal = ({ open, handleOpen, batchData }) => {
           <Typography variant="h4" className="text-c-grays font-bold">
             {batchData.batchName}
           </Typography>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-            batchData.status === 'Active' 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-yellow-100 text-yellow-800'
-          }`}>
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-medium ${
+              batchData.status === "Active"
+                ? "bg-green-100 text-green-800"
+                : "bg-yellow-100 text-yellow-800"
+            }`}
+          >
             {batchData.status}
           </span>
         </div>
@@ -51,18 +54,23 @@ const BatchDetailsModal = ({ open, handleOpen, batchData }) => {
             <div className="space-y-4">
               <InfoItem label="Batch Name" value={batchData.batchName} />
               <InfoItem label="Session Type" value={batchData.sessionType} />
-              <InfoItem label="Number of Students" value={batchData.numberOfStudents} />
-              <InfoItem 
-                label="Status" 
+              <InfoItem
+                label="Number of Students"
+                value={batchData.numberOfStudents}
+              />
+              <InfoItem
+                label="Status"
                 value={
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    batchData.status === 'Active' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      batchData.status === "Active"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
                     {batchData.status}
                   </span>
-                } 
+                }
               />
             </div>
           </Card>
@@ -72,58 +80,65 @@ const BatchDetailsModal = ({ open, handleOpen, batchData }) => {
               Duration Information
             </Typography>
             <div className="space-y-4">
-              <InfoItem 
-                label="Start Date" 
-                value={new Date(batchData.startDate).toLocaleDateString()} 
+              <InfoItem
+                label="Start Date"
+                value={new Date(batchData.startDate).toLocaleDateString()}
               />
-              <InfoItem 
-                label="End Date" 
-                value={new Date(batchData.endDate).toLocaleDateString()} 
+              <InfoItem
+                label="End Date"
+                value={new Date(batchData.endDate).toLocaleDateString()}
               />
-              <InfoItem 
-                label="Created At" 
-                value={new Date(batchData.createdAt).toLocaleString()} 
+              <InfoItem
+                label="Created At"
+                value={new Date(batchData.createdAt).toLocaleString()}
               />
-              <InfoItem 
-                label="Last Updated" 
-                value={new Date(batchData.updatedAt).toLocaleString()} 
+              <InfoItem
+                label="Last Updated"
+                value={new Date(batchData.updatedAt).toLocaleString()}
               />
             </div>
           </Card>
 
-
           <Card className="p-6 shadow-sm col-span-2">
             <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
-            Programs Information
+              Programs Information
             </Typography>
-            {batchData.course.map((course, index) => (
+            {batchData?.course?.map((course, index) => (
               <div key={index} className="p-4 bg-purple-50 rounded-lg mb-4">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <InfoItem label="Programs Name" value={course.name} />
-                  <InfoItem label="Level" value={course.Level} />
-                  <InfoItem label="Category" value={course.category} />
-                  <InfoItem label="Duration" value={course.duration} />
-                  <InfoItem label="Total Fee" value={`Rs. ${course.totalFee}`} />
-                  <InfoItem label="No. of Semesters" value={course.noOfSemesters} />
-                  <InfoItem 
-                    label="Admission Fee" 
-                    value={`Rs. ${course.admissionFee.amount}`} 
+                  <InfoItem label="Programs Name" value={course?.name} />
+                  <InfoItem label="Level" value={course?.Level} />
+                  <InfoItem label="Category" value={course?.category} />
+                  <InfoItem label="Duration" value={course?.duration} />
+                  <InfoItem
+                    label="Total Fee"
+                    value={`Rs. ${course?.totalFee}`}
                   />
-                  <InfoItem 
-                    label="Per Semester Fee" 
-                    value={`Rs. ${course.perSemesterFee.amount}`} 
+                  <InfoItem
+                    label="No. of Semesters"
+                    value={course?.noOfSemesters}
                   />
-                  <InfoItem 
-                    label="Status" 
+                  <InfoItem
+                    label="Admission Fee"
+                    value={`Rs. ${course?.admissionFee?.amount}`}
+                  />
+                  <InfoItem
+                    label="Per Semester Fee"
+                    value={`Rs. ${course?.perSemesterFee?.amount}`}
+                  />
+                  <InfoItem
+                    label="Status"
                     value={
-                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        course.Status === 'Active' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {course.Status}
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          course.Status === "Active"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {course?.Status}
                       </span>
-                    } 
+                    }
                   />
                 </div>
               </div>

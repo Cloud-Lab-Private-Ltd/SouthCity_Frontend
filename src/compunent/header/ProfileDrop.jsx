@@ -27,16 +27,16 @@ const ProfileDrop = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { profile, student } = useSelector((state) => state.profiledata);
   const studentName = localStorage.getItem("groupName");
-  
+
   // Get permissions from Redux store
   const permissions = useSelector(
     (state) => state.profiledata?.profile?.member?.group?.permissions || []
   );
-  
+
   const admin = useSelector(
     (state) => state.profiledata?.profile?.member?.group?.name || []
   );
-  
+
   // Check permissions
   const progamspermissions = permissions[0]?.read;
   const batchpermissions = permissions[1]?.read;
@@ -54,10 +54,10 @@ const ProfileDrop = () => {
       localStorage.clear();
       navigate("/login");
       setIsMenuOpen(false);
-    } else if(label === "My Profile") {
+    } else if (label === "My Profile") {
       navigate("/profile");
       setIsMenuOpen(false);
-    } else if(path) {
+    } else if (path) {
       navigate(path);
       setIsMenuOpen(false);
     } else {
@@ -70,78 +70,77 @@ const ProfileDrop = () => {
     {
       label: "My Profile",
       icon: UserCircleIcon,
-      path: "/profile"
+      path: "/profile",
     },
   ];
-  
+
   // Admin menu items
   const adminMenuItems = [];
-  
+
   if (admin === "admins") {
     adminMenuItems.push(
       {
         label: "Group / Role",
         icon: UserGroupIcon,
-        path: "/group-role"
+        path: "/group-role",
       },
       {
         label: "Permission",
         icon: LockClosedIcon,
-        path: "/permission"
+        path: "/permission",
       },
       {
-        label: "Faculty",
+        label: "Member",
         icon: UserIcon,
-        path: "/members"
+        path: "/members",
       }
     );
   }
-  
+
   // Core settings menu items
   const coreSettingsItems = [];
-  
+
   if (admin === "admins" || degreepermissions) {
     coreSettingsItems.push({
       label: "Degree Type",
       icon: Cog6ToothIcon,
-      path: "/degree-type"
+      path: "/degree-type",
     });
   }
-  
+
   if (admin === "admins" || statuspermissions) {
     coreSettingsItems.push({
       label: "Status",
       icon: Cog6ToothIcon,
-      path: "/status"
+      path: "/status",
     });
   }
-  
-  
+
   // Program and batch menu items
   const programBatchItems = [];
-  
+
   if (admin === "admins" || progamspermissions) {
     programBatchItems.push({
       label: "Programs",
       icon: BookOpenIcon,
-      path: "/course"
+      path: "/course",
     });
   }
-  
+
   if (admin === "admins" || batchpermissions) {
     programBatchItems.push({
       label: "Batch",
       icon: ListBulletIcon,
-      path: "/batch"
+      path: "/batch",
     });
   }
-  
+
   // Sign out should always be the last item
   const signOutItem = [
     {
       label: "Sign Out",
       icon: PowerIcon,
-    }
+    },
   ];
 
   return (
@@ -159,9 +158,12 @@ const ProfileDrop = () => {
             withBorder={true}
             color="blue-gray"
             className="p-0.5"
-            src={studentName === "Students" 
-              ? student?.student?.profileImage 
-              : profile?.member?.profileImage || "https://cdn.pixabay.com/photo/2019/08/11/18/59/icon-4399701_1280.png"}
+            src={
+              studentName === "Students"
+                ? student?.student?.profileImage
+                : profile?.member?.profileImage ||
+                  "https://cdn.pixabay.com/photo/2019/08/11/18/59/icon-4399701_1280.png"
+            }
           />
         </Button>
       </MenuHandler>
@@ -182,13 +184,15 @@ const ProfileDrop = () => {
             <Typography
               as="span"
               variant="small"
-              className={`font-normal ${isActive(path) ? "text-c-purple font-medium" : ""}`}
+              className={`font-normal ${
+                isActive(path) ? "text-c-purple font-medium" : ""
+              }`}
             >
               {label}
             </Typography>
           </MenuItem>
         ))}
-        
+
         {/* Admin Section - only show if there are items */}
         {adminMenuItems.length > 0 && (
           <>
@@ -211,7 +215,9 @@ const ProfileDrop = () => {
                 <Typography
                   as="span"
                   variant="small"
-                  className={`font-normal ${isActive(path) ? "text-c-purple font-medium" : ""}`}
+                  className={`font-normal ${
+                    isActive(path) ? "text-c-purple font-medium" : ""
+                  }`}
                 >
                   {label}
                 </Typography>
@@ -219,7 +225,7 @@ const ProfileDrop = () => {
             ))}
           </>
         )}
-        
+
         {/* Core Settings Section - only show if there are items */}
         {coreSettingsItems.length > 0 && (
           <>
@@ -242,7 +248,9 @@ const ProfileDrop = () => {
                 <Typography
                   as="span"
                   variant="small"
-                  className={`font-normal ${isActive(path) ? "text-c-purple font-medium" : ""}`}
+                  className={`font-normal ${
+                    isActive(path) ? "text-c-purple font-medium" : ""
+                  }`}
                 >
                   {label}
                 </Typography>
@@ -250,7 +258,7 @@ const ProfileDrop = () => {
             ))}
           </>
         )}
-        
+
         {/* Program and Batch Section - only show if there are items */}
         {programBatchItems.length > 0 && (
           <>
@@ -273,7 +281,9 @@ const ProfileDrop = () => {
                 <Typography
                   as="span"
                   variant="small"
-                  className={`font-normal ${isActive(path) ? "text-c-purple font-medium" : ""}`}
+                  className={`font-normal ${
+                    isActive(path) ? "text-c-purple font-medium" : ""
+                  }`}
                 >
                   {label}
                 </Typography>
@@ -281,7 +291,7 @@ const ProfileDrop = () => {
             ))}
           </>
         )}
-        
+
         {/* Sign Out Section */}
         <hr className="my-2 border-blue-gray-50" />
         {signOutItem.map(({ label, icon }, key) => (

@@ -45,7 +45,7 @@
 
   50% {
     transform: scale(1.2);
-    background-color: #FFD100; /* You can update this color if needed */
+    background-color: #ffd100; /* You can update this color if needed */
     box-shadow: 0 0 0 10px rgba(24, 57, 43, 0); /* Updated color */
   }
 
@@ -56,5 +56,18 @@
   }
 }
 
+/* Add this to your CSS file */
+.no-spinner {
+  /* Remove spinner arrows for Chrome, Safari, Edge, Opera */
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  margin: 0;
+}
 
-
+/* For Firefox */
+.no-spinner::-webkit-inner-spin-button,
+.no-spinner::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
