@@ -23,8 +23,6 @@ const BatchBody = () => {
   const token = localStorage.getItem("token");
   const dispatch = useDispatch();
 
-  // Get courses data from Redux
-  const { courses } = useSelector((state) => state.groupdata);
   // Get members data from Redux
   const { members } = useSelector((state) => state.groupdata);
 
@@ -40,7 +38,6 @@ const BatchBody = () => {
 
     const formDataToSend = {
       ...formData,
-      course: formData.course, // Convert to array as per API requirement
     };
 
     setLoading(true);
@@ -461,67 +458,6 @@ const BatchBody = () => {
                 </select>
               </div>
             </div>
-            <div className="mt-6 mb-6">
-              <Typography className="text-lg font-semibold text-c-grays mb-4">
-                Programs Selection
-              </Typography>
-              <div className="w-full">
-                <div className="flex gap-4 mb-4">
-                  <select
-                    value={selectedCourseId}
-                    onChange={(e) => setSelectedCourseId(e.target.value)}
-                    className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-                  >
-                    <option value="">Select Programs</option>
-                    {courses?.courses
-                      ?.filter((course) => course.Status === "Active")
-                      .map((course) => (
-                        <option key={course._id} value={course._id}>
-                          {course.name} - {course.code}
-                        </option>
-                      ))}
-                  </select>
-                  <Button
-                    type="button"
-                    onClick={handleAddCourse}
-                    className="bg-c-purple"
-                    disabled={!selectedCourseId}
-                  >
-                    Add Programs
-                  </Button>
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  {formData.course.map((courseId) => {
-                    const selectedCourse = courses?.courses?.find(
-                      (c) => c._id === courseId
-                    );
-                    return (
-                      <span
-                        key={courseId}
-                        className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
-                      >
-                        {selectedCourse?.name}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFormData({
-                              ...formData,
-                              course: formData.course.filter(
-                                (id) => id !== courseId
-                              ),
-                            });
-                          }}
-                          className="hover:text-red-300 transition-colors"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
 
             <div className="mt-6 flex justify-end">
               <Button
@@ -571,11 +507,7 @@ const BatchBody = () => {
                     Batch Name
                   </Typography>
                 </th>
-                <th className="p-4 border-b border-gray-100">
-                  <Typography className="text-c-grays font-semibold">
-                    Programs
-                  </Typography>
-                </th>
+
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
                     Status
@@ -606,9 +538,6 @@ const BatchBody = () => {
                       <div className="skeleton h-4 w-48"></div>
                     </td>
                     <td className="p-4 border-b border-gray-100">
-                      <div className="skeleton h-4 w-48"></div>
-                    </td>
-                    <td className="p-4 border-b border-gray-100">
                       <div className="skeleton h-4 w-32"></div>
                     </td>
                     <td className="p-4 border-b border-gray-100">
@@ -635,19 +564,6 @@ const BatchBody = () => {
                         {batch.batchName}
                       </Typography>
                     </td>
-                    <td className="p-4 border-b border-gray-100">
-                      <div className="flex flex-col gap-1">
-                        {batch.course.map((course, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
-                          >
-                            {course.name}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
                         {batch.status}

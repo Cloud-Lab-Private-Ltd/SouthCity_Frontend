@@ -99,51 +99,6 @@ const BatchDetailsModal = ({ open, handleOpen, batchData }) => {
             </div>
           </Card>
 
-          <Card className="p-6 shadow-sm col-span-2">
-            <Typography className="font-bold mb-4 text-lg text-c-purple border-b pb-2">
-              Programs Information
-            </Typography>
-            {batchData?.course?.map((course, index) => (
-              <div key={index} className="p-4 bg-purple-50 rounded-lg mb-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <InfoItem label="Programs Name" value={course?.name} />
-                  <InfoItem label="Level" value={course?.Level} />
-                  <InfoItem label="Category" value={course?.category} />
-                  <InfoItem label="Duration" value={course?.duration} />
-                  <InfoItem
-                    label="Total Fee"
-                    value={`Rs. ${course?.totalFee}`}
-                  />
-                  <InfoItem
-                    label="No. of Semesters"
-                    value={course?.noOfSemesters}
-                  />
-                  <InfoItem
-                    label="Admission Fee"
-                    value={`Rs. ${course?.admissionFee?.amount}`}
-                  />
-                  <InfoItem
-                    label="Per Semester Fee"
-                    value={`Rs. ${course?.perSemesterFee?.amount}`}
-                  />
-                  <InfoItem
-                    label="Status"
-                    value={
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          course.Status === "Active"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {course?.Status}
-                      </span>
-                    }
-                  />
-                </div>
-              </div>
-            ))}
-          </Card>
         </div>
       </DialogBody>
     </Dialog>

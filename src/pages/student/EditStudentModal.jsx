@@ -68,67 +68,15 @@ const EditStudentModal = ({
 
   const [loading, setLoading] = useState(false);
   const [courseOptions, setCourseOptions] = useState([]);
-  const { batches } = useSelector((state) => state.groupdata);
   const [profileImage, setProfileImage] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const dispatch = useDispatch();
-
-  const batchOptions = batches?.batches?.map((batch) => ({
-    value: batch._id,
-    label: batch.batchName,
-  }));
-
-  useEffect(() => {
-    if (studentData) {
-      setFormData({
-        fullName: studentData.fullName || "",
-        email: studentData.email || "",
-        nic: studentData.nic || "",
-        password: "", // Password field is empty by default for security
-        fatherName: studentData.fatherName || "",
-        currentAddress: studentData.currentAddress || "",
-        permanentAddress: studentData.permanentAddress || "",
-        mobileNumber: studentData.mobileNumber || "",
-        phoneNumber: studentData.phoneNumber || "",
-        gender: studentData.gender || "",
-        course: studentData.course[0]?._id || "",
-        dob: studentData.dob?.split("T")[0] || "",
-        nationality: studentData.nationality || "Pakistani",
-        province: studentData.province || "",
-        domicile: studentData.domicile || "",
-        city: studentData.city || "",
-        organization: studentData.organization || "",
-        higestQualification: studentData.higestQualification || "",
-        fatherProfession: studentData.fatherProfession || "",
-        relationShip: studentData.relationShip || "",
-        verified: studentData.verified || false,
-        batch: studentData.batch?._id || "",
-        enrollementNumber: studentData.enrollementNumber || "",
-        // Guardian fields
-        GuardianNIC: studentData.GuardianNIC || "",
-        GuardianNationality: studentData.GuardianNationality || "",
-        GuardianGender: studentData.GuardianGender || "",
-        GuardianPermenantAddress: studentData.GuardianPermenantAddress || "",
-        GuardianCurrentAddress: studentData.GuardianCurrentAddress || "",
-        GuardianPhoneNumber: studentData.GuardianPhoneNumber || "",
-        GuardianMobileNumber: studentData.GuardianMobileNumber || "",
-        GuardianEmail: studentData.GuardianEmail || "",
-        // Fee details
-        admissionFee: studentData.admissionFee || "",
-        libraryFee: studentData.libraryFee || "",
-        securityFee: studentData.securityFee || "",
-      });
-
-      if (studentData.batch?._id) {
-        const selectedBatch = batches.batches.find(
-          (b) => b._id === studentData.batch._id
-        );
-        if (selectedBatch) {
-          setCourseOptions(selectedBatch.course);
-        }
-      }
-    }
-  }, [studentData, batches]);
+  const [batchOptions, setBatchOptions] = useState([]);
+  const { batches, courses } = useSelector((state) => state.groupdata);
+  // const batchOptions = batches?.batches?.map((batch) => ({
+  //   value: batch._id,
+  //   label: batch.batchName,
+  // }));
 
   const handleBatchChange = (selected) => {
     const selectedBatch = batches.batches.find(
@@ -143,7 +91,13 @@ const EditStudentModal = ({
       setCourseOptions(selectedBatch.course);
     }
   };
-
+  const handleCourseChange = (selected) => {
+    setFormData({
+      ...formData,
+      course: selected.value,
+      batch: "", // Reset batch when course changes
+    });
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -202,6 +156,155 @@ const EditStudentModal = ({
     }
   };
 
+  useEffect(() => {
+    if (studentData) {
+      // Set form data with student data
+      setFormData({
+        fullName: studentData.fullName || "",
+        email: studentData.email || "",
+        nic: studentData.nic || "",
+        password: "", // Password field is empty by default for security
+        fatherName: studentData.fatherName || "",
+        currentAddress: studentData.currentAddress || "",
+        permanentAddress: studentData.permanentAddress || "",
+        mobileNumber: studentData.mobileNumber || "",
+        phoneNumber: studentData.phoneNumber || "",
+        gender: studentData.gender || "",
+        // Set course from the first course in the array (if exists)
+        course:
+          studentData.course && studentData.course.length > 0
+            ? studentData.course[0]._id
+            : "",
+        dob: studentData.dob?.split("T")[0] || "",
+        nationality: studentData.nationality || "Pakistani",
+        province: studentData.province || "",
+        domicile: studentData.domicile || "",
+        city: studentData.city || "",
+        organization: studentData.organization || "",
+        higestQualification: studentData.higestQualification || "",
+        fatherProfession: studentData.fatherProfession || "",
+        relationShip: studentData.relationShip || "",
+        verified: studentData.verified || false,
+        // Set batch if it exists
+        batch: studentData.batch?._id || "",
+        enrollementNumber: studentData.enrollementNumber || "",
+        // Guardian fields
+        GuardianNIC: studentData.GuardianNIC || "",
+        GuardianNationality: studentData.GuardianNationality || "",
+        GuardianGender: studentData.GuardianGender || "",
+        GuardianPermenantAddress: studentData.GuardianPermenantAddress || "",
+        GuardianCurrentAddress: studentData.GuardianCurrentAddress || "",
+        GuardianPhoneNumber: studentData.GuardianPhoneNumber || "",
+        GuardianMobileNumber: studentData.GuardianMobileNumber || "",
+        GuardianEmail: studentData.GuardianEmail || "",
+        // Fee details
+        admissionFee: studentData.admissionFee || "",
+        libraryFee: studentData.libraryFee || "",
+        securityFee: studentData.securityFee || "",
+      });
+    }
+  }, [studentData]);
+  // Add these console logs to debug the issue
+  useEffect(() => {
+    if (formData.course) {
+      // Find the selected course from the courses array
+      const selectedCourse = courses?.courses?.find(
+        (course) => course._id === formData.course
+      );
+
+      // Check if the course has batches (as an array)
+      if (
+        selectedCourse?.batch &&
+        Array.isArray(selectedCourse.batch) &&
+        selectedCourse.batch.length > 0
+      ) {
+        console.log("Course batches:", selectedCourse.batch);
+
+        // Check if batch contains objects or just IDs
+        const batchContainsObjects =
+          typeof selectedCourse.batch[0] === "object";
+
+        if (batches?.batches && Array.isArray(batches.batches)) {
+          console.log("All batches:", batches.batches);
+
+          // Filter batches based on whether batch contains objects or IDs
+          let filteredBatches;
+          if (batchContainsObjects) {
+            // If batch contains objects, extract IDs for comparison
+            const batchIds = selectedCourse.batch.map((batch) => batch._id);
+            filteredBatches = batches.batches.filter((batch) =>
+              batchIds.includes(batch._id)
+            );
+          } else {
+            // If batch contains IDs, use them directly
+            filteredBatches = batches.batches.filter((batch) =>
+              selectedCourse.batch.includes(batch._id)
+            );
+          }
+
+          console.log("Filtered batches:", filteredBatches);
+
+          // If we have the student's current batch but it's not in filtered batches, add it
+          if (
+            studentData.batch &&
+            studentData.batch._id &&
+            !filteredBatches.some(
+              (batch) => batch._id === studentData.batch._id
+            )
+          ) {
+            filteredBatches.push(studentData.batch);
+          }
+
+          // Map filtered batches to options for the dropdown
+          const batchOpts = filteredBatches.map((batch) => ({
+            value: batch._id,
+            label: batch.batchName,
+          }));
+
+          console.log("Batch options:", batchOpts);
+          setBatchOptions(batchOpts);
+        } else {
+          // If batches aren't available from the store, create an option for the student's current batch
+          if (studentData.batch && studentData.batch._id) {
+            setBatchOptions([
+              {
+                value: studentData.batch._id,
+                label: studentData.batch.batchName,
+              },
+            ]);
+          } else {
+            setBatchOptions([]);
+          }
+        }
+      } else {
+        console.log("No batch array found in selected course");
+
+        // Even if course has no batches, still show student's current batch
+        if (studentData.batch && studentData.batch._id) {
+          setBatchOptions([
+            {
+              value: studentData.batch._id,
+              label: studentData.batch.batchName,
+            },
+          ]);
+        } else {
+          setBatchOptions([]);
+        }
+      }
+    } else {
+      console.log("No course selected");
+      setBatchOptions([]);
+    }
+  }, [formData.course, courses, batches, studentData]);
+  useEffect(() => {
+    if (courses?.courses && Array.isArray(courses.courses)) {
+      const options = courses.courses.map((course) => ({
+        value: course._id,
+        label: course.name,
+      }));
+      setCourseOptions(options);
+    }
+  }, [courses]);
   return (
     <Dialog
       open={open}
@@ -245,7 +348,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Email *
@@ -259,7 +361,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   NIC *
@@ -307,7 +408,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Password
@@ -322,7 +422,6 @@ const EditStudentModal = ({
                   placeholder="Leave blank to keep current password"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Enrollment Number *
@@ -339,7 +438,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Current Address *
@@ -353,7 +451,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Permanent Address
@@ -370,7 +467,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Mobile Number *
@@ -409,7 +505,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Phone Number
@@ -448,7 +543,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Gender
@@ -465,7 +559,6 @@ const EditStudentModal = ({
                   <option value="Female">Female</option>
                 </select>
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Date of Birth *
@@ -482,7 +575,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Organization
@@ -496,7 +588,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Highest Qualification
@@ -513,7 +604,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Nationality
@@ -527,7 +617,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Province
@@ -541,7 +630,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Domicile *
@@ -555,7 +643,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   City
@@ -569,7 +656,6 @@ const EditStudentModal = ({
                   className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
                 />
               </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Profile Image
@@ -590,50 +676,73 @@ const EditStudentModal = ({
                   />
                 </div>
               </div>
-
-              <div>
-                <label className="block text-c-grays text-sm font-medium mb-2">
-                  Batch *
-                </label>
-                <Select
-                  options={batchOptions}
-                  value={batchOptions?.find(
-                    (option) => option.value === formData.batch
-                  )}
-                  onChange={handleBatchChange}
-                  className="text-c-grays"
-                  placeholder="Select Batch"
-                  isSearchable
-                />
-              </div>
-
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Programs *
                 </label>
                 <Select
-                  options={courseOptions?.map((course) => ({
-                    value: course._id,
-                    label: course.name,
-                  }))}
-                  value={courseOptions
-                    ?.map((course) => ({
-                      value: course._id,
-                      label: course.name,
-                    }))
-                    .find((option) => option.value === formData.course)}
+                  options={courseOptions}
+                  value={courseOptions.find(
+                    (option) => option.value === formData.course
+                  )}
                   onChange={(selected) => {
                     setFormData({
                       ...formData,
                       course: selected.value,
+                      batch: "", // Reset batch when course changes
                     });
+                  }}
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
                   }}
                   className="text-c-grays"
                   placeholder="Select Program"
                   isSearchable
+                  required
                 />
               </div>
 
+              {/* Batch Selection */}
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Batch
+                </label>
+                <Select
+                  options={batchOptions}
+                  value={batchOptions.find(
+                    (option) => option.value === formData.batch
+                  )}
+                  onChange={(selected) => {
+                    setFormData({
+                      ...formData,
+                      batch: selected.value,
+                    });
+                  }}
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
+                  className="text-c-grays"
+                  placeholder="Select Batch"
+                  isSearchable
+                  isDisabled={!formData.course || batchOptions.length === 0}
+                  required={formData.course && batchOptions.length > 0}
+                />
+                {formData?.course && batchOptions?.length === 0 && (
+                  <p className="text-sm text-yellow-600 mt-1">
+                    No batch assigned to this program
+                  </p>
+                )}
+              </div>
               <div>
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Verified
@@ -924,7 +1033,6 @@ const EditStudentModal = ({
               </div>
             </div>
           </div>
-
 
           {errorMessage && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg">

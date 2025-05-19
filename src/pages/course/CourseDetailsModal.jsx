@@ -49,7 +49,9 @@ const CourseDetailsModal = ({ open, handleOpen, courseData }) => {
                 <span className="font-medium">{courseData.duration}</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-sm text-gray-600">Number of Semesters</span>
+                <span className="text-sm text-gray-600">
+                  Number of Semesters
+                </span>
                 <span className="font-medium">{courseData.noOfSemesters}</span>
               </div>
               <div className="flex flex-col">
@@ -58,12 +60,18 @@ const CourseDetailsModal = ({ open, handleOpen, courseData }) => {
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-gray-600">Degree Type</span>
-                <span className="font-medium">{courseData.degreeType?.name || "N/A"}</span>
+                <span className="font-medium">
+                  {courseData.degreeType?.name || "N/A"}
+                </span>
               </div>
               {courseData.degreeType?.description && (
                 <div className="flex flex-col">
-                  <span className="text-sm text-gray-600">Degree Description</span>
-                  <span className="font-medium">{courseData.degreeType.description}</span>
+                  <span className="text-sm text-gray-600">
+                    Degree Description
+                  </span>
+                  <span className="font-medium">
+                    {courseData.degreeType.description}
+                  </span>
                 </div>
               )}
             </div>
@@ -77,15 +85,13 @@ const CourseDetailsModal = ({ open, handleOpen, courseData }) => {
             <div className="space-y-3">
               <div className="flex flex-col">
                 <span className="text-sm text-gray-600">Admission Fee ID</span>
-                <span className="font-medium">
-                  {courseData.admissionFee}
-                </span>
+                <span className="font-medium">{courseData.admissionFee}</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-sm text-gray-600">Per Semester Fee ID</span>
-                <span className="font-medium">
-                  {courseData.perSemesterFee}
+                <span className="text-sm text-gray-600">
+                  Per Semester Fee ID
                 </span>
+                <span className="font-medium">{courseData.perSemesterFee}</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-gray-600">Total Fee</span>
@@ -124,43 +130,159 @@ const CourseDetailsModal = ({ open, handleOpen, courseData }) => {
               )}
             </div>
           </div>
-
+          {Array.isArray(courseData.batch) && courseData.batch.length > 0 ? (
+            // If batch is an array, show each batch in its own card
+            courseData.batch.map((batch, index) => (
+              <div key={index} className="bg-gray-50 p-6 rounded-lg">
+                <Typography className="text-lg font-bold mb-4 text-c-purple">
+                  Batch Details: {batch.batchName}
+                </Typography>
+                <div className="space-y-3">
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-600">Batch Name</span>
+                    <span className="font-medium">{batch.batchName}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-600">Start Date</span>
+                    <span className="font-medium">
+                      {new Date(batch.startDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-600">End Date</span>
+                    <span className="font-medium">
+                      {new Date(batch.endDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-600">
+                      Current Semester
+                    </span>
+                    <span className="font-medium">{batch.currentSemester}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-600">Session Type</span>
+                    <span className="font-medium">{batch.sessionType}</span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-600">Status</span>
+                    <span className="font-medium">{batch.status}</span>
+                  </div>
+                  {batch.schedule && batch.schedule.length > 0 && (
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gray-600">Schedule</span>
+                      <div className="font-medium">
+                        {batch.schedule.map((item, idx) => (
+                          <div key={idx}>
+                            {item.day}: {item.time}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : courseData.batch ? (
+            // If batch is a single object, show it as before
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <Typography className="text-lg font-bold mb-4 text-c-purple">
+                Batch Details
+              </Typography>
+              <div className="space-y-3">
+                <div className="flex flex-col">
+                  <span className="text-sm text-gray-600">Batch Name</span>
+                  <span className="font-medium">
+                    {courseData.batch.batchName}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-gray-600">Start Date</span>
+                  <span className="font-medium">
+                    {new Date(courseData.batch.startDate).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-gray-600">End Date</span>
+                  <span className="font-medium">
+                    {new Date(courseData.batch.endDate).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-gray-600">
+                    Current Semester
+                  </span>
+                  <span className="font-medium">
+                    {courseData.batch.currentSemester}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-gray-600">Session Type</span>
+                  <span className="font-medium">
+                    {courseData.batch.sessionType}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-gray-600">Status</span>
+                  <span className="font-medium">{courseData.batch.status}</span>
+                </div>
+                {courseData.batch.schedule &&
+                  courseData.batch.schedule.length > 0 && (
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gray-600">Schedule</span>
+                      <div className="font-medium">
+                        {courseData.batch.schedule.map((item, idx) => (
+                          <div key={idx}>
+                            {item.day}: {item.time}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            </div>
+          ) : null}
           {/* Semester Details */}
           <div className="col-span-2 bg-gray-50 p-6 rounded-lg">
             <Typography className="text-lg font-bold mb-4 text-c-purple">
               Semester Details
             </Typography>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {courseData.Semesters && courseData.Semesters.map((semester, index) => (
-                <div
-                  key={index}
-                  className="bg-white p-4 rounded-lg border border-gray-200"
-                >
-                  <h4 className="font-semibold text-c-purple mb-2">
-                    Semester {semester?.semesterNo}
-                  </h4>
-                  <div className="space-y-2">
-                    {semester?.subjects !== undefined && (
-                      <div>
-                        <p className="text-sm text-gray-600">Subjects:</p>
-                        <p className="font-medium">{semester.subjects || "No subjects specified"}</p>
-                      </div>
-                    )}
-                    {semester?.semesterFees !== undefined && (
-                      <div>
-                        <p className="text-sm text-gray-600">Semester Fee:</p>
-                        <p className="font-medium">Rs. {semester.semesterFees}</p>
-                      </div>
-                    )}
-                    {semester?._id && (
-                      <div>
-                        <p className="text-sm text-gray-600">Semester ID:</p>
-                        <p className="font-medium text-xs">{semester._id}</p>
-                      </div>
-                    )}
+              {courseData.Semesters &&
+                courseData.Semesters.map((semester, index) => (
+                  <div
+                    key={index}
+                    className="bg-white p-4 rounded-lg border border-gray-200"
+                  >
+                    <h4 className="font-semibold text-c-purple mb-2">
+                      Semester {semester?.semesterNo}
+                    </h4>
+                    <div className="space-y-2">
+                      {semester?.subjects !== undefined && (
+                        <div>
+                          <p className="text-sm text-gray-600">Subjects:</p>
+                          <p className="font-medium">
+                            {semester.subjects || "No subjects specified"}
+                          </p>
+                        </div>
+                      )}
+                      {semester?.semesterFees !== undefined && (
+                        <div>
+                          <p className="text-sm text-gray-600">Semester Fee:</p>
+                          <p className="font-medium">
+                            Rs. {semester.semesterFees}
+                          </p>
+                        </div>
+                      )}
+                      {semester?._id && (
+                        <div>
+                          <p className="text-sm text-gray-600">Semester ID:</p>
+                          <p className="font-medium text-xs">{semester._id}</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         </div>

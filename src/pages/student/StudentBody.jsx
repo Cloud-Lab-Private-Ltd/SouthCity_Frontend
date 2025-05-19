@@ -75,10 +75,8 @@ const StudentBody = () => {
 
   // Create academic status options
   const academicStatusOptions = [
-    // { value: "active", label: "Active" },
     { value: "Year back", label: "Year Back" },
     { value: "Pass out", label: "Pass Out" },
-    // { value: "inActive", label: "Inactive" },
   ];
 
   // Pagination

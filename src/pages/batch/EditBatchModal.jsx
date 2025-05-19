@@ -13,7 +13,6 @@ import { useSelector } from "react-redux";
 const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
   const [formData, setFormData] = useState({
     batchName: "",
-    course: [], // Changed from string to array
     startDate: "",
     endDate: "",
     status: "",
@@ -22,18 +21,15 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
     batchCoordinator: "",
   });
   const [loading, setLoading] = useState(false);
-  const [selectedCourseId, setSelectedCourseId] = useState("");
   const [error, setError] = useState("");
 
   // Get data from Redux
-  const { courses } = useSelector((state) => state.groupdata);
   const { members } = useSelector((state) => state.groupdata);
 
   useEffect(() => {
     if (batchData) {
       setFormData({
         batchName: batchData.batchName,
-        course: batchData.course.map((c) => c._id), // Extract course IDs
         startDate: batchData.startDate.split("T")[0],
         endDate: batchData.endDate.split("T")[0],
         status: batchData.status,
@@ -49,17 +45,6 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
       ...formData,
       [e.target.name]: e.target.value,
     });
-  };
-
-  // Add handleAddCourse function
-  const handleAddCourse = () => {
-    if (selectedCourseId && !formData.course.includes(selectedCourseId)) {
-      setFormData({
-        ...formData,
-        course: [...formData.course, selectedCourseId],
-      });
-      setSelectedCourseId("");
-    }
   };
 
   // Filter members to show only Coordinators and unblocked members
@@ -79,7 +64,6 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
 
     const dataToSend = {
       ...formData,
-      course: formData.course,
     };
 
     setLoading(true);
@@ -212,67 +196,6 @@ const EditBatchModal = ({ open, handleOpen, batchData, token, onSuccess }) => {
           </div>
         </div>
 
-        <div className="mt-6 mb-6">
-          <Typography className="text-lg font-semibold text-c-grays mb-4">
-            Programs Selection
-          </Typography>
-          <div className="w-full">
-            <div className="flex gap-4 mb-4">
-              <select
-                value={selectedCourseId}
-                onChange={(e) => setSelectedCourseId(e.target.value)}
-                className="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
-              >
-                <option value="">Select Programs</option>
-                {courses?.courses
-                  ?.filter((course) => course.Status === "Active")
-                  .map((course) => (
-                    <option key={course._id} value={course._id}>
-                      {course.name} - {course.code}
-                    </option>
-                  ))}
-              </select>
-              <Button
-                type="button"
-                onClick={handleAddCourse}
-                className="bg-c-purple"
-                disabled={!selectedCourseId}
-              >
-                Add Programs
-              </Button>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
-              {formData.course.map((courseId) => {
-                const selectedCourse = courses?.courses?.find(
-                  (c) => c._id === courseId
-                );
-                return (
-                  <span
-                    key={courseId}
-                    className="px-4 py-2 bg-c-purple text-white rounded-lg text-sm flex items-center gap-2 shadow-sm transition-all hover:bg-purple-700"
-                  >
-                    {selectedCourse?.name}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData({
-                          ...formData,
-                          course: formData.course.filter(
-                            (id) => id !== courseId
-                          ),
-                        });
-                      }}
-                      className="hover:text-red-300 transition-colors"
-                    >
-                      ×
-                    </button>
-                  </span>
-                );
-              })}
-            </div>
-          </div>
-        </div>
 
         <div className="mt-6 flex justify-end gap-2">
           <Button

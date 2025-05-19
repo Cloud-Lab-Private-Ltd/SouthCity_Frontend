@@ -1,4 +1,3 @@
-import React from "react";
 import StudentBody from "./StudentBody";
 
 const StudentPage = () => {

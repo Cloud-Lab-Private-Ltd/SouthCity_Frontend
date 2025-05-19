@@ -16,6 +16,8 @@ const CreateStudent = () => {
   const token = localStorage.getItem("token");
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  const [batchOptions, setBatchOptions] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState("");
 
   // Add CSV upload handlers
   const [csvFile, setCSVFile] = useState(null);
@@ -116,27 +118,74 @@ const CreateStudent = () => {
       setLoading(false);
     }
   };
-
-  // For batch selection using react-select
-  const batchOptions = batches?.batches?.map((batch) => ({
-    value: batch._id,
-    label: batch.batchName,
-  }));
+  const { courses } = useSelector((state) => state.groupdata);
+  const handleCourseChange = (selected) => {
+    setSelectedCourse(selected.value);
+    setFormData({
+      ...formData,
+      course: selected.value,
+      batch: "", // Reset batch when course changes
+    });
+  };
 
   useEffect(() => {
-    if (formData.batch) {
-      const selectedBatch = batches?.batches?.find(
-        (batch) => batch._id === formData.batch
-      );
-      if (selectedBatch?.course) {
-        const courseOpts = selectedBatch?.course.map((course) => ({
-          value: course._id,
-          label: `${course.name} - ${course.duration}`,
-        }));
-        setCourseOptions(courseOpts);
-      }
+    if (courses?.courses && Array.isArray(courses.courses)) {
+      const options = courses.courses.map((course) => ({
+        value: course._id,
+        label: `${course.name} - ${course.duration}`,
+      }));
+      setCourseOptions(options);
     }
-  }, [formData.batch, batches]);
+  }, [courses]);
+  
+  useEffect(() => {
+    if (formData.course) {
+      // Find the selected course
+      const selectedCourse = courses?.courses?.find(
+        (course) => course._id === formData.course
+      );
+
+      // Check if the course has batches (now as an array)
+      if (
+        selectedCourse?.batch &&
+        Array.isArray(selectedCourse.batch) &&
+        selectedCourse.batch.length > 0
+      ) {
+        // Map all batches to options
+        const batchOptions = selectedCourse.batch.map((batch) => ({
+          value: batch._id,
+          label: batch.batchName,
+        }));
+
+        setBatchOptions(batchOptions);
+
+        // Don't auto-select any batch when there are multiple options
+        if (batchOptions.length === 1) {
+          // Only auto-select if there's just one batch
+          setFormData((prev) => ({
+            ...prev,
+            batch: batchOptions[0].value,
+          }));
+        } else {
+          setFormData((prev) => ({
+            ...prev,
+            batch: "",
+          }));
+        }
+      } else {
+        setBatchOptions([]);
+        setFormData((prev) => ({
+          ...prev,
+          batch: "",
+        }));
+      }
+    } else {
+      // If no course is selected, clear batch options
+      setBatchOptions([]);
+    }
+  }, [formData.course, courses]);
+
+  console.log("course  optons", courseOptions);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -669,7 +718,7 @@ const CreateStudent = () => {
                 />
               </div>
               {/* Batch Selection */}
-              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+              {/* <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Batch *
                 </label>
@@ -699,9 +748,9 @@ const CreateStudent = () => {
                   isSearchable
                   required
                 />
-              </div>
+              </div> */}
               {/* Programs Selection */}
-              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+              {/* <div className="col-span-12 md:col-span-6 xl:col-span-4">
                 <label className="block text-c-grays text-sm font-medium mb-2">
                   Programs *
                 </label>
@@ -727,6 +776,73 @@ const CreateStudent = () => {
                   className="text-c-grays"
                   required
                 />
+              </div> */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Programs *
+                </label>
+                <Select
+                  options={courseOptions}
+                  value={courseOptions.find(
+                    (course) => course?.value === formData?.course
+                  )}
+                  onChange={(selected) => {
+                    setFormData({
+                      ...formData,
+                      course: selected?.value,
+                      batch: "", // Reset batch when course changes
+                    });
+                  }}
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
+                  className="text-c-grays"
+                  placeholder="Select Program"
+                  isSearchable
+                  required
+                />
+              </div>
+
+              {/* Batch Selection */}
+              <div className="col-span-12 md:col-span-6 xl:col-span-4">
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Batch
+                </label>
+                <Select
+                  options={batchOptions}
+                  value={batchOptions?.find(
+                    (option) => option.value === formData.batch
+                  )}
+                  onChange={(selected) => {
+                    setFormData({
+                      ...formData,
+                      batch: selected?.value,
+                    });
+                  }}
+                  styles={{
+                    input: (base) => ({
+                      ...base,
+                      "input:focus": {
+                        boxShadow: "none",
+                      },
+                    }),
+                  }}
+                  className="text-c-grays"
+                  placeholder="Select Batch"
+                  isSearchable
+                  isDisabled={!formData.course || batchOptions.length === 0} // Disable if no course is selected or no batches available
+                  required={formData.course && batchOptions.length > 0} // Only required if a course is selected and batches are available
+                />
+                {formData.course && batchOptions.length === 0 && (
+                  <p className="text-sm text-yellow-600 mt-1">
+                    No batch assigned to this program
+                  </p>
+                )}
               </div>
             </div>
           </div>

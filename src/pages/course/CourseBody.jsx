@@ -17,6 +17,7 @@ const CourseBody = () => {
     semesters: [{ semesterNo: "1", subjects: "", semesterFees: "" }],
     totalFee: "",
     Status: "Active",
+    batch: [], // Add this new field
   });
 
   const [loading, setLoading] = useState(false);
@@ -116,7 +117,42 @@ const CourseBody = () => {
       });
     }
   };
+  const handleAddBatch = () => {
+    const selectedBatchId = document.getElementById("batchSelect").value;
+    if (!selectedBatchId) return;
 
+    // Find the batch name for display
+    let selectedBatchName = "";
+    if (Array.isArray(batches)) {
+      const batch = batches.find((b) => b._id === selectedBatchId);
+      selectedBatchName = batch?.batchName || "";
+    } else if (batches?.batches && Array.isArray(batches.batches)) {
+      const batch = batches.batches.find((b) => b._id === selectedBatchId);
+      selectedBatchName = batch?.batchName || "";
+    }
+
+    // Only add if not already in the array
+    if (!formData.batch.includes(selectedBatchId)) {
+      setFormData({
+        ...formData,
+        batch: [...formData.batch, selectedBatchId],
+        // Store batch names for display
+        _batchNames: {
+          ...formData._batchNames,
+          [selectedBatchId]: selectedBatchName,
+        },
+      });
+    }
+
+    // Reset the dropdown
+    document.getElementById("batchSelect").value = "";
+  };
+  const handleRemoveBatch = (batchId) => {
+    setFormData({
+      ...formData,
+      batch: formData.batch.filter((id) => id !== batchId),
+    });
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
     const formDataToSend = new FormData();
@@ -127,6 +163,9 @@ const CourseBody = () => {
     formDataToSend.append("noOfSemesters", formData.noOfSemesters);
     formDataToSend.append("totalFee", formData.totalFee);
     formDataToSend.append("Status", formData.Status);
+    formData.batch.forEach((batchId) => {
+      formDataToSend.append("batch[]", batchId);
+    });
 
     // In the handleSubmit function, update the formDataToSend.append for semesters:
     formData.semesters.forEach((semester, index) => {
@@ -311,6 +350,7 @@ const CourseBody = () => {
   };
 
   const { courses, courseLoading } = useSelector((state) => state.groupdata);
+  const { batches } = useSelector((state) => state.groupdata);
 
   const [viewDetailsOpen, setViewDetailsOpen] = useState(false);
   const [selectedCourseDetails, setSelectedCourseDetails] = useState(null);
@@ -533,8 +573,98 @@ const CourseBody = () => {
                   readOnly
                 />
               </div>
-            </div>
+              <div>
+                <label className="block text-c-grays text-sm font-medium mb-2">
+                  Batches *
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    id="batchSelect"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-c-purple"
+                  >
+                    <option value="">Select Batch</option>
+                    {Array.isArray(batches) ? (
+                      batches.map((batch) => (
+                        <option key={batch._id} value={batch._id}>
+                          {batch.batchName}
+                        </option>
+                      ))
+                    ) : batches?.batches && Array.isArray(batches.batches) ? (
+                      batches.batches.map((batch) => (
+                        <option key={batch._id} value={batch._id}>
+                          {batch.batchName}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="" disabled>
+                        No batches available
+                      </option>
+                    )}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={handleAddBatch}
+                    className="px-4 py-2 bg-c-purple text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  >
+                    Add
+                  </button>
+                </div>
 
+                {/* Display selected batches */}
+                {formData?.batch?.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {formData?.batch?.map((batchId) => {
+                      // Find batch name for display
+                      let batchName = formData._batchNames?.[batchId] || "";
+                      if (!batchName) {
+                        if (Array.isArray(batches)) {
+                          const batch = batches.find((b) => b._id === batchId);
+                          batchName = batch?.batchName || batchId;
+                        } else if (
+                          batches?.batches &&
+                          Array.isArray(batches.batches)
+                        ) {
+                          const batch = batches.batches.find(
+                            (b) => b._id === batchId
+                          );
+                          batchName = batch?.batchName || batchId;
+                        }
+                      }
+
+                      return (
+                        <div
+                          key={batchId}
+                          className="flex items-center bg-gray-100 px-3 py-1 rounded-full"
+                        >
+                          <span className="text-sm">{batchName}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveBatch(batchId)}
+                            className="ml-2 text-gray-500 hover:text-red-500"
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-4 w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+              </div>
+            </div>
             <div className="mt-6">
               <Typography className="text-lg font-semibold text-c-grays mb-4">
                 Semesters
@@ -666,6 +796,11 @@ const CourseBody = () => {
                 </th>
                 <th className="p-4 border-b border-gray-100">
                   <Typography className="text-c-grays font-semibold">
+                    Batch
+                  </Typography>
+                </th>
+                <th className="p-4 border-b border-gray-100">
+                  <Typography className="text-c-grays font-semibold">
                     Status
                   </Typography>
                 </th>
@@ -712,6 +847,14 @@ const CourseBody = () => {
                         {course.duration}
                       </Typography>
                     </td>
+                    <td className="p-4 border-b border-gray-100">
+                      <Typography className="text-c-grays">
+                        {Array.isArray(course?.batch)
+                          ? course?.batch?.map((b) => b?.batchName).join(", ")
+                          : course?.batch?.batchName || "N/A"}
+                      </Typography>
+                    </td>
+
                     <td className="p-4 border-b border-gray-100">
                       <Typography className="text-c-grays">
                         {course.Status}
