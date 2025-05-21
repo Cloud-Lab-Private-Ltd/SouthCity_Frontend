@@ -180,13 +180,10 @@ const CreateStudent = () => {
         }));
       }
     } else {
-      // If no course is selected, clear batch options
       setBatchOptions([]);
     }
   }, [formData.course, courses]);
-
-  console.log("course  optons", courseOptions);
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -838,11 +835,6 @@ const CreateStudent = () => {
                   isDisabled={!formData.course || batchOptions.length === 0} // Disable if no course is selected or no batches available
                   required={formData.course && batchOptions.length > 0} // Only required if a course is selected and batches are available
                 />
-                {formData.course && batchOptions.length === 0 && (
-                  <p className="text-sm text-yellow-600 mt-1">
-                    No batch assigned to this program
-                  </p>
-                )}
               </div>
             </div>
           </div>
