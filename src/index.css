@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Your existing CSS - keep this as is */
+input[type="number"] {
+  appearance: textfield;
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"]:focus {
+  pointer-events: none;
+}
+
+input[type="number"]:not(:focus) {
+  pointer-events: auto;
+}
