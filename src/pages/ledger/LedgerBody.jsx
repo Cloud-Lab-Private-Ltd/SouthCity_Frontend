@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, Typography, Button, Chip } from "@material-tailwind/react";
 import Select from "react-select";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,6 +17,10 @@ import { StatusesGet } from "../../features/GroupApiSlice";
 import jsPDF from "jspdf";
 // Import jspdf-autotable as a separate import
 import 'jspdf-autotable';
+import Swal from "sweetalert2";
+import axios from "axios";
+import { BASE_URL } from "../../config/apiconfig";
+import { AllLedgersGet } from "../../features/LedgerApiSlice";
 
 const LedgerBody = () => {
   // State for filters
@@ -27,6 +31,11 @@ const LedgerBody = () => {
   const [endDate, setEndDate] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
+
+  // State for CSV import
+  const [csvFile, setCsvFile] = useState(null);
+  const [showUploadBtn, setShowUploadBtn] = useState(false);
+  const fileInputRef = useRef(null);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -375,6 +384,52 @@ const LedgerBody = () => {
     }
   };
 
+  // Upload handler
+  const handleUploadCSV = async () => {
+    if (!csvFile) return;
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("file", csvFile);
+    try {
+      Swal.fire({
+        title: "Uploading...",
+        text: "Please wait while the CSV is being uploaded.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+      await axios.post(
+        `${BASE_URL}/api/v1/sch/import/vouchers`,
+        formData,
+        {
+          headers: {
+            "x-access-token": token,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      Swal.fire({
+        title: "Success!",
+        text: "Vouchers imported successfully.",
+        icon: "success",
+        confirmButtonColor: "#5570F1",
+      });
+      setCsvFile(null);
+      setShowUploadBtn(false);
+      dispatch(AllLedgersGet());
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error.response?.data?.message ||
+          "Failed to import vouchers. Please check your CSV and try again.",
+        confirmButtonColor: "#5570F1",
+      });
+    }
+  };
+
 
   return (
     <div className="bg-[#F5F5F5]">
@@ -537,6 +592,61 @@ const LedgerBody = () => {
                 <FontAwesomeIcon icon={faFilePdf} className="h-4 w-4" />
                 Export PDF
               </Button>
+              {/* Import CSV Button */}
+              <input
+                type="file"
+                accept=".csv"
+                style={{ display: "none" }}
+                ref={fileInputRef}
+                onChange={e => {
+                  if (e.target.files && e.target.files[0]) {
+                    setCsvFile(e.target.files[0]);
+                    setShowUploadBtn(true);
+                  }
+                }}
+              />
+              <Button
+                className="bg-c-purple flex items-center gap-2 min-w-[120px] shadow-md"
+                onClick={() => fileInputRef.current && fileInputRef.current.click()}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"
+                  />
+                </svg>
+                Import
+              </Button>
+              {csvFile && showUploadBtn && (
+                <Button
+                  className="bg-green-600 flex items-center gap-2 min-w-[100px] shadow-md"
+                  onClick={handleUploadCSV}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-5 h-5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M4.5 12.75l6 6 9-13.5"
+                    />
+                  </svg>
+                  Upload
+                </Button>
+              )}
             </div>
           </div>
 

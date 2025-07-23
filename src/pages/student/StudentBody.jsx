@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card, Typography, Button } from "@material-tailwind/react";
 import { useDispatch, useSelector } from "react-redux";
 import { StudentsGet, TrashedStudentsGet } from "../../features/GroupApiSlice";
@@ -240,6 +240,56 @@ const StudentBody = () => {
     });
   };
 
+  // Add state for CSV import
+  const [csvFile, setCsvFile] = useState(null);
+  const [showUploadBtn, setShowUploadBtn] = useState(false);
+  const fileInputRef = useRef(null);
+
+  // Update Upload button handler to call the API
+  const handleUploadCSV = async () => {
+    if (!csvFile) return;
+    const formData = new FormData();
+    formData.append("file", csvFile);
+    try {
+      Swal.fire({
+        title: "Uploading...",
+        text: "Please wait while the CSV is being uploaded.",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+      await axios.post(
+        `${BASE_URL}/api/v1/sch/import/student`,
+        formData,
+        {
+          headers: {
+            "x-access-token": token,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      Swal.fire({
+        title: "Success!",
+        text: "Students imported successfully.",
+        icon: "success",
+        confirmButtonColor: "#5570F1",
+      });
+      setCsvFile(null);
+      setShowUploadBtn(false);
+      dispatch(StudentsGet());
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error.response?.data?.message ||
+          "Failed to import students. Please check your CSV and try again.",
+        confirmButtonColor: "#5570F1",
+      });
+    }
+  };
+
   return (
     <div className="bg-[#F5F5F5]">
       <div className="mb-8">
@@ -249,6 +299,7 @@ const StudentBody = () => {
       <Card className="overflow-hidden bg-white">
         <div className="p-6">
           <div className="flex  flex-wrap items-center justify-start gap-3 mb-4">
+          
             {(admin === "admins" || checkPermission("insert")) && (
               <Button
                 className="bg-c-purple flex items-center gap-2 min-w-[140px] shadow-md"
@@ -271,7 +322,61 @@ const StudentBody = () => {
                 Create Student
               </Button>
             )}
-
+  {/* Import CSV Button */}
+            <input
+              type="file"
+              accept=".csv"
+              style={{ display: "none" }}
+              ref={fileInputRef}
+              onChange={e => {
+                if (e.target.files && e.target.files[0]) {
+                  setCsvFile(e.target.files[0]);
+                  setShowUploadBtn(true);
+                }
+              }}
+            />
+            <Button
+              className="bg-c-purple flex items-center gap-2 min-w-[140px] shadow-md"
+              onClick={() => fileInputRef.current && fileInputRef.current.click()}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-5 h-5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 4.5v15m7.5-7.5h-15"
+                />
+              </svg>
+              Import
+            </Button>
+            {csvFile && showUploadBtn && (
+              <Button
+                className="bg-green-600 flex items-center gap-2 min-w-[120px] shadow-md"
+                onClick={handleUploadCSV}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.5 12.75l6 6 9-13.5"
+                  />
+                </svg>
+                Upload
+              </Button>
+            )}
             <Button
               className="bg-c-purple flex items-center gap-2 min-w-[140px] shadow-md"
               onClick={handleExport}
